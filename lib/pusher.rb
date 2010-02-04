@@ -1,3 +1,4 @@
+require 'rest_client'
 class Pusher
 
   HOST = 'localhost'
@@ -17,7 +18,7 @@ class Pusher
     end
 
     def trigger(event_name, data)
-      data = data.to_json if data.respond_to?(:to_json) # ActiveSupport dependency: ugly
+      raise ArgumentError unless data.is_a?(Hash)
       begin
         @http.post(
         :event => event_name,

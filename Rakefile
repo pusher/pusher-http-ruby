@@ -5,12 +5,14 @@ begin
   require 'jeweler'
   Jeweler::Tasks.new do |gem|
     gem.name = "pusher"
-    gem.summary = %Q{TODO: one-line summary of your gem}
-    gem.description = %Q{TODO: longer description of your gem}
-    gem.email = "laurie@wildfalcon.com"
-    gem.homepage = "http://github.com/wildfalcon/pusher"
-    gem.authors = ["Wildfalcon"]
-    gem.add_development_dependency "thoughtbot-shoulda", ">= 0"
+    gem.summary = %Q{Pusher App client}
+    gem.description = %Q{Pusher App integartion: Use to make your app send messages to Pushr}
+    gem.email = "info@new-bamboo.co.uk"
+    gem.homepage = "http://github.com/newbamboo/pusher-gem"
+    gem.authors = ["Wildfalcon", "Ismasan"]
+    # gem.add_development_dependency "thoughtbot-shoulda", ">= 0"
+    gem.add_dependency "rest-client"
+    gem.add_dependency "json"
     # gem is a Gem::Specification... see http://www.rubygems.org/read/chapter/20 for additional settings
   end
   Jeweler::GemcutterTasks.new
