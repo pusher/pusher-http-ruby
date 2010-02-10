@@ -1,4 +1,5 @@
 require 'rest_client'
+require 'json'
 
 class Pusher
 
@@ -24,10 +25,10 @@ class Pusher
 
     def trigger(event_name, data)
       begin
-        @http.post(
+        @http.post(:event => JSON.generate({
           :event => event_name,
           :data => data
-        )
+        }))
       rescue StandardError => e
         handle_error e
       end
