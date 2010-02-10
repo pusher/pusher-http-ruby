@@ -1,8 +1,13 @@
 require 'rest_client'
 class Pusher
 
-  HOST = 'localhost'
-  PORT = '8081'
+  class << self
+    attr_accessor :host, :port
+  end
+
+
+  self.host = 'api.pusherapp.com'
+  self.port = 80
 
   def initialize(key)
     @key = key
@@ -14,7 +19,9 @@ class Pusher
 
   class Channel
     def initialize(key, id)
-      @http = RestClient::Resource.new "http://#{Pusher::HOST}:#{Pusher::PORT}/app/#{key}/channel/#{id}"
+      @http = RestClient::Resource.new(
+        "http://#{Pusher.host}:#{Pusher.port}/app/#{key}/channel/#{id}"
+      )
     end
 
     def trigger(event_name, data)
