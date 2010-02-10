@@ -1,20 +1,18 @@
 require 'rest_client'
+
 class Pusher
 
   class << self
     attr_accessor :host, :port
+    attr_writer :key, :secret
   end
-
 
   self.host = 'api.pusherapp.com'
   self.port = 80
 
-  def initialize(key)
-    @key = key
-  end
-
-  def [](channel_id)
-    Channel.new(@key, channel_id)
+  def self.[](channel_id)
+    @channels ||= {}
+    @channels[channel_id.to_sym] ||= Channel.new(@key, channel_id)
   end
 
   class Channel
@@ -25,11 +23,10 @@ class Pusher
     end
 
     def trigger(event_name, data)
-      raise ArgumentError unless data.is_a?(Hash)
       begin
         @http.post(
-        :event => event_name,
-        :data => data
+          :event => event_name,
+          :data => data
         )
       rescue StandardError => e
         handle_error e
@@ -38,9 +35,9 @@ class Pusher
 
     private
 
-    def handle_error(e)
-      puts e.inspect
-    end
+      def handle_error(e)
+        puts e.inspect
+      end
 
   end
 
