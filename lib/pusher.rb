@@ -13,7 +13,7 @@ class Pusher
 
   def self.[](channel_id)
     @channels ||= {}
-    @channels[channel_id.to_sym] ||= Channel.new(@key, channel_id)
+    @channels[channel_id.to_s] ||= Channel.new(@key, channel_id)
   end
 
   class Channel
