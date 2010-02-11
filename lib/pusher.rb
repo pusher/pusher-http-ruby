@@ -1,4 +1,3 @@
-require 'rest_client'
 require 'json'
 
 class Pusher
@@ -18,27 +17,39 @@ class Pusher
 
   class Channel
     def initialize(key, id)
-      @http = RestClient::Resource.new(
-        "http://#{Pusher.host}:#{Pusher.port}/app/#{key}/channel/#{id}"
-      )
+      @uri = URI.parse("http://#{Pusher.host}:#{Pusher.port}/app/#{key}/channel/#{id}")
+      @http = Net::HTTP.new(@uri.host, @uri.port)
     end
 
     def trigger(event_name, data)
       begin
-        @http.post(:event => JSON.generate({
-          :event => event_name,
-          :data => data
-        }))
+        @http.post( 
+          @uri.path, 
+          self.class.turn_into_json({
+            :event => event_name,
+            :data => data
+            }),
+          {'Content-Type'=> 'application/json'}
+        )
       rescue StandardError => e
         handle_error e
       end
     end
+    
+    def self.turn_into_json(data)
+      j = if Object.const_defined?('ActiveSupport')
+        data.to_json
+      else
+        JSON.generate(data)
+      end
+      j
+    end
 
     private
 
-      def handle_error(e)
-        puts e.inspect
-      end
+    def handle_error(e)
+      puts e.inspect
+    end
 
   end
 
