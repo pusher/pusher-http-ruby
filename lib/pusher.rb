@@ -23,13 +23,14 @@ class Pusher
       @http = Net::HTTP.new(@uri.host, @uri.port)
     end
 
-    def trigger(event_name, data)
+    def trigger(event_name, data, socket_id = nil)
       begin
         @http.post( 
           @uri.path, 
           self.class.turn_into_json({
             :event => event_name,
-            :data => data
+            :data => data,
+            :socket_id => socket_id
             }),
           {'Content-Type'=> 'application/json'}
         )
