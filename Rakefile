@@ -6,7 +6,7 @@ begin
   Jeweler::Tasks.new do |gem|
     gem.name = "pusher"
     gem.summary = %Q{Pusher App client}
-    gem.description = %Q{Pusher App integartion: Use to make your app send messages to Pushr}
+    gem.description = %Q{Pusher App integration: Use to make your app send messages to Pusher}
     gem.email = "info@new-bamboo.co.uk"
     gem.homepage = "http://github.com/newbamboo/pusher-gem"
     gem.authors = ["Wildfalcon", "Ismasan"]
