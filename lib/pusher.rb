@@ -1,20 +1,29 @@
 require 'json'
 require 'uri'
 require 'net/http'
+require 'logger'
 
 class Pusher
-
+  
+  class ArgumentError < ::ArgumentError
+    def message
+      'You must configure both Pusher.key and Pusher.secret in order to authenticate your Pusher app'
+    end
+  end
+  
   class << self
-    attr_accessor :host, :port
+    attr_accessor :host, :port, :logger
     attr_writer :key, :secret
   end
 
-  self.host = 'api.pusherapp.com'
-  self.port = 80
+  self.host   = 'api.pusherapp.com'
+  self.port   = 80
+  self.logger = Logger.new($STDOUT)
 
   def self.[](channel_id)
+    raise ArgumentError unless (@key && @secret)
     @channels ||= {}
-    @channels[channel_id.to_s] ||= Channel.new(@key, channel_id)
+    @channels[channel_id.to_s] = Channel.new(@key, channel_id)
   end
 
   class Channel
@@ -51,7 +60,7 @@ class Pusher
     private
 
     def handle_error(e)
-      puts e.inspect
+      self.logger.error(e.backtrace.join("\n"))
     end
 
   end

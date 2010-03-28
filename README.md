@@ -12,6 +12,11 @@ Request pusher credentials from <http://pusherapp.com> and configure the gem
 Trigger an event
 
     Pusher['arbitrary-channel-name'].trigger({:some => 'data'})
+    
+Logging
+Errors are logger to Pusher.logger. You can set that to any logger you want, ie:
+
+    Pusher.logger = Rails.logger
 
 Copyright
 ---------
