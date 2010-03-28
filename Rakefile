@@ -6,10 +6,10 @@ begin
   Jeweler::Tasks.new do |gem|
     gem.name = "pusher"
     gem.summary = %Q{Pusher App client}
-    gem.description = %Q{Pusher App integration: Use to make your app send messages to Pusher}
-    gem.email = "info@new-bamboo.co.uk"
+    gem.description = %Q{Wrapper for pusherapp.com REST api}
+    gem.email = "support@pusherapp.com"
     gem.homepage = "http://github.com/newbamboo/pusher-gem"
-    gem.authors = ["Wildfalcon", "Ismasan"]
+    gem.authors = ["New Bamboo"]
     # gem.add_development_dependency "thoughtbot-shoulda", ">= 0"
     gem.add_dependency "rest-client"
     gem.add_dependency "json"
