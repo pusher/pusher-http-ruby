@@ -57,7 +57,7 @@ describe Pusher do
       end
     end
     
-    describe 'Channel#trigger' do
+    describe 'calling Channel#trigger' do
 
       before do
         @http = mock('HTTP', :post => 'posting')
@@ -74,12 +74,16 @@ describe Pusher do
       
       describe 'POSTing to api.pusherapp.com' do
         
-        it 'should POST JSON to pusher API' do
-          @http.should_receive(:post).with(
-            '/app/12345678900000001/channel/test_channel',
-            "{\"event\":\"new_event\",\"data\":{\"last_name\":\"App\",\"name\":\"Pusher\"},\"socket_id\":null}",
-            {'Content-Type'=> 'application/json'}
-          )
+        it 'should POST JSON to p# usher API' do
+          @http.should_receive(:post) do |*args|
+            args[0].should == '/app/12345678900000001/channel/test_channel'
+            parsed = JSON.parse(args[1])
+            parsed['event'].should == 'new_event' 
+            parsed['data']['name'].should == 'Pusher'
+            parsed['data']['last_name'].should == 'App'
+            parsed['socket_id'].should == nil
+            args[2].should == {'Content-Type'=> 'application/json'}
+          end
           Pusher['test_channel'].trigger(
             'new_event',
             :name => 'Pusher',
