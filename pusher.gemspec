@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{pusher}
-  s.version = "0.3.1"
+  s.version = "0.3.2"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Wildfalcon", "Ismasan"]
-  s.date = %q{2010-03-28}
+  s.date = %q{2010-03-29}
   s.description = %q{Pusher App integration: Use to make your app send messages to Pusher}
   s.email = %q{info@new-bamboo.co.uk}
   s.extra_rdoc_files = [
@@ -24,6 +24,7 @@ Gem::Specification.new do |s|
      "Rakefile",
      "VERSION",
      "lib/pusher.rb",
+     "pusher.gemspec",
      "spec/pusher_spec.rb",
      "spec/spec.opts",
      "spec/spec_helper.rb"
