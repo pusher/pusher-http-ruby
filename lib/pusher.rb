@@ -21,7 +21,7 @@ class Pusher
   self.logger = Logger.new($STDOUT)
 
   def self.[](channel_id)
-    raise ArgumentError unless (@key && @secret)
+    raise ArgumentError unless @key
     @channels ||= {}
     @channels[channel_id.to_s] = Channel.new(@key, channel_id)
   end

@@ -22,16 +22,6 @@ describe Pusher do
     end
 
     describe 'with missing key' do
-      before {Pusher.secret = '1234567890'}
-      it 'should raise exception' do
-        lambda {
-          Pusher['test-channel']
-        }.should raise_error(Pusher::ArgumentError)
-      end
-    end
-
-    describe 'with missing secret' do
-      before {Pusher.key = '1234567890'}
       it 'should raise exception' do
         lambda {
           Pusher['test-channel']
