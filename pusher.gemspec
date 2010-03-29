@@ -8,10 +8,10 @@ Gem::Specification.new do |s|
   s.version = "0.3.2"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
-  s.authors = ["Wildfalcon", "Ismasan"]
+  s.authors = ["New Bamboo"]
   s.date = %q{2010-03-29}
-  s.description = %q{Pusher App integration: Use to make your app send messages to Pusher}
-  s.email = %q{info@new-bamboo.co.uk}
+  s.description = %q{Wrapper for pusherapp.com REST api}
+  s.email = %q{support@pusherapp.com}
   s.extra_rdoc_files = [
     "LICENSE",
      "README.md"
