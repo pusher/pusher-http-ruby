@@ -1,3 +1,5 @@
+require 'rubygems'
+
 require 'json'
 require 'uri'
 require 'net/http'
@@ -49,12 +51,11 @@ class Pusher
     end
     
     def self.turn_into_json(data)
-      j = if Object.const_defined?('ActiveSupport')
+      if Object.const_defined?('ActiveSupport')
         data.to_json
       else
         JSON.generate(data)
       end
-      j
     end
 
     private
