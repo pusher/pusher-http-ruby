@@ -9,7 +9,7 @@ class Pusher
   
   class ArgumentError < ::ArgumentError
     def message
-      'You must configure both Pusher.key and Pusher.secret in order to authenticate your Pusher app'
+      'You must configure both Pusher.key in order to authenticate your Pusher app'
     end
   end
   
