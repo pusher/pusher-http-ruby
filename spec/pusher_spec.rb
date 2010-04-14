@@ -10,6 +10,18 @@ describe Pusher do
     it 'should be preconfigured for pi port 80' do
       Pusher.port.should == 80
     end
+
+    it 'should use standard logger if no other logger if defined' do
+      Pusher.logger.debug('foo')
+      Pusher.logger.should be_kind_of(Logger)
+    end
+
+    it "can be configured to use any logger" do
+      logger = mock("ALogger")
+      logger.should_receive(:debug).with('foo')
+      Pusher.logger = logger
+      Pusher.logger.debug('foo')
+    end
   end
   
   describe 'unconfigured' do

@@ -3,7 +3,8 @@ require 'rubygems'
 require 'json'
 require 'uri'
 require 'net/http'
-require 'logger'
+
+autoload 'Logger', 'logger'
 
 class Pusher
   
@@ -15,12 +16,20 @@ class Pusher
   
   class << self
     attr_accessor :host, :port, :logger
+    attr_writer :logger
     attr_writer :key, :secret
+
+    def logger
+      @logger ||= begin
+        log = Logger.new(STDOUT)
+        log.level = Logger::INFO
+        log
+      end
+    end
   end
 
   self.host   = 'api.pusherapp.com'
   self.port   = 80
-  self.logger = Logger.new($STDOUT)
 
   def self.[](channel_id)
     raise ArgumentError unless @key
