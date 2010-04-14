@@ -4,17 +4,19 @@ Pusher gem
 Getting started
 ---------------
 
-Request pusher credentials from <http://pusherapp.com> and configure the gem
+After registering at <http://pusherapp.com> configure your app with the security credentials
 
     Pusher.key = 'your-pusher-key'
-    Pusher.secret = 'your-pusher-key'
+    Pusher.secret = 'your-pusher-secret'
 
 Trigger an event
 
     Pusher['arbitrary-channel-name'].trigger({:some => 'data'})
     
 Logging
-Errors are logger to Pusher.logger. You can set that to any logger you want, ie:
+-------
+
+Errors are logged to `Pusher.logger`. It will by default use `Logger` from stdlib, however you can assign any logger:
 
     Pusher.logger = Rails.logger
 
