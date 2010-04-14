@@ -24,7 +24,6 @@ Gem::Specification.new do |s|
      "Rakefile",
      "VERSION",
      "lib/pusher.rb",
-     "lib/pusher/channel.rb",
      "pusher.gemspec",
      "spec/pusher_spec.rb",
      "spec/spec.opts",
