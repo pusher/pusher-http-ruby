@@ -12,9 +12,9 @@ module Pusher
   end
 
   class << self
-    attr_accessor :host, :port, :logger
+    attr_accessor :host, :port
     attr_writer :logger
-    attr_writer :key, :secret
+    attr_accessor :key, :secret
 
     def logger
       @logger ||= begin
