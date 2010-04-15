@@ -48,7 +48,8 @@ module Pusher
     private
 
     def handle_error(e)
-      self.logger.error(e.backtrace.join("\n"))
+      Pusher.logger.error("#{e.message} (#{e.class})")
+      Pusher.logger.debug(e.backtrace.join("\n"))
     end
   end
 end
