@@ -6,6 +6,7 @@ Getting started
 
 After registering at <http://pusherapp.com> configure your app with the security credentials
 
+    Pusher.app_id = 'your-pusher-app-id'
     Pusher.key = 'your-pusher-key'
     Pusher.secret = 'your-pusher-secret'
 

@@ -37,6 +37,7 @@ describe Pusher do
 
   describe 'configured' do
     before do
+      Pusher.app_id = '20'
       Pusher.key    = '12345678900000001'
       Pusher.secret = '12345678900000001'
     end
@@ -57,7 +58,7 @@ describe Pusher do
     end
 
     describe 'Channel#trigger' do
-      before do
+      before :each do
         @http = mock('HTTP', :post => 'posting')
         Net::HTTP.stub!(:new).and_return @http
       end
@@ -69,13 +70,19 @@ describe Pusher do
       end
 
       it 'should POST JSON to pusher API' do
-        @http.should_receive(:post) do |path, data, headers|
-          path.should == '/app/12345678900000001/channel/test_channel'
+        @http.should_receive(:post) do |url, data, headers|
+          path, query = url.split('?')
+          path.should == '/app/20/channel/test_channel/event'
+
+          query_hash = Hash[*query.split(/&|=/)]
+          query_hash["name"].should == 'new_event'
+          query_hash["key"].should == Pusher.key
+
           parsed = JSON.parse(data)
-          parsed['event'].should == 'new_event'
-          parsed['data']['name'].should == 'Pusher'
-          parsed['data']['last_name'].should == 'App'
-          parsed['socket_id'].should == nil
+          parsed.should == {
+            "name" => 'Pusher',
+            "last_name" => 'App'
+          }
           headers.should == {'Content-Type'=> 'application/json'}
         end
         Pusher['test_channel'].trigger('new_event', {
