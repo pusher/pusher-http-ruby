@@ -37,6 +37,19 @@ module Authentication
       return @auth_hash.merge(:signature => base64_signature)
     end
 
+    def authenticate(token, authorization_header = nil)
+      # TODO: Parse authorization_header if supplied
+      # TODO: Check timestamp
+
+      signature = @query_hash.delete("signature") || @query_hash.delete(:signature)
+
+      hmac_signature = HMAC::SHA256.digest(token.secret, string_to_sign)
+      # chomp because the Base64 output ends with \n
+      base64_signature = Base64.encode64(hmac_signature).chomp
+
+      return base64_signature == signature
+    end
+
     private
 
       def string_to_sign
@@ -44,7 +57,7 @@ module Authentication
       end
 
       def parameter_string
-        param_hash = @query_hash.merge(@auth_hash)
+        param_hash = @query_hash.merge(@auth_hash || {})
         
         # Convert keys to lowercase strings
         hash = {}; param_hash.each { |k,v| hash[k.to_s.downcase] = v }

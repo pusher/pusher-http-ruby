@@ -59,4 +59,12 @@ describe Authentication do
     @request.send(:string_to_sign).should == "/some/path\ngo=here&key=key&query=params&timestamp=1234\nsome body text"
     @request.sign(@token)[:signature].should_not == @signature
   end
+
+  it "should verify requests" do
+    auth_hash = @request.sign(@token)
+    params = @request.query_hash.merge(auth_hash)
+
+    request_to_verify = Authentication::Request.new(@request.path, params)
+    request_to_verify.authenticate(@token).should == true
+  end
 end
