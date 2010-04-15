@@ -20,6 +20,7 @@ describe Pusher do
       logger.should_receive(:debug).with('foo')
       Pusher.logger = logger
       Pusher.logger.debug('foo')
+      Pusher.logger = nil
     end
 
     it 'should raise exception if key and secret are missing' do
@@ -82,6 +83,13 @@ describe Pusher do
           :name => 'Pusher',
           :last_name => 'App'
         })
+      end
+
+      it "should log failure if exception raised" do
+        @http.should_receive(:post).and_raise("Fail")
+        Pusher.logger.should_receive(:error).with("Fail (RuntimeError)")
+        Pusher.logger.should_receive(:debug) #backtrace
+        Pusher['test_channel'].trigger('new_event', 'Some data')
       end
     end
   end
