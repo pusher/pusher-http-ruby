@@ -22,18 +22,6 @@ describe Pusher do
       Pusher.logger.debug('foo')
       Pusher.logger = nil
     end
-
-    it 'should raise exception if key and secret are missing' do
-      lambda {
-        Pusher['test-channel']
-      }.should raise_error(ArgumentError)
-    end
-
-    it 'should raise exception if key is missing' do
-      lambda {
-        Pusher['test-channel']
-      }.should raise_error(ArgumentError)
-    end
   end
 
   describe 'configured' do
@@ -44,6 +32,7 @@ describe Pusher do
     end
 
     after do
+      Pusher.app_id = nil
       Pusher.key = nil
       Pusher.secret = nil
     end
@@ -55,6 +44,15 @@ describe Pusher do
 
       it 'should return a new channel' do
         @channel.should be_kind_of(Pusher::Channel)
+      end
+
+      %w{app_id key secret}.each do |config|
+        it "should raise exception if #{config} not configured" do
+          Pusher.send("#{config}=", nil)
+          lambda {
+            Pusher['test_channel']
+          }.should raise_error(ArgumentError)
+        end
       end
     end
 

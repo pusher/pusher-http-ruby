@@ -27,7 +27,7 @@ module Pusher
   self.port = 80
 
   def self.[](channel_name)
-    raise ArgumentError, 'You must configure both Pusher.key in order to authenticate your Pusher app' unless @key
+    raise ArgumentError, 'Missing configuration: please check that Pusher.app_id, Pusher.key, and Pusher.secret are all configured' unless @app_id && @key && @secret
     @channels ||= {}
     @channels[channel_name.to_s] = Channel.new(@app_id, channel_name)
   end
