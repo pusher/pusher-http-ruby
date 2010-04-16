@@ -88,6 +88,14 @@ describe Authentication do
       request.authenticate(@token).should == true
     end
 
+    it "should raise error if signature is not correct" do
+      @params[:auth_signature] =  'asdf'
+      request = Authentication::Request.new('/some/path', @params)
+      lambda {
+        request.authenticate!(@token)
+      }.should raise_error('Signature does not match: String to sign is "/some/path\nauth_key=key&auth_timestamp=1234&go=here&query=params"')
+    end
+
     it "should raise error if timestamp not available" do
       @params.delete(:auth_timestamp)
       request = Authentication::Request.new('/some/path', @params)

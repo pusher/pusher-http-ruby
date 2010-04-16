@@ -110,11 +110,13 @@ module Authentication
       end
 
       def validate_signature!(token)
-        hmac_signature = HMAC::SHA256.digest(token.secret, string_to_sign)
+        string = string_to_sign
+        hmac_signature = HMAC::SHA256.digest(token.secret, string)
         # chomp because the Base64 output ends with \n
         base64_signature = Base64.encode64(hmac_signature).chomp
         unless @auth_hash["auth_signature"] == base64_signature
-          raise AuthenticationError, "Signature does not match"
+          raise AuthenticationError, "Signature does not match: "\
+           "String to sign is #{string.inspect}"
         end
         return true
       end
