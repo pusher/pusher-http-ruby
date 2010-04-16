@@ -26,13 +26,13 @@ describe Pusher do
     it 'should raise exception if key and secret are missing' do
       lambda {
         Pusher['test-channel']
-      }.should raise_error(Pusher::ArgumentError)
+      }.should raise_error(ArgumentError)
     end
 
     it 'should raise exception if key is missing' do
       lambda {
         Pusher['test-channel']
-      }.should raise_error(Pusher::ArgumentError)
+      }.should raise_error(ArgumentError)
     end
   end
 

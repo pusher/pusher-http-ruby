@@ -5,12 +5,6 @@ require 'net/http'
 autoload 'Logger', 'logger'
 
 module Pusher
-  class ArgumentError < ::ArgumentError
-    def message
-      'You must configure both Pusher.key in order to authenticate your Pusher app'
-    end
-  end
-
   class << self
     attr_accessor :host, :port
     attr_writer :logger
@@ -33,7 +27,7 @@ module Pusher
   self.port = 80
 
   def self.[](channel_name)
-    raise ArgumentError unless @key
+    raise ArgumentError, 'You must configure both Pusher.key in order to authenticate your Pusher app' unless @key
     @channels ||= {}
     @channels[channel_name.to_s] = Channel.new(@app_id, channel_name)
   end
