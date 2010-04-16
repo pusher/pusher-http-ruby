@@ -76,11 +76,57 @@ describe Authentication do
     @request.sign(@token)[:signature].should_not == @signature
   end
 
-  it "should verify requests" do
-    auth_hash = @request.sign(@token)
-    params = @request.query_hash.merge(auth_hash)
+  describe "verification" do
+    before :each do
+      Time.stub!(:now).and_return(Time.at(1234))
+      @request.sign(@token)
+      @params = @request.query_hash.merge(@request.auth_hash)
+    end
 
-    request_to_verify = Authentication::Request.new(@request.path, params)
-    request_to_verify.authenticate(@token).should == true
+    it "should verify requests" do
+      request = Authentication::Request.new('/some/path', @params)
+      request.authenticate(@token).should == true
+    end
+
+    it "should raise error if timestamp not available" do
+      @params.delete(:auth_timestamp)
+      request = Authentication::Request.new('/some/path', @params)
+      lambda {
+        request.authenticate!(@token)
+      }.should raise_error('Timestamp required')
+    end
+
+    it "should raise error if timestamp has expired (default of 600s)" do
+      request = Authentication::Request.new('/some/path', @params)
+      Time.stub!(:now).and_return(Time.at(1234 + 599))
+      request.authenticate!(@token).should == true
+      Time.stub!(:now).and_return(Time.at(1234 - 599))
+      request.authenticate!(@token).should == true
+      Time.stub!(:now).and_return(Time.at(1234 + 600))
+      lambda {
+        request.authenticate!(@token)
+      }.should raise_error("Timestamp expired: Given timestamp (1970-01-01T00:20:34Z) not within 600s of server time (1970-01-01T00:30:34Z)")
+      Time.stub!(:now).and_return(Time.at(1234 - 600))
+      lambda {
+        request.authenticate!(@token)
+      }.should raise_error("Timestamp expired: Given timestamp (1970-01-01T00:20:34Z) not within 600s of server time (1970-01-01T00:10:34Z)")
+    end
+
+    it "should be possible to customize the timeout grace period" do
+      grace = 10
+      request = Authentication::Request.new('/some/path', @params)
+      Time.stub!(:now).and_return(Time.at(1234 + grace - 1))
+      request.authenticate!(@token, grace).should == true
+      Time.stub!(:now).and_return(Time.at(1234 + grace))
+      lambda {
+        request.authenticate!(@token, grace)
+      }.should raise_error("Timestamp expired: Given timestamp (1970-01-01T00:20:34Z) not within 10s of server time (1970-01-01T00:20:44Z)")
+    end
+
+    it "should be possible to skip timestamp check by passing nil" do
+      request = Authentication::Request.new('/some/path', @params)
+      Time.stub!(:now).and_return(Time.at(1234 + 1000))
+      request.authenticate!(@token, nil).should == true
+    end
   end
 end

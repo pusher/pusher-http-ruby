@@ -2,9 +2,11 @@ require 'hmac-sha2'
 require 'base64'
 
 module Authentication
+  class AuthenticationError < RuntimeError; end
+
   class Token
     attr_reader :key, :secret
-    
+
     def initialize(key, secret)
       @key, @secret = key, secret
     end
@@ -16,7 +18,10 @@ module Authentication
 
   class Request
     attr_accessor :path, :query_hash, :body
-    
+
+    # http://www.w3.org/TR/NOTE-datetime
+    ISO8601 = "%Y-%m-%dT%H:%M:%SZ"
+
     def initialize(path, query, body=nil)
       raise ArgumentError, "Expected string" unless path.kind_of?(String)
       raise ArgumentError, "Expected hash" unless query.kind_of?(Hash)
@@ -40,21 +45,30 @@ module Authentication
       hmac_signature = HMAC::SHA256.digest(token.secret, string_to_sign)
       # chomp because the Base64 output ends with \n
       @auth_hash[:auth_signature] = Base64.encode64(hmac_signature).chomp
-      
+
       return @auth_hash
     end
 
-    def authenticate(token, authorization_header = nil)
-      # TODO: Parse authorization_header if supplied
-      # TODO: Check timestamp
+    # Authenticates the request with a token
+    #
+    # Timestamp check: Unless timestamp_grace is set to nil (which will skip
+    # the timestamp check), an exception will be raised if timestamp is not
+    # supplied or if the timestamp provided is not within timestamp_grace of
+    # the real time (defaults to 10 minutes)
+    #
+    # Signature check: Raises an exception if the signature does not match the
+    # computed value
+    #
+    def authenticate!(token, timestamp_grace = 600)
+      validate_timestamp!(timestamp_grace)
+      validate_signature!(token)
+      true
+    end
 
-      signature = @auth_hash.delete("auth_signature")
-
-      hmac_signature = HMAC::SHA256.digest(token.secret, string_to_sign)
-      # chomp because the Base64 output ends with \n
-      base64_signature = Base64.encode64(hmac_signature).chomp
-
-      return base64_signature == signature
+    def authenticate(token, timestamp_grace = 600)
+      authenticate!(token, timestamp_grace)
+    rescue AuthenticationError
+      false
     end
 
     def auth_hash
@@ -70,7 +84,7 @@ module Authentication
 
       def parameter_string
         param_hash = @query_hash.merge(@auth_hash || {})
-        
+
         # Convert keys to lowercase strings
         hash = {}; param_hash.each { |k,v| hash[k.to_s.downcase] = v }
 
@@ -78,6 +92,31 @@ module Authentication
         hash.delete("auth_signature")
 
         hash.keys.sort.map { |k| "#{k}=#{hash[k]}" }.join("&")
+      end
+
+      def validate_timestamp!(grace)
+        return true if grace.nil?
+
+        timestamp = @auth_hash["auth_timestamp"]
+        error = (timestamp.to_i - Time.now.to_i).abs
+        raise AuthenticationError, "Timestamp required" unless timestamp
+        if error >= grace
+          raise AuthenticationError, "Timestamp expired: Given timestamp "\
+            "(#{Time.at(timestamp.to_i).utc.strftime(ISO8601)}) "\
+            "not within #{grace}s of server time "\
+            "(#{Time.now.utc.strftime(ISO8601)})"
+        end
+        return true
+      end
+
+      def validate_signature!(token)
+        hmac_signature = HMAC::SHA256.digest(token.secret, string_to_sign)
+        # chomp because the Base64 output ends with \n
+        base64_signature = Base64.encode64(hmac_signature).chomp
+        unless @auth_hash["auth_signature"] == base64_signature
+          raise AuthenticationError, "Signature does not match"
+        end
+        return true
       end
   end
 end
