@@ -21,7 +21,10 @@ module Authentication
       raise ArgumentError, "Expected string" unless path.kind_of?(String)
       raise ArgumentError, "Expected hash" unless query_hash.kind_of?(Hash)
 
-      @path, @query_hash, @body = path, query_hash, body
+      # Convert keys to lowercase strings
+      hash = {}; query_hash.each { |k,v| hash[k.to_s.downcase] = v }
+
+      @path, @query_hash, @body = path, hash, body
     end
 
     def sign(token)
@@ -41,7 +44,7 @@ module Authentication
       # TODO: Parse authorization_header if supplied
       # TODO: Check timestamp
 
-      signature = @query_hash.delete("signature") || @query_hash.delete(:signature)
+      signature = @query_hash.delete("signature")
 
       hmac_signature = HMAC::SHA256.digest(token.secret, string_to_sign)
       # chomp because the Base64 output ends with \n
