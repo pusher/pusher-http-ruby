@@ -35,9 +35,9 @@ module Authentication
 
       hmac_signature = HMAC::SHA256.digest(token.secret, string_to_sign)
       # chomp because the Base64 output ends with \n
-      base64_signature = Base64.encode64(hmac_signature).chomp
+      @auth_hash[:signature] = Base64.encode64(hmac_signature).chomp
       
-      return @auth_hash.merge(:signature => base64_signature)
+      return @auth_hash
     end
 
     def authenticate(token, authorization_header = nil)
@@ -53,6 +53,11 @@ module Authentication
       return base64_signature == signature
     end
 
+    def auth_hash
+      raise "Request not signed" unless @auth_hash && @auth_hash[:signature]
+      @auth_hash
+    end
+
     private
 
       def string_to_sign
@@ -64,6 +69,9 @@ module Authentication
         
         # Convert keys to lowercase strings
         hash = {}; param_hash.each { |k,v| hash[k.to_s.downcase] = v }
+
+        # Exclude signature from signature generation!
+        hash.delete("signature")
 
         hash.keys.sort.map { |k| "#{k}=#{hash[k]}" }.join("&")
       end

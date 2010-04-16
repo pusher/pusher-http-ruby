@@ -13,9 +13,25 @@ describe Authentication do
     @signature = @request.sign(@token)[:signature]
   end
 
-  it "should generate base64 encoded signature" do
+  it "should generate base64 encoded signature from correct key" do
     @request.send(:string_to_sign).should == "/some/path\ngo=here&key=key&query=params&timestamp=1234"
     @signature.should == 'HFGEMrVtuoawgUD0WDTAM/x0bQ6H56uX/tt51zSrZO8='
+  end
+
+  it "should make auth_hash available after request is signed" do
+    request = Authentication::Request.new('/some/path', {
+      "query" => "params"
+    })
+    lambda {
+      request.auth_hash
+    }.should raise_error('Request not signed')
+
+    request.sign(@token)
+    request.auth_hash.should == {
+      :signature=>"RKsOVCCUodmL4GyT44BNa1zVqPB1/UlnhTdg2owdRHQ=",
+      :key=>"key",
+      :timestamp=>1234
+    }
   end
 
   it "should cope with symbol keys" do
