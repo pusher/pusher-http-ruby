@@ -1,5 +1,7 @@
 require File.expand_path('../spec_helper', __FILE__)
 
+require 'webmock/rspec'
+
 describe Pusher do
   describe 'configuration' do
     it 'should be preconfigured for api host' do
@@ -58,44 +60,43 @@ describe Pusher do
 
     describe 'Channel#trigger!' do
       before :each do
-        @http = mock('HTTP', :post => 'posting')
-        Net::HTTP.stub!(:new).and_return @http
+        WebMock.stub_request(:post, %r{/app/20/channel/test_channel/event})
       end
 
       it 'should configure HTTP library to talk to pusher API' do
-        Net::HTTP.should_receive(:new).
-          with('api.pusherapp.com', 80).and_return @http
         Pusher['test_channel'].trigger('new_event', 'Some data')
+        WebMock.request(:post, %r{api.pusherapp.com}).should have_been_made
       end
 
       it 'should POST JSON to pusher API' do
-        @http.should_receive(:post) do |url, data, headers|
-          path, query = url.split('?')
-          path.should == '/app/20/channel/test_channel/event'
+        Pusher['test_channel'].trigger('new_event', {
+                                         :name => 'Pusher',
+                                         :last_name => 'App'
+        })
+        WebMock.request(:post, %r{/app/20/channel/test_channel/event}).
+        with do |req|
 
-          query_hash = Hash[*query.split(/&|=/)]
+          query_hash = req.uri.query_values
           query_hash["name"].should == 'new_event'
           query_hash["auth_key"].should == Pusher.key
           query_hash["auth_timestamp"].should_not be_nil
 
-          parsed = JSON.parse(data)
+          parsed = JSON.parse(req.body)
           parsed.should == {
             "name" => 'Pusher',
             "last_name" => 'App'
           }
-          headers.should == {'Content-Type'=> 'application/json'}
-        end
-        Pusher['test_channel'].trigger('new_event', {
-          :name => 'Pusher',
-          :last_name => 'App'
-        })
+
+          req.headers['Content-Type'].should == 'application/json'
+        end.should have_been_made
       end
 
       it "should propagate exception if exception raised" do
-        @http.should_receive(:post).and_raise("Fail")
+        WebMock.stub_request(:post, %r{/app/20/channel/test_channel/event}).
+          to_raise(RuntimeError)
         lambda {
           Pusher['test_channel'].trigger!('new_event', 'Some data')
-        }.should raise_error("Fail")
+        }.should raise_error(RuntimeError)
       end
     end
 
