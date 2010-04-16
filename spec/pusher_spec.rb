@@ -56,7 +56,7 @@ describe Pusher do
       end
     end
 
-    describe 'Channel#trigger' do
+    describe 'Channel#trigger!' do
       before :each do
         @http = mock('HTTP', :post => 'posting')
         Net::HTTP.stub!(:new).and_return @http
@@ -89,6 +89,20 @@ describe Pusher do
           :name => 'Pusher',
           :last_name => 'App'
         })
+      end
+
+      it "should propagate exception if exception raised" do
+        @http.should_receive(:post).and_raise("Fail")
+        lambda {
+          Pusher['test_channel'].trigger!('new_event', 'Some data')
+        }.should raise_error("Fail")
+      end
+    end
+
+    describe 'Channel#trigger' do
+      before :each do
+        @http = mock('HTTP', :post => 'posting')
+        Net::HTTP.stub!(:new).and_return @http
       end
 
       it "should log failure if exception raised" do

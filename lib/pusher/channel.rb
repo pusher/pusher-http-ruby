@@ -11,7 +11,7 @@ module Pusher
       @http = Net::HTTP.new(@uri.host, @uri.port)
     end
 
-    def trigger(event_name, data, socket_id = nil)
+    def trigger!(event_name, data, socket_id = nil)
       params = {
         :name => event_name,
       }
@@ -33,6 +33,10 @@ module Pusher
       @http.post("#{@uri.path}?#{@uri.query}", body, {
         'Content-Type'=> 'application/json'
       })
+    end
+
+    def trigger(event_name, data, socket_id = nil)
+      trigger!(event_name, data, socket_id)
     rescue StandardError => e
       handle_error e
     end
