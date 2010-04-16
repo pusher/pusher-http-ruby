@@ -76,7 +76,8 @@ describe Pusher do
 
           query_hash = Hash[*query.split(/&|=/)]
           query_hash["name"].should == 'new_event'
-          query_hash["key"].should == Pusher.key
+          query_hash["auth_key"].should == Pusher.key
+          query_hash["auth_timestamp"].should_not be_nil
 
           parsed = JSON.parse(data)
           parsed.should == {

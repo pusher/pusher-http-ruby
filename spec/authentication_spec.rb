@@ -10,12 +10,12 @@ describe Authentication do
       "query" => "params",
       "go" => "here"
     })
-    @signature = @request.sign(@token)[:signature]
+    @signature = @request.sign(@token)[:auth_signature]
   end
 
   it "should generate base64 encoded signature from correct key" do
-    @request.send(:string_to_sign).should == "/some/path\ngo=here&key=key&query=params&timestamp=1234"
-    @signature.should == 'HFGEMrVtuoawgUD0WDTAM/x0bQ6H56uX/tt51zSrZO8='
+    @request.send(:string_to_sign).should == "/some/path\nauth_key=key&auth_timestamp=1234&go=here&query=params"
+    @signature.should == 'i6+C/D+k/nUyLyPRlPRj6e32wLnIWRYXUsohTwImXws='
   end
 
   it "should make auth_hash available after request is signed" do
@@ -28,9 +28,9 @@ describe Authentication do
 
     request.sign(@token)
     request.auth_hash.should == {
-      :signature=>"RKsOVCCUodmL4GyT44BNa1zVqPB1/UlnhTdg2owdRHQ=",
-      :key=>"key",
-      :timestamp=>1234
+      :auth_signature => "QTtvm7KU6hF6esTvWm/0IPft1KdwI2VJ2n8MedYjfNA=",
+      :auth_key => "key",
+      :auth_timestamp => 1234
     }
   end
 
@@ -39,7 +39,7 @@ describe Authentication do
       :query => "params",
       :go => "here"
     }
-    @request.sign(@token)[:signature].should == @signature
+    @request.sign(@token)[:auth_signature].should == @signature
   end
 
   it "should cope with upcase keys (keys are lowercased before signing)" do
@@ -47,19 +47,19 @@ describe Authentication do
       "Query" => "params",
       "GO" => "here"
     }
-    @request.sign(@token)[:signature].should == @signature
+    @request.sign(@token)[:auth_signature].should == @signature
   end
 
   it "should use the path to generate signature" do
     @request.path = '/some/other/path'
-    @request.sign(@token)[:signature].should_not == @signature
+    @request.sign(@token)[:auth_signature].should_not == @signature
   end
 
   it "should use the query string keys to generate signature" do
     @request.query_hash = {
       "other" => "query"
     }
-    @request.sign(@token)[:signature].should_not == @signature
+    @request.sign(@token)[:auth_signature].should_not == @signature
   end
 
   it "should use the query string values to generate signature" do
@@ -72,7 +72,7 @@ describe Authentication do
 
   it "should also hash the body if included" do
     @request.body = 'some body text'
-    @request.send(:string_to_sign).should == "/some/path\ngo=here&key=key&query=params&timestamp=1234\nsome body text"
+    @request.send(:string_to_sign).should == "/some/path\nauth_key=key&auth_timestamp=1234&go=here&query=params\nsome body text"
     @request.sign(@token)[:signature].should_not == @signature
   end
 

@@ -17,25 +17,29 @@ module Authentication
   class Request
     attr_accessor :path, :query_hash, :body
     
-    def initialize(path, query_hash, body=nil)
+    def initialize(path, query, body=nil)
       raise ArgumentError, "Expected string" unless path.kind_of?(String)
-      raise ArgumentError, "Expected hash" unless query_hash.kind_of?(Hash)
+      raise ArgumentError, "Expected hash" unless query.kind_of?(Hash)
 
-      # Convert keys to lowercase strings
-      hash = {}; query_hash.each { |k,v| hash[k.to_s.downcase] = v }
+      query_hash = {}
+      auth_hash = {}
+      query.each do |key, v|
+        k = key.to_s.downcase
+        k[0..4] == 'auth_' ? auth_hash[k] = v : query_hash[k] = v
+      end
 
-      @path, @query_hash, @body = path, hash, body
+      @path, @query_hash, @auth_hash, @body = path, query_hash, auth_hash,body
     end
 
     def sign(token)
       @auth_hash = {
-        :key => token.key,
-        :timestamp => Time.now.to_i
+        :auth_key => token.key,
+        :auth_timestamp => Time.now.to_i
       }
 
       hmac_signature = HMAC::SHA256.digest(token.secret, string_to_sign)
       # chomp because the Base64 output ends with \n
-      @auth_hash[:signature] = Base64.encode64(hmac_signature).chomp
+      @auth_hash[:auth_signature] = Base64.encode64(hmac_signature).chomp
       
       return @auth_hash
     end
@@ -44,7 +48,7 @@ module Authentication
       # TODO: Parse authorization_header if supplied
       # TODO: Check timestamp
 
-      signature = @query_hash.delete("signature")
+      signature = @auth_hash.delete("auth_signature")
 
       hmac_signature = HMAC::SHA256.digest(token.secret, string_to_sign)
       # chomp because the Base64 output ends with \n
@@ -54,7 +58,7 @@ module Authentication
     end
 
     def auth_hash
-      raise "Request not signed" unless @auth_hash && @auth_hash[:signature]
+      raise "Request not signed" unless @auth_hash && @auth_hash[:auth_signature]
       @auth_hash
     end
 
@@ -71,7 +75,7 @@ module Authentication
         hash = {}; param_hash.each { |k,v| hash[k.to_s.downcase] = v }
 
         # Exclude signature from signature generation!
-        hash.delete("signature")
+        hash.delete("auth_signature")
 
         hash.keys.sort.map { |k| "#{k}=#{hash[k]}" }.join("&")
       end
