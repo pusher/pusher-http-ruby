@@ -5,6 +5,9 @@ require 'net/http'
 autoload 'Logger', 'logger'
 
 module Pusher
+  class Error < RuntimeError; end
+  class AuthenticationError < Error; end
+
   class << self
     attr_accessor :host, :port
     attr_writer :logger

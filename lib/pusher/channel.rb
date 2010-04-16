@@ -30,9 +30,20 @@ module Pusher
       query_params = params.merge(auth_hash)
       @uri.query = query_params.to_params
 
-      @http.post("#{@uri.path}?#{@uri.query}", body, {
+      response = @http.post("#{@uri.path}?#{@uri.query}", body, {
         'Content-Type'=> 'application/json'
       })
+
+      case response.code
+      when "200"
+        return true
+      when "401"
+        raise AuthenticationError, response.body.chomp
+      when "404"
+        raise Error, "Resource not found: app_id is probably invalid"
+      else
+        raise Error, "Unknown error in Pusher: #{response.body.chomp}"
+      end
     end
 
     def trigger(event_name, data, socket_id = nil)
