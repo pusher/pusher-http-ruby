@@ -10,10 +10,14 @@ After registering at <http://pusherapp.com> configure your app with the security
     Pusher.key = 'your-pusher-key'
     Pusher.secret = 'your-pusher-secret'
 
-Trigger an event
+Trigger an event. Channel and event names may only contain alphanumeric characters, '-' and '_'.
 
-    Pusher['arbitrary-channel-name'].trigger({:some => 'data'})
-    
+    Pusher['a_channel'].trigger('an_event', {:some => 'data'})
+
+Optionally a socket id may be provided. This will prevent the event from being triggered on this specific socket id (see <http://pusherapp.com/docs/duplicates> for more info).
+
+    Pusher['a_channel'].trigger('an_event', {:some => 'data'}, socket_id)
+
 Logging
 -------
 
