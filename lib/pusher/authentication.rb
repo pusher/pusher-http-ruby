@@ -59,16 +59,27 @@ module Authentication
     # Signature check: Raises an exception if the signature does not match the
     # computed value
     #
-    def authenticate!(token, timestamp_grace = 600)
+    def authenticate_by_token!(token, timestamp_grace = 600)
       validate_timestamp!(timestamp_grace)
       validate_signature!(token)
       true
     end
 
-    def authenticate(token, timestamp_grace = 600)
-      authenticate!(token, timestamp_grace)
+    def authenticate_by_token(token, timestamp_grace = 600)
+      authenticate_by_token!(token, timestamp_grace)
     rescue AuthenticationError
       false
+    end
+
+    def authenticate(timestamp_grace = 600, &block)
+      key = @auth_hash['auth_key']
+      raise AuthenticationError, "Authentication key required" unless key
+      token = yield key
+      unless token && token.secret
+        raise AuthenticationError, "Invalid authentication key"
+      end
+      authenticate_by_token!(token, timestamp_grace)
+      return token
     end
 
     def auth_hash

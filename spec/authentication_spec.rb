@@ -85,38 +85,38 @@ describe Authentication do
 
     it "should verify requests" do
       request = Authentication::Request.new('/some/path', @params)
-      request.authenticate(@token).should == true
+      request.authenticate_by_token(@token).should == true
     end
 
     it "should raise error if signature is not correct" do
       @params[:auth_signature] =  'asdf'
       request = Authentication::Request.new('/some/path', @params)
       lambda {
-        request.authenticate!(@token)
       }.should raise_error('Signature does not match: String to sign is "/some/path\nauth_key=key&auth_timestamp=1234&go=here&query=params"')
+        request.authenticate_by_token!(@token)
     end
 
     it "should raise error if timestamp not available" do
       @params.delete(:auth_timestamp)
       request = Authentication::Request.new('/some/path', @params)
       lambda {
-        request.authenticate!(@token)
+        request.authenticate_by_token!(@token)
       }.should raise_error('Timestamp required')
     end
 
     it "should raise error if timestamp has expired (default of 600s)" do
       request = Authentication::Request.new('/some/path', @params)
       Time.stub!(:now).and_return(Time.at(1234 + 599))
-      request.authenticate!(@token).should == true
+      request.authenticate_by_token!(@token).should == true
       Time.stub!(:now).and_return(Time.at(1234 - 599))
-      request.authenticate!(@token).should == true
+      request.authenticate_by_token!(@token).should == true
       Time.stub!(:now).and_return(Time.at(1234 + 600))
       lambda {
-        request.authenticate!(@token)
+        request.authenticate_by_token!(@token)
       }.should raise_error("Timestamp expired: Given timestamp (1970-01-01T00:20:34Z) not within 600s of server time (1970-01-01T00:30:34Z)")
       Time.stub!(:now).and_return(Time.at(1234 - 600))
       lambda {
-        request.authenticate!(@token)
+        request.authenticate_by_token!(@token)
       }.should raise_error("Timestamp expired: Given timestamp (1970-01-01T00:20:34Z) not within 600s of server time (1970-01-01T00:10:34Z)")
     end
 
@@ -124,17 +124,42 @@ describe Authentication do
       grace = 10
       request = Authentication::Request.new('/some/path', @params)
       Time.stub!(:now).and_return(Time.at(1234 + grace - 1))
-      request.authenticate!(@token, grace).should == true
+      request.authenticate_by_token!(@token, grace).should == true
       Time.stub!(:now).and_return(Time.at(1234 + grace))
       lambda {
-        request.authenticate!(@token, grace)
+        request.authenticate_by_token!(@token, grace)
       }.should raise_error("Timestamp expired: Given timestamp (1970-01-01T00:20:34Z) not within 10s of server time (1970-01-01T00:20:44Z)")
     end
 
     it "should be possible to skip timestamp check by passing nil" do
       request = Authentication::Request.new('/some/path', @params)
       Time.stub!(:now).and_return(Time.at(1234 + 1000))
-      request.authenticate!(@token, nil).should == true
+      request.authenticate_by_token!(@token, nil).should == true
+    end
+
+    describe "when used with optional block" do
+      it "should optionally take a block which yields the signature" do
+        request = Authentication::Request.new('/some/path', @params)
+        request.authenticate do |key|
+          key.should == @token.key
+          @token
+        end.should == @token
+      end
+
+      it "should raise error if no auth_key supplied to request" do
+        @params.delete(:auth_key)
+        request = Authentication::Request.new('/some/path', @params)
+        lambda {
+          request.authenticate { |key| nil }
+        }.should raise_error('Authentication key required')
+      end
+
+      it "should raise error if block returns nil (i.e. key doesn't exist)" do
+        request = Authentication::Request.new('/some/path', @params)
+        lambda {
+          request.authenticate { |key| nil }
+        }.should raise_error('Invalid authentication key')
+      end
     end
   end
 end
