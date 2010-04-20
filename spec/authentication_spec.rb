@@ -92,8 +92,8 @@ describe Authentication do
       @params[:auth_signature] =  'asdf'
       request = Authentication::Request.new('/some/path', @params)
       lambda {
-      }.should raise_error('Signature does not match: String to sign is "/some/path\nauth_key=key&auth_timestamp=1234&go=here&query=params"')
         request.authenticate_by_token!(@token)
+      }.should raise_error('Invalid signature: you should have sent Base64Encode(HmacSHA256("/some/path\nauth_key=key&auth_timestamp=1234&go=here&query=params", your_secret_key))')
     end
 
     it "should raise error if timestamp not available" do

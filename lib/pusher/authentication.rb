@@ -126,8 +126,8 @@ module Authentication
         # chomp because the Base64 output ends with \n
         base64_signature = Base64.encode64(hmac_signature).chomp
         unless @auth_hash["auth_signature"] == base64_signature
-          raise AuthenticationError, "Signature does not match: "\
-           "String to sign is #{string.inspect}"
+          raise AuthenticationError, "Invalid signature: you should have "\
+            "sent Base64Encode(HmacSHA256(#{string.inspect}, your_secret_key))"
         end
         return true
       end
