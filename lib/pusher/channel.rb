@@ -20,8 +20,13 @@ module Pusher
       body = case data
       when String
         data
-      when Hash
-        self.class.turn_into_json(data)
+      else
+        begin
+          self.class.turn_into_json(data)
+        rescue => e
+          Pusher.logger.error("Could not convert #{data.inspect} into JSON")
+          raise e
+        end
       end
 
       request = Authentication::Request.new(@uri.path, params, body)

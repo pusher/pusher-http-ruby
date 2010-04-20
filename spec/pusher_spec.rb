@@ -61,17 +61,18 @@ describe Pusher do
     describe 'Channel#trigger!' do
       before :each do
         WebMock.stub_request(:post, %r{/app/20/channel/test_channel/event})
+        @channel = Pusher['test_channel']
       end
 
       it 'should configure HTTP library to talk to pusher API' do
-        Pusher['test_channel'].trigger('new_event', 'Some data')
+        @channel.trigger!('new_event', 'Some data')
         WebMock.request(:post, %r{api.pusherapp.com}).should have_been_made
       end
 
-      it 'should POST JSON to pusher API' do
-        Pusher['test_channel'].trigger('new_event', {
-                                         :name => 'Pusher',
-                                         :last_name => 'App'
+      it 'should POST with the correct parameters and convert data to JSON' do
+        @channel.trigger!('new_event', {
+          :name => 'Pusher',
+          :last_name => 'App'
         })
         WebMock.request(:post, %r{/app/20/channel/test_channel/event}).
         with do |req|
@@ -89,6 +90,20 @@ describe Pusher do
 
           req.headers['Content-Type'].should == 'application/json'
         end.should have_been_made
+      end
+
+      it "should handle string data by sending unmodified in body" do
+        string = "foo\nbar\""
+        @channel.trigger!('new_event', string)
+        WebMock.request(:post, %r{/app/20/channel/test_channel/event}).with do |req|
+          req.body.should == "foo\nbar\""
+        end.should have_been_made
+      end
+
+      it "should raise error if an object sent which canot be JSONified" do
+        lambda {
+          @channel.trigger!('new_event', Object.new)
+        }.should raise_error(JSON::GeneratorError)
       end
 
       it "should propagate exception if exception raised" do
