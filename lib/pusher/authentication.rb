@@ -39,6 +39,7 @@ module Authentication
 
     def sign(token)
       @auth_hash = {
+        :auth_version => "1.0",
         :auth_key => token.key,
         :auth_timestamp => Time.now.to_i
       }
@@ -61,6 +62,7 @@ module Authentication
     # computed value
     #
     def authenticate_by_token!(token, timestamp_grace = 600)
+      validate_version!
       validate_timestamp!(timestamp_grace)
       validate_signature!(token)
       true
@@ -104,6 +106,12 @@ module Authentication
         hash.delete("auth_signature")
 
         hash.keys.sort.map { |k| "#{k}=#{hash[k]}" }.join("&")
+      end
+
+      def validate_version!
+        version = @auth_hash["auth_version"]
+        raise AuthenticationError, "Version required" unless version
+        raise AuthenticationError, "Version not supported" unless version == '1.0'
       end
 
       def validate_timestamp!(grace)

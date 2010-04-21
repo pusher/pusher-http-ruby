@@ -14,8 +14,8 @@ describe Authentication do
   end
 
   it "should generate base64 encoded signature from correct key" do
-    @request.send(:string_to_sign).should == "POST\n/some/path\nauth_key=key&auth_timestamp=1234&go=here&query=params"
-    @signature.should == 'h5NnvuVsGUHPau7kTj5nRDyi7yKXOEoZBIS3BOkuF40='
+    @request.send(:string_to_sign).should == "POST\n/some/path\nauth_key=key&auth_timestamp=1234&auth_version=1.0&go=here&query=params"
+    @signature.should == 'OyN5U6W6ZhmHXLsqLUPo2p71gk6KLGifYoSshbweoNs='
   end
 
   it "should make auth_hash available after request is signed" do
@@ -28,7 +28,8 @@ describe Authentication do
 
     request.sign(@token)
     request.auth_hash.should == {
-      :auth_signature => "DbSf85nfeBgUROt2gDZ3+UlnK5SXQyFUBL2nsdwJWpU=",
+      :auth_signature => "2gePzt1ylBtshzyqQNDWsgAOv8cAzugCsSjdIPcudOk=",
+      :auth_version => "1.0",
       :auth_key => "key",
       :auth_timestamp => 1234
     }
@@ -72,7 +73,7 @@ describe Authentication do
 
   it "should also hash the body if included" do
     @request.body = 'some body text'
-    @request.send(:string_to_sign).should == "POST\n/some/path\nauth_key=key&auth_timestamp=1234&go=here&query=params\nsome body text"
+    @request.send(:string_to_sign).should == "POST\n/some/path\nauth_key=key&auth_timestamp=1234&auth_version=1.0&go=here&query=params\nsome body text"
     @request.sign(@token)[:signature].should_not == @signature
   end
 
@@ -93,7 +94,7 @@ describe Authentication do
       request = Authentication::Request.new('POST', '/some/path', @params)
       lambda {
         request.authenticate_by_token!(@token)
-      }.should raise_error('Invalid signature: you should have sent Base64Encode(HmacSHA256("POST\n/some/path\nauth_key=key&auth_timestamp=1234&go=here&query=params", your_secret_key))')
+      }.should raise_error('Invalid signature: you should have sent Base64Encode(HmacSHA256("POST\n/some/path\nauth_key=key&auth_timestamp=1234&auth_version=1.0&go=here&query=params", your_secret_key))')
     end
 
     it "should raise error if timestamp not available" do
@@ -135,6 +136,22 @@ describe Authentication do
       request = Authentication::Request.new('POST', '/some/path', @params)
       Time.stub!(:now).and_return(Time.at(1234 + 1000))
       request.authenticate_by_token!(@token, nil).should == true
+    end
+    
+    it "should check that auth_version is supplied" do
+      @params.delete(:auth_version)
+      request = Authentication::Request.new('POST', '/some/path', @params)
+      lambda {
+        request.authenticate_by_token!(@token)
+      }.should raise_error('Version required')
+    end
+
+    it "should check that auth_version equals 1.0" do
+      @params[:auth_version] = '1.1'
+      request = Authentication::Request.new('POST', '/some/path', @params)
+      lambda {
+        request.authenticate_by_token!(@token)
+      }.should raise_error('Version not supported')
     end
 
     describe "when used with optional block" do
