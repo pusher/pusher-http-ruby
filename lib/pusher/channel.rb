@@ -40,7 +40,7 @@ module Pusher
       })
 
       case response.code
-      when "200"
+      when "202"
         return true
       when "401"
         raise AuthenticationError, response.body.chomp
