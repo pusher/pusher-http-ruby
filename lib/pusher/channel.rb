@@ -6,7 +6,7 @@ module Pusher
       @uri = URI::HTTP.build({
         :host => Pusher.host,
         :port => Pusher.port,
-        :path => "/app/#{app_id}/channel/#{name}/event"
+        :path => "/apps/#{app_id}/channels/#{name}/events"
       })
       @http = Net::HTTP.new(@uri.host, @uri.port)
     end
