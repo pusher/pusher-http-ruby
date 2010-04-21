@@ -22,7 +22,7 @@ module Authentication
     # http://www.w3.org/TR/NOTE-datetime
     ISO8601 = "%Y-%m-%dT%H:%M:%SZ"
 
-    def initialize(path, query, body=nil)
+    def initialize(method, path, query, body=nil)
       raise ArgumentError, "Expected string" unless path.kind_of?(String)
       raise ArgumentError, "Expected hash" unless query.kind_of?(Hash)
 
@@ -33,6 +33,7 @@ module Authentication
         k[0..4] == 'auth_' ? auth_hash[k] = v : query_hash[k] = v
       end
 
+      @method = method.upcase
       @path, @query_hash, @auth_hash, @body = path, query_hash, auth_hash,body
     end
 
@@ -90,7 +91,7 @@ module Authentication
     private
 
       def string_to_sign
-        [@path, parameter_string, @body].compact.join("\n")
+        [@method, @path, parameter_string, @body].compact.join("\n")
       end
 
       def parameter_string

@@ -6,7 +6,7 @@ describe Authentication do
 
     @token = Authentication::Token.new('key', 'secret')
 
-    @request = Authentication::Request.new('/some/path', {
+    @request = Authentication::Request.new('POST', '/some/path', {
       "query" => "params",
       "go" => "here"
     })
@@ -14,12 +14,12 @@ describe Authentication do
   end
 
   it "should generate base64 encoded signature from correct key" do
-    @request.send(:string_to_sign).should == "/some/path\nauth_key=key&auth_timestamp=1234&go=here&query=params"
-    @signature.should == 'i6+C/D+k/nUyLyPRlPRj6e32wLnIWRYXUsohTwImXws='
+    @request.send(:string_to_sign).should == "POST\n/some/path\nauth_key=key&auth_timestamp=1234&go=here&query=params"
+    @signature.should == 'h5NnvuVsGUHPau7kTj5nRDyi7yKXOEoZBIS3BOkuF40='
   end
 
   it "should make auth_hash available after request is signed" do
-    request = Authentication::Request.new('/some/path', {
+    request = Authentication::Request.new('POST', '/some/path', {
       "query" => "params"
     })
     lambda {
@@ -28,7 +28,7 @@ describe Authentication do
 
     request.sign(@token)
     request.auth_hash.should == {
-      :auth_signature => "QTtvm7KU6hF6esTvWm/0IPft1KdwI2VJ2n8MedYjfNA=",
+      :auth_signature => "DbSf85nfeBgUROt2gDZ3+UlnK5SXQyFUBL2nsdwJWpU=",
       :auth_key => "key",
       :auth_timestamp => 1234
     }
@@ -72,7 +72,7 @@ describe Authentication do
 
   it "should also hash the body if included" do
     @request.body = 'some body text'
-    @request.send(:string_to_sign).should == "/some/path\nauth_key=key&auth_timestamp=1234&go=here&query=params\nsome body text"
+    @request.send(:string_to_sign).should == "POST\n/some/path\nauth_key=key&auth_timestamp=1234&go=here&query=params\nsome body text"
     @request.sign(@token)[:signature].should_not == @signature
   end
 
@@ -84,28 +84,28 @@ describe Authentication do
     end
 
     it "should verify requests" do
-      request = Authentication::Request.new('/some/path', @params)
+      request = Authentication::Request.new('POST', '/some/path', @params)
       request.authenticate_by_token(@token).should == true
     end
 
     it "should raise error if signature is not correct" do
       @params[:auth_signature] =  'asdf'
-      request = Authentication::Request.new('/some/path', @params)
+      request = Authentication::Request.new('POST', '/some/path', @params)
       lambda {
         request.authenticate_by_token!(@token)
-      }.should raise_error('Invalid signature: you should have sent Base64Encode(HmacSHA256("/some/path\nauth_key=key&auth_timestamp=1234&go=here&query=params", your_secret_key))')
+      }.should raise_error('Invalid signature: you should have sent Base64Encode(HmacSHA256("POST\n/some/path\nauth_key=key&auth_timestamp=1234&go=here&query=params", your_secret_key))')
     end
 
     it "should raise error if timestamp not available" do
       @params.delete(:auth_timestamp)
-      request = Authentication::Request.new('/some/path', @params)
+      request = Authentication::Request.new('POST', '/some/path', @params)
       lambda {
         request.authenticate_by_token!(@token)
       }.should raise_error('Timestamp required')
     end
 
     it "should raise error if timestamp has expired (default of 600s)" do
-      request = Authentication::Request.new('/some/path', @params)
+      request = Authentication::Request.new('POST', '/some/path', @params)
       Time.stub!(:now).and_return(Time.at(1234 + 599))
       request.authenticate_by_token!(@token).should == true
       Time.stub!(:now).and_return(Time.at(1234 - 599))
@@ -122,7 +122,7 @@ describe Authentication do
 
     it "should be possible to customize the timeout grace period" do
       grace = 10
-      request = Authentication::Request.new('/some/path', @params)
+      request = Authentication::Request.new('POST', '/some/path', @params)
       Time.stub!(:now).and_return(Time.at(1234 + grace - 1))
       request.authenticate_by_token!(@token, grace).should == true
       Time.stub!(:now).and_return(Time.at(1234 + grace))
@@ -132,14 +132,14 @@ describe Authentication do
     end
 
     it "should be possible to skip timestamp check by passing nil" do
-      request = Authentication::Request.new('/some/path', @params)
+      request = Authentication::Request.new('POST', '/some/path', @params)
       Time.stub!(:now).and_return(Time.at(1234 + 1000))
       request.authenticate_by_token!(@token, nil).should == true
     end
 
     describe "when used with optional block" do
       it "should optionally take a block which yields the signature" do
-        request = Authentication::Request.new('/some/path', @params)
+        request = Authentication::Request.new('POST', '/some/path', @params)
         request.authenticate do |key|
           key.should == @token.key
           @token
@@ -148,14 +148,14 @@ describe Authentication do
 
       it "should raise error if no auth_key supplied to request" do
         @params.delete(:auth_key)
-        request = Authentication::Request.new('/some/path', @params)
+        request = Authentication::Request.new('POST', '/some/path', @params)
         lambda {
           request.authenticate { |key| nil }
         }.should raise_error('Authentication key required')
       end
 
       it "should raise error if block returns nil (i.e. key doesn't exist)" do
-        request = Authentication::Request.new('/some/path', @params)
+        request = Authentication::Request.new('POST', '/some/path', @params)
         lambda {
           request.authenticate { |key| nil }
         }.should raise_error('Invalid authentication key')

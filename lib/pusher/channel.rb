@@ -29,7 +29,7 @@ module Pusher
         end
       end
 
-      request = Authentication::Request.new(@uri.path, params, body)
+      request = Authentication::Request.new('POST', @uri.path, params, body)
       auth_hash = request.sign(Pusher.authentication_token)
 
       query_params = params.merge(auth_hash)
