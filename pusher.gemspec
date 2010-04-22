@@ -5,7 +5,7 @@
 
 Gem::Specification.new do |s|
   s.name = %q{pusher}
-  s.version = "0.4.0.beta"
+  s.version = "0.4.0.beta.1"
 
   s.required_rubygems_version = Gem::Requirement.new("> 1.3.1") if s.respond_to? :required_rubygems_version=
   s.authors = ["New Bamboo"]
@@ -50,17 +50,20 @@ Gem::Specification.new do |s|
     if Gem::Version.new(Gem::RubyGemsVersion) >= Gem::Version.new('1.2.0') then
       s.add_runtime_dependency(%q<json>, [">= 0"])
       s.add_runtime_dependency(%q<crack>, [">= 0"])
+      s.add_runtime_dependency(%q<ruby-hmac>, [">= 0"])
       s.add_development_dependency(%q<rspec>, [">= 1.2.9"])
       s.add_development_dependency(%q<webmock>, [">= 0"])
     else
       s.add_dependency(%q<json>, [">= 0"])
       s.add_dependency(%q<crack>, [">= 0"])
+      s.add_dependency(%q<ruby-hmac>, [">= 0"])
       s.add_dependency(%q<rspec>, [">= 1.2.9"])
       s.add_dependency(%q<webmock>, [">= 0"])
     end
   else
     s.add_dependency(%q<json>, [">= 0"])
     s.add_dependency(%q<crack>, [">= 0"])
+    s.add_dependency(%q<ruby-hmac>, [">= 0"])
     s.add_dependency(%q<rspec>, [">= 1.2.9"])
     s.add_dependency(%q<webmock>, [">= 0"])
   end
