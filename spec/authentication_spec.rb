@@ -71,12 +71,6 @@ describe Authentication do
     @request.sign(@token)[:signature].should_not == @signature
   end
 
-  it "should also hash the body if included" do
-    @request.body = 'some body text'
-    @request.send(:string_to_sign).should == "POST\n/some/path\nauth_key=key&auth_timestamp=1234&auth_version=1.0&go=here&query=params\nsome body text"
-    @request.sign(@token)[:signature].should_not == @signature
-  end
-
   describe "verification" do
     before :each do
       Time.stub!(:now).and_return(Time.at(1234))

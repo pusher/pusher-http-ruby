@@ -1,4 +1,5 @@
 require 'crack/core_extensions' # Used for Hash#to_params
+require 'digest/md5'
 
 module Pusher
   class Channel
@@ -28,8 +29,9 @@ module Pusher
           raise e
         end
       end
+      params[:body_md5] = Digest::MD5.hexdigest(body)
 
-      request = Authentication::Request.new('POST', @uri.path, params, body)
+      request = Authentication::Request.new('POST', @uri.path, params)
       auth_hash = request.sign(Pusher.authentication_token)
 
       query_params = params.merge(auth_hash)

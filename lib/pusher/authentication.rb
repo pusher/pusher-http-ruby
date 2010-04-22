@@ -17,12 +17,12 @@ module Authentication
   end
 
   class Request
-    attr_accessor :path, :query_hash, :body
+    attr_accessor :path, :query_hash
 
     # http://www.w3.org/TR/NOTE-datetime
     ISO8601 = "%Y-%m-%dT%H:%M:%SZ"
 
-    def initialize(method, path, query, body=nil)
+    def initialize(method, path, query)
       raise ArgumentError, "Expected string" unless path.kind_of?(String)
       raise ArgumentError, "Expected hash" unless query.kind_of?(Hash)
 
@@ -34,7 +34,7 @@ module Authentication
       end
 
       @method = method.upcase
-      @path, @query_hash, @auth_hash, @body = path, query_hash, auth_hash,body
+      @path, @query_hash, @auth_hash = path, query_hash, auth_hash
     end
 
     def sign(token)
@@ -93,7 +93,7 @@ module Authentication
     private
 
       def string_to_sign
-        [@method, @path, parameter_string, @body].compact.join("\n")
+        [@method, @path, parameter_string].join("\n")
       end
 
       def parameter_string
