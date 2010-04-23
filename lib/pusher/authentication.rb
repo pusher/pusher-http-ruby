@@ -44,9 +44,7 @@ module Authentication
         :auth_timestamp => Time.now.to_i
       }
 
-      hmac_signature = HMAC::SHA256.digest(token.secret, string_to_sign)
-      # chomp because the Base64 output ends with \n
-      @auth_hash[:auth_signature] = Base64.encode64(hmac_signature).chomp
+      @auth_hash[:auth_signature] = signature(token)
 
       return @auth_hash
     end
@@ -92,6 +90,10 @@ module Authentication
 
     private
 
+      def signature(token)
+        HMAC::SHA256.hexdigest(token.secret, string_to_sign)
+      end
+
       def string_to_sign
         [@method, @path, parameter_string].join("\n")
       end
@@ -130,13 +132,9 @@ module Authentication
       end
 
       def validate_signature!(token)
-        string = string_to_sign
-        hmac_signature = HMAC::SHA256.digest(token.secret, string)
-        # chomp because the Base64 output ends with \n
-        base64_signature = Base64.encode64(hmac_signature).chomp
-        unless @auth_hash["auth_signature"] == base64_signature
+        unless @auth_hash["auth_signature"] == signature(token)
           raise AuthenticationError, "Invalid signature: you should have "\
-            "sent Base64Encode(HmacSHA256(#{string.inspect}, your_secret_key))"
+            "sent HmacSHA256Hex(#{string_to_sign.inspect}, your_secret_key)"
         end
         return true
       end

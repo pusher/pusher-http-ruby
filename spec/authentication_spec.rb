@@ -15,7 +15,7 @@ describe Authentication do
 
   it "should generate base64 encoded signature from correct key" do
     @request.send(:string_to_sign).should == "POST\n/some/path\nauth_key=key&auth_timestamp=1234&auth_version=1.0&go=here&query=params"
-    @signature.should == 'OyN5U6W6ZhmHXLsqLUPo2p71gk6KLGifYoSshbweoNs='
+    @signature.should == '3b237953a5ba6619875cbb2a2d43e8da9ef5824e8a2c689f6284ac85bc1ea0db'
   end
 
   it "should make auth_hash available after request is signed" do
@@ -28,7 +28,7 @@ describe Authentication do
 
     request.sign(@token)
     request.auth_hash.should == {
-      :auth_signature => "2gePzt1ylBtshzyqQNDWsgAOv8cAzugCsSjdIPcudOk=",
+      :auth_signature => "da078fcedd72941b6c873caa40d0d6b2000ebfc700cee802b128dd20f72e74e9",
       :auth_version => "1.0",
       :auth_key => "key",
       :auth_timestamp => 1234
@@ -88,7 +88,7 @@ describe Authentication do
       request = Authentication::Request.new('POST', '/some/path', @params)
       lambda {
         request.authenticate_by_token!(@token)
-      }.should raise_error('Invalid signature: you should have sent Base64Encode(HmacSHA256("POST\n/some/path\nauth_key=key&auth_timestamp=1234&auth_version=1.0&go=here&query=params", your_secret_key))')
+      }.should raise_error('Invalid signature: you should have sent HmacSHA256Hex("POST\n/some/path\nauth_key=key&auth_timestamp=1234&auth_version=1.0&go=here&query=params", your_secret_key)')
     end
 
     it "should raise error if timestamp not available" do
