@@ -60,7 +60,9 @@ describe Pusher do
 
     describe 'Channel#trigger!' do
       before :each do
-        WebMock.stub_request(:post, %r{/app/20/channel/test_channel/event})
+        WebMock.stub_request(
+          :post, %r{/apps/20/channels/test_channel/events}
+        ).to_return(:status => 202)
         @channel = Pusher['test_channel']
       end
 
@@ -74,7 +76,7 @@ describe Pusher do
           :name => 'Pusher',
           :last_name => 'App'
         })
-        WebMock.request(:post, %r{/app/20/channel/test_channel/event}).
+        WebMock.request(:post, %r{/apps/20/channels/test_channel/events}).
         with do |req|
 
           query_hash = req.uri.query_values
@@ -95,7 +97,7 @@ describe Pusher do
       it "should handle string data by sending unmodified in body" do
         string = "foo\nbar\""
         @channel.trigger!('new_event', string)
-        WebMock.request(:post, %r{/app/20/channel/test_channel/event}).with do |req|
+        WebMock.request(:post, %r{/apps/20/channels/test_channel/events}).with do |req|
           req.body.should == "foo\nbar\""
         end.should have_been_made
       end
@@ -107,32 +109,37 @@ describe Pusher do
       end
 
       it "should propagate exception if exception raised" do
-        WebMock.stub_request(:post, %r{/app/20/channel/test_channel/event}).
-          to_raise(RuntimeError)
+        WebMock.stub_request(
+          :post, %r{/apps/20/channels/test_channel/events}
+        ).to_raise(RuntimeError)
         lambda {
           Pusher['test_channel'].trigger!('new_event', 'Some data')
         }.should raise_error(RuntimeError)
       end
 
       it "should raise AuthenticationError if pusher returns 401" do
-        WebMock.stub_request(:post, %r{/app/20/channel/test_channel/event}).
-          to_return(:status => 401)
+        WebMock.stub_request(
+          :post, 
+          %r{/apps/20/channels/test_channel/events}
+        ).to_return(:status => 401)
         lambda {
           Pusher['test_channel'].trigger!('new_event', 'Some data')
         }.should raise_error(Pusher::AuthenticationError)
       end
 
       it "should raise Pusher::Error if pusher returns 404" do
-        WebMock.stub_request(:post, %r{/app/20/channel/test_channel/event}).
-          to_return(:status => 404)
+        WebMock.stub_request(
+          :post, %r{/apps/20/channels/test_channel/events}
+        ).to_return(:status => 404)
         lambda {
           Pusher['test_channel'].trigger!('new_event', 'Some data')
         }.should raise_error(Pusher::Error, 'Resource not found: app_id is probably invalid')
       end
 
       it "should raise Pusher::Error if pusher returns 500" do
-        WebMock.stub_request(:post, %r{/app/20/channel/test_channel/event}).
-          to_return(:status => 500, :body => "some error")
+        WebMock.stub_request(
+          :post, %r{/apps/20/channels/test_channel/events}
+        ).to_return(:status => 500, :body => "some error")
         lambda {
           Pusher['test_channel'].trigger!('new_event', 'Some data')
         }.should raise_error(Pusher::Error, 'Unknown error in Pusher: some error')
