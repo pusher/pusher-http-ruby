@@ -5,16 +5,13 @@ require 'net/http'
 autoload 'Logger', 'logger'
 
 module Pusher
-  class ArgumentError < ::ArgumentError
-    def message
-      'You must configure both Pusher.key in order to authenticate your Pusher app'
-    end
-  end
+  class Error < RuntimeError; end
+  class AuthenticationError < Error; end
 
   class << self
     attr_accessor :host, :port
     attr_writer :logger
-    attr_accessor :key, :secret
+    attr_accessor :app_id, :key, :secret
 
     def logger
       @logger ||= begin
@@ -23,16 +20,21 @@ module Pusher
         log
       end
     end
+    
+    def authentication_token
+      Authentication::Token.new(@key, @secret)
+    end
   end
 
   self.host = 'api.pusherapp.com'
   self.port = 80
 
-  def self.[](channel_id)
-    raise ArgumentError unless @key
+  def self.[](channel_name)
+    raise ArgumentError, 'Missing configuration: please check that Pusher.app_id, Pusher.key, and Pusher.secret are all configured' unless @app_id && @key && @secret
     @channels ||= {}
-    @channels[channel_id.to_s] = Channel.new(@key, channel_id)
+    @channels[channel_name.to_s] = Channel.new(@app_id, channel_name)
   end
 end
 
 require 'pusher/channel'
+require 'pusher/authentication'

@@ -12,7 +12,10 @@ begin
     gem.authors = ["New Bamboo"]
     # gem.add_development_dependency "thoughtbot-shoulda", ">= 0"
     gem.add_dependency "json"
+    gem.add_dependency "crack"
+    gem.add_dependency "ruby-hmac"
     gem.add_development_dependency "rspec", ">= 1.2.9"
+    gem.add_development_dependency "webmock"
     # gem is a Gem::Specification... see http://www.rubygems.org/read/chapter/20 for additional settings
   end
   Jeweler::GemcutterTasks.new
