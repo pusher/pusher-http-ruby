@@ -29,9 +29,8 @@ module Pusher
   self.app_id = ENV["PUSHER_APP_ID"] if ENV["PUSHER_APP_ID"]
   self.key    = ENV["PUSHER_KEY"]    if ENV["PUSHER_KEY"]
   self.secret = ENV["PUSHER_SECRET"] if ENV["PUSHER_SECRET"]
-  self.host = ENV["PUSHER_API_HOST"] or 'api.pusherapp.com'
-  self.port = ENV["PUSHER_API_PORT"] or 80
-
+  self.host = ENV["PUSHER_API_HOST"] || 'api.pusherapp.com'
+  self.port = ENV["PUSHER_API_PORT"] || 80
 
   def self.[](channel_name)
     raise ArgumentError, 'Missing configuration: please check that Pusher.app_id, Pusher.key, and Pusher.secret are all configured' unless @app_id && @key && @secret
