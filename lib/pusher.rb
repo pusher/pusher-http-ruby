@@ -1,7 +1,3 @@
-require 'json'
-require 'uri'
-require 'net/http'
-
 autoload 'Logger', 'logger'
 
 module Pusher

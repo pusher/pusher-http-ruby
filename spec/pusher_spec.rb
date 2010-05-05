@@ -1,6 +1,8 @@
 require File.expand_path('../spec_helper', __FILE__)
 
 require 'webmock/rspec'
+require 'em-http'
+require 'em-http/mock'
 
 describe Pusher do
   describe 'configuration' do
@@ -164,6 +166,77 @@ describe Pusher do
         Pusher.logger.should_receive(:error).with("Fail (RuntimeError)")
         Pusher.logger.should_receive(:debug) #backtrace
         Pusher['test_channel'].trigger('new_event', 'Some data')
+      end
+    end
+
+    describe "Channgel#trigger_async" do
+      before :each do
+        EM::HttpRequest = EM::MockHttpRequest
+        EM::HttpRequest.reset_registry!
+        EM::HttpRequest.reset_counts!
+        EM::HttpRequest.pass_through_requests = false
+      end
+
+      it "should return a deferrable which succeeds in success case" do
+        # Yeah, mocking EM::MockHttpRequest isn't that feature rich :)
+        Time.stub(:now).and_return(123)
+
+        url = 'http://api.pusherapp.com:80/apps/20/channels/test_channel/events?auth_signature=0ffe2a3749f886ca69c3f516a30c7bc9a12d2ebd8bda5b718b90ad58507c8261&body_md5=5b82f8bf4df2bfb0e66ccaa7306fd024&auth_version=1.0&auth_key=12345678900000001&name=new_event&auth_timestamp=123'
+
+        data = <<-RESPONSE.gsub(/^ +/, '')
+          HTTP/1.1 202 Accepted
+          Content-Type: text/html
+          Content-Length: 13
+          Connection: keep-alive
+          Server: thin 1.2.7 codename No Hup
+
+          202 ACCEPTED
+        RESPONSE
+
+        EM::HttpRequest.register(url, :post, data)
+
+        EM.run {
+          d = Pusher['test_channel'].trigger_async('new_event', 'Some data')
+          d.callback {
+            EM::HttpRequest.count(url, :post).should == 1
+            EM.stop
+          }
+          d.errback {
+            fail
+            EM.stop
+          }
+        }
+      end
+
+      it "should return a deferrable which fails (with exception) in fail case" do
+        # Yeah, mocking EM::MockHttpRequest isn't that feature rich :)
+        Time.stub(:now).and_return(123)
+
+        url = 'http://api.pusherapp.com:80/apps/20/channels/test_channel/events?auth_signature=0ffe2a3749f886ca69c3f516a30c7bc9a12d2ebd8bda5b718b90ad58507c8261&body_md5=5b82f8bf4df2bfb0e66ccaa7306fd024&auth_version=1.0&auth_key=12345678900000001&name=new_event&auth_timestamp=123'
+
+        data = <<-RESPONSE.gsub(/^ +/, '')
+          HTTP/1.1 401 Unauthorized
+          Content-Type: text/html
+          Content-Length: 130
+          Connection: keep-alive
+          Server: thin 1.2.7 codename No Hup
+
+          401 UNAUTHORIZED: Timestamp expired: Given timestamp (2010-05-05T11:24:42Z) not within 600s of server time (2010-05-05T11:51:42Z)
+        RESPONSE
+
+        EM::HttpRequest.register(url, :post, data)
+
+        EM.run {
+          d = Pusher['test_channel'].trigger_async('new_event', 'Some data')
+          d.callback {
+            fail
+          }
+          d.errback { |error|
+            EM::HttpRequest.count(url, :post).should == 1
+            error.should be_kind_of(Pusher::AuthenticationError)
+            EM.stop
+          }
+        }
       end
     end
   end
