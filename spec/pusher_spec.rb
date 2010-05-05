@@ -170,6 +170,28 @@ describe Pusher do
     end
 
     describe "Channgel#trigger_async" do
+      #in order to match URLs when testing http requests
+      #override the method that converts query hash to string
+      #to include a sort so URL is consistent
+      module EventMachine
+        module HttpEncoding
+                  def encode_query(path, query, uri_query)
+            encoded_query = if query.kind_of?(Hash)
+              query.sort{|a, b| a.to_s <=> b.to_s}.
+              map { |k, v| encode_param(k, v) }.
+              join('&')
+            else
+              query.to_s
+            end
+            if !uri_query.to_s.empty?
+              encoded_query = [encoded_query, uri_query].reject {|part| part.empty?}.join("&")
+            end
+            return path if encoded_query.to_s.empty?
+            "#{path}?#{encoded_query}"
+          end
+        end
+      end
+      
       before :each do
         EM::HttpRequest = EM::MockHttpRequest
         EM::HttpRequest.reset_registry!
@@ -181,7 +203,7 @@ describe Pusher do
         # Yeah, mocking EM::MockHttpRequest isn't that feature rich :)
         Time.stub(:now).and_return(123)
 
-        url = 'http://api.pusherapp.com:80/apps/20/channels/test_channel/events?auth_signature=0ffe2a3749f886ca69c3f516a30c7bc9a12d2ebd8bda5b718b90ad58507c8261&body_md5=5b82f8bf4df2bfb0e66ccaa7306fd024&auth_version=1.0&auth_key=12345678900000001&name=new_event&auth_timestamp=123'
+        url = 'http://api.pusherapp.com:80/apps/20/channels/test_channel/events?auth_key=12345678900000001&auth_signature=0ffe2a3749f886ca69c3f516a30c7bc9a12d2ebd8bda5b718b90ad58507c8261&auth_timestamp=123&auth_version=1.0&body_md5=5b82f8bf4df2bfb0e66ccaa7306fd024&name=new_event'
 
         data = <<-RESPONSE.gsub(/^ +/, '')
           HTTP/1.1 202 Accepted
@@ -212,7 +234,7 @@ describe Pusher do
         # Yeah, mocking EM::MockHttpRequest isn't that feature rich :)
         Time.stub(:now).and_return(123)
 
-        url = 'http://api.pusherapp.com:80/apps/20/channels/test_channel/events?auth_signature=0ffe2a3749f886ca69c3f516a30c7bc9a12d2ebd8bda5b718b90ad58507c8261&body_md5=5b82f8bf4df2bfb0e66ccaa7306fd024&auth_version=1.0&auth_key=12345678900000001&name=new_event&auth_timestamp=123'
+        url = 'http://api.pusherapp.com:80/apps/20/channels/test_channel/events?auth_key=12345678900000001&auth_signature=0ffe2a3749f886ca69c3f516a30c7bc9a12d2ebd8bda5b718b90ad58507c8261&auth_timestamp=123&auth_version=1.0&body_md5=5b82f8bf4df2bfb0e66ccaa7306fd024&name=new_event'
 
         data = <<-RESPONSE.gsub(/^ +/, '')
           HTTP/1.1 401 Unauthorized
