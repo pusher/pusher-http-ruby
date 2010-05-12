@@ -30,7 +30,7 @@ Asynchronous triggering
 
 To avoid blocking in a typical web application, if you are running inside eventmachine (for example if you use the thin server), you may wish to use the `trigger_async` method which uses the em-http-request gem to make api requests to pusher. It returns a deferrable which you can optionally bind to with success and failure callbacks. This is not a gem dependency, so you will need to install it manually.
 
-    d = Pusher['a_channel'].trigger('an_event', {:some => 'data'}, socket_id)
+    d = Pusher['a_channel'].trigger_async('an_event', {:some => 'data'}, socket_id)
     d.callback {
       # Do something on success
     }
