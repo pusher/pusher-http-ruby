@@ -1,4 +1,5 @@
 require 'crack/core_extensions' # Used for Hash#to_params
+require 'signature'
 require 'digest/md5'
 
 require 'json'
@@ -99,7 +100,7 @@ module Pusher
       end
       params[:body_md5] = Digest::MD5.hexdigest(body)
 
-      request = Authentication::Request.new('POST', @uri.path, params)
+      request = Signature::Request.new('POST', @uri.path, params)
       auth_hash = request.sign(Pusher.authentication_token)
 
       query_params = params.merge(auth_hash)
