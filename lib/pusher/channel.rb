@@ -22,13 +22,13 @@ module Pusher
       require 'em-http' unless defined?(EventMachine::HttpRequest)
       
       @http_async ||= EventMachine::HttpRequest.new(@uri)
-      
-      query, body = construct_request(event_name, data, socket_id)
-      
+
+      request = Pusher::Request.new(@uri, event_name, data, socket_id)
+
       deferrable = EM::DefaultDeferrable.new
       
       http = @http_async.post({
-        :query => query, :timeout => 2, :body => body
+        :query => request.query, :timeout => 2, :body => request.body
       })
       http.callback {
         begin
@@ -50,12 +50,11 @@ module Pusher
       require 'net/http' unless defined?(Net::HTTP)
 
       @http_sync ||= Net::HTTP.new(@uri.host, @uri.port)
-      
-      query, body = construct_request(event_name, data, socket_id)
-      
-      response = @http_sync.post("#{@uri.path}?#{query.to_params}", body, {
-        'Content-Type'=> 'application/json'
-      })
+
+      request = Pusher::Request.new(@uri, event_name, data, socket_id)
+
+      response = @http_sync.post("#{@uri.path}?#{request.query.to_params}",
+        request.body, { 'Content-Type'=> 'application/json' })
 
       handle_response(response.code.to_i, response.body.chomp)
     end
@@ -66,48 +65,13 @@ module Pusher
       handle_error e
     end
 
-    def self.turn_into_json(data)
-      if Object.const_defined?('ActiveSupport')
-        data.to_json
-      else
-        JSON.generate(data)
-      end
-    end
-
     private
 
     def handle_error(e)
       Pusher.logger.error("#{e.message} (#{e.class})")
       Pusher.logger.debug(e.backtrace.join("\n"))
     end
-    
-    def construct_request(event_name, data, socket_id)
-      params = {
-        :name => event_name,
-      }
-      params[:socket_id] = socket_id if socket_id
 
-      body = case data
-      when String
-        data
-      else
-        begin
-          self.class.turn_into_json(data)
-        rescue => e
-          Pusher.logger.error("Could not convert #{data.inspect} into JSON")
-          raise e
-        end
-      end
-      params[:body_md5] = Digest::MD5.hexdigest(body)
-
-      request = Signature::Request.new('POST', @uri.path, params)
-      auth_hash = request.sign(Pusher.authentication_token)
-
-      query_params = params.merge(auth_hash)
-      
-      return query_params, body
-    end
-    
     def handle_response(status_code, body)
       case status_code
       when 202

@@ -36,3 +36,4 @@ module Pusher
 end
 
 require 'pusher/channel'
+require 'pusher/request'
