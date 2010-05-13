@@ -1,12 +1,16 @@
 require 'crack/core_extensions' # Used for Hash#to_params
 require 'digest/md5'
+require 'hmac-sha2'
 
 require 'json'
 require 'uri'
 
 module Pusher
   class Channel
+    attr_reader :name
+
     def initialize(app_id, name)
+      @name = name
       @uri = URI::HTTP.build({
         :host => Pusher.host,
         :port => Pusher.port,
@@ -71,6 +75,15 @@ module Pusher
       else
         JSON.generate(data)
       end
+    end
+
+    def socket_auth(socket_id)
+      raise "Invalid socket_id" if socket_id.nil? || socket_id.empty?
+
+      string_to_sign = "#{socket_id}:#{name}"
+      puts "Signing #{string_to_sign}"
+      token = Pusher.authentication_token
+      return HMAC::SHA256.hexdigest(token.secret, string_to_sign)
     end
 
     private

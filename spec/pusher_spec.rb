@@ -169,7 +169,7 @@ describe Pusher do
       end
     end
 
-    describe "Channgel#trigger_async" do
+    describe "Channel#trigger_async" do
       #in order to match URLs when testing http requests
       #override the method that converts query hash to string
       #to include a sort so URL is consistent
@@ -259,6 +259,26 @@ describe Pusher do
             EM.stop
           }
         }
+      end
+    end
+
+    describe "Channel#socket_auth" do
+      before :each do
+        @channel = Pusher['test_channel']
+      end
+
+      it "should return an authentication string given a socket id" do
+        auth = @channel.socket_auth('socketid')
+
+        auth.should == '827076f551e22451357939e4c7bb1200de29f921d5bf80b40d71668f9cd61c40'
+      end
+
+      it "should raise error if authentication is invalid" do
+        [nil, ''].each do |invalid|
+          lambda {
+            @channel.socket_auth(invalid)
+          }.should raise_error
+        end
       end
     end
   end
