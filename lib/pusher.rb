@@ -18,7 +18,7 @@ module Pusher
     end
     
     def authentication_token
-      Authentication::Token.new(@key, @secret)
+      Signature::Token.new(@key, @secret)
     end
   end
 
@@ -36,4 +36,4 @@ module Pusher
 end
 
 require 'pusher/channel'
-require 'pusher/authentication'
+require 'pusher/request'
