@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{pusher}
-  s.version = "0.4.3"
+  s.version = "0.5.0"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["New Bamboo"]
-  s.date = %q{2010-05-11}
+  s.date = %q{2010-05-14}
   s.description = %q{Wrapper for pusherapp.com REST api}
   s.email = %q{support@pusherapp.com}
   s.extra_rdoc_files = [
@@ -24,10 +24,9 @@ Gem::Specification.new do |s|
      "Rakefile",
      "VERSION",
      "lib/pusher.rb",
-     "lib/pusher/authentication.rb",
      "lib/pusher/channel.rb",
+     "lib/pusher/request.rb",
      "pusher.gemspec",
-     "spec/authentication_spec.rb",
      "spec/pusher_spec.rb",
      "spec/spec.opts",
      "spec/spec_helper.rb"
@@ -38,8 +37,7 @@ Gem::Specification.new do |s|
   s.rubygems_version = %q{1.3.6}
   s.summary = %q{Pusher App client}
   s.test_files = [
-    "spec/authentication_spec.rb",
-     "spec/pusher_spec.rb",
+    "spec/pusher_spec.rb",
      "spec/spec_helper.rb"
   ]
 
@@ -51,12 +49,14 @@ Gem::Specification.new do |s|
       s.add_runtime_dependency(%q<json>, [">= 0"])
       s.add_runtime_dependency(%q<crack>, [">= 0"])
       s.add_runtime_dependency(%q<ruby-hmac>, [">= 0"])
+      s.add_runtime_dependency(%q<signature>, [">= 0"])
       s.add_development_dependency(%q<rspec>, [">= 1.2.9"])
       s.add_development_dependency(%q<webmock>, [">= 0"])
     else
       s.add_dependency(%q<json>, [">= 0"])
       s.add_dependency(%q<crack>, [">= 0"])
       s.add_dependency(%q<ruby-hmac>, [">= 0"])
+      s.add_dependency(%q<signature>, [">= 0"])
       s.add_dependency(%q<rspec>, [">= 1.2.9"])
       s.add_dependency(%q<webmock>, [">= 0"])
     end
@@ -64,6 +64,7 @@ Gem::Specification.new do |s|
     s.add_dependency(%q<json>, [">= 0"])
     s.add_dependency(%q<crack>, [">= 0"])
     s.add_dependency(%q<ruby-hmac>, [">= 0"])
+    s.add_dependency(%q<signature>, [">= 0"])
     s.add_dependency(%q<rspec>, [">= 1.2.9"])
     s.add_dependency(%q<webmock>, [">= 0"])
   end
