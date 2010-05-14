@@ -270,7 +270,7 @@ describe Pusher do
       it "should return an authentication string given a socket id" do
         auth = @channel.socket_auth('socketid')
 
-        auth.should == '827076f551e22451357939e4c7bb1200de29f921d5bf80b40d71668f9cd61c40'
+        auth.should == '12345678900000001:827076f551e22451357939e4c7bb1200de29f921d5bf80b40d71668f9cd61c40'
       end
 
       it "should raise error if authentication is invalid" do

@@ -75,7 +75,9 @@ module Pusher
       string_to_sign = "#{socket_id}:#{name}"
       Pusher.logger.debug "Signing #{string_to_sign}"
       token = Pusher.authentication_token
-      return HMAC::SHA256.hexdigest(token.secret, string_to_sign)
+      signature = HMAC::SHA256.hexdigest(token.secret, string_to_sign)
+
+      return "#{token.key}:#{signature}"
     end
 
     private
