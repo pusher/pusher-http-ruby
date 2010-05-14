@@ -81,7 +81,7 @@ module Pusher
       raise "Invalid socket_id" if socket_id.nil? || socket_id.empty?
 
       string_to_sign = "#{socket_id}:#{name}"
-      puts "Signing #{string_to_sign}"
+      Pusher.logger.debug "Signing #{string_to_sign}"
       token = Pusher.authentication_token
       return HMAC::SHA256.hexdigest(token.secret, string_to_sign)
     end
