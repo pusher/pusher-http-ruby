@@ -7,7 +7,7 @@ module Pusher
   class << self
     attr_accessor :host, :port
     attr_writer :logger
-    attr_accessor :app_id, :key, :secret
+    attr_accessor :url, :key, :secret
 
     def logger
       @logger ||= begin
@@ -22,16 +22,18 @@ module Pusher
     end
   end
 
-  self.app_id = ENV["PUSHER_APP_ID"] if ENV["PUSHER_APP_ID"]
-  self.key    = ENV["PUSHER_KEY"]    if ENV["PUSHER_KEY"]
-  self.secret = ENV["PUSHER_SECRET"] if ENV["PUSHER_SECRET"]
-  self.host = ENV["PUSHER_API_HOST"] || 'api.pusherapp.com'
-  self.port = ENV["PUSHER_API_PORT"] || 80
+  if ENV['PUSHER_URL']
+    self.url = ENV['PUSHER_URL']
+    self.key = URI.parse(url).user
+    self.secret = URI.parse(url).password
+    self.host = URI.parse(url).host
+    self.port = URI.parse(url).port
+  end
 
   def self.[](channel_name)
-    raise ArgumentError, 'Missing configuration: please check that Pusher.app_id, Pusher.key, and Pusher.secret are all configured' unless @app_id && @key && @secret
+    raise ArgumentError, 'Missing configuration: please check that Pusher.url is configured' unless @url && @key && @secret
     @channels ||= {}
-    @channels[channel_name.to_s] = Channel.new(@app_id, channel_name)
+    @channels[channel_name.to_s] = Channel.new(@url, channel_name)
   end
 end
 
