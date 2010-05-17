@@ -11,8 +11,9 @@ module Pusher
     attr_reader :name
 
     def initialize(base_url, name)
+      @uri = base_url.dup
+      @uri.path = @uri.path + "/channels/#{name}/events"
       @name = name
-      @uri = URI.parse(base_url + "/channels/#{name}/events")
     end
 
     def trigger_async(event_name, data, socket_id = nil, &block)

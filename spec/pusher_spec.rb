@@ -10,7 +10,7 @@ describe Pusher do
       Pusher.host.should == 'api.pusherapp.com'
     end
 
-    it 'should be preconfigured for pi port 80' do
+    it 'should be preconfigured for port 80' do
       Pusher.port.should == 80
     end
 
@@ -25,6 +25,26 @@ describe Pusher do
       Pusher.logger = logger
       Pusher.logger.debug('foo')
       Pusher.logger = nil
+    end
+  end
+
+  describe "configuration using url" do
+    after do
+      Pusher.app_id = nil
+      Pusher.key = nil
+      Pusher.secret = nil
+      Pusher.host = 'api.pusherapp.com'
+      Pusher.port = 80
+    end
+
+    it "should be possible to configure everything by setting the url" do
+      Pusher.url = "http://somekey:somesecret@api.staging.pusherapp.com:8080/apps/87"
+
+      Pusher.host.should == 'api.staging.pusherapp.com'
+      Pusher.port.should == 8080
+      Pusher.key.should == 'somekey'
+      Pusher.secret.should == 'somesecret'
+      Pusher.app_id.should == '87'
     end
   end
 
