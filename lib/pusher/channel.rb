@@ -10,13 +10,10 @@ module Pusher
   class Channel
     attr_reader :name
 
-    def initialize(app_id, name)
+    def initialize(base_url, name)
+      @uri = base_url.dup
+      @uri.path = @uri.path + "/channels/#{name}/events"
       @name = name
-      @uri = URI::HTTP.build({
-        :host => Pusher.host,
-        :port => Pusher.port,
-        :path => "/apps/#{app_id}/channels/#{name}/events"
-      })
     end
 
     def trigger_async(event_name, data, socket_id = nil, &block)

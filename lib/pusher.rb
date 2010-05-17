@@ -20,18 +20,44 @@ module Pusher
     def authentication_token
       Signature::Token.new(@key, @secret)
     end
+
+    # Builds a connection url for Pusherapp
+    def url
+      @url ||= URI::HTTP.build({
+        :host => self.host,
+        :port => self.port,
+        :path => "/apps/#{self.app_id}"
+      })
+    end
+
+    # Allows configuration from a url
+    def url=(url)
+      uri = URI.parse(url)
+      self.app_id = uri.path.split('/').last
+      self.key    = uri.user
+      self.secret = uri.password
+      self.host   = uri.host
+      self.port   = uri.port
+    end
+
+    private
+
+    def configured?
+      host && port && key && secret && app_id
+    end
   end
 
-  self.app_id = ENV["PUSHER_APP_ID"] if ENV["PUSHER_APP_ID"]
-  self.key    = ENV["PUSHER_KEY"]    if ENV["PUSHER_KEY"]
-  self.secret = ENV["PUSHER_SECRET"] if ENV["PUSHER_SECRET"]
-  self.host = ENV["PUSHER_API_HOST"] || 'api.pusherapp.com'
-  self.port = ENV["PUSHER_API_PORT"] || 80
+  self.host = 'api.pusherapp.com'
+  self.port = 80
+
+  if ENV['PUSHER_URL']
+    self.url = ENV['PUSHER_URL']
+  end
 
   def self.[](channel_name)
-    raise ArgumentError, 'Missing configuration: please check that Pusher.app_id, Pusher.key, and Pusher.secret are all configured' unless @app_id && @key && @secret
+    raise ArgumentError, 'Missing configuration: please check that Pusher.url is configured' unless configured?
     @channels ||= {}
-    @channels[channel_name.to_s] = Channel.new(@app_id, channel_name)
+    @channels[channel_name.to_s] = Channel.new(url, channel_name)
   end
 end
 
