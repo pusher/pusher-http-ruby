@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{pusher}
-  s.version = "0.5.0"
+  s.version = "0.5.1"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["New Bamboo"]
-  s.date = %q{2010-05-14}
+  s.date = %q{2010-05-20}
   s.description = %q{Wrapper for pusherapp.com REST api}
   s.email = %q{support@pusherapp.com}
   s.extra_rdoc_files = [
@@ -19,6 +19,7 @@ Gem::Specification.new do |s|
   s.files = [
     ".document",
      ".gitignore",
+     "CHANGELOG",
      "LICENSE",
      "README.md",
      "Rakefile",
