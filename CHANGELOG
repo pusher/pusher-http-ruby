@@ -1,0 +1,3 @@
+* master *
+
+* Use ActiveSupport::JSON.encode instead of #to_json to avoid conflicts with JSON gem. [OL]

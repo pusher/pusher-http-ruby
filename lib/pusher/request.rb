@@ -29,7 +29,7 @@ module Pusher
 
     def self.turn_into_json(data)
       if Object.const_defined?('ActiveSupport')
-        data.to_json
+        ActiveSupport::JSON.encode(data)
       else
         JSON.generate(data)
       end
