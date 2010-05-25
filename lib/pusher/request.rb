@@ -1,3 +1,7 @@
+require 'signature'
+require 'digest/md5'
+require 'json'
+
 module Pusher
   class Request
     attr_reader :body, :query

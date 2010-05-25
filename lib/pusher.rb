@@ -1,4 +1,5 @@
 autoload 'Logger', 'logger'
+require 'uri'
 
 module Pusher
   class Error < RuntimeError; end

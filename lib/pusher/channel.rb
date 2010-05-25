@@ -1,10 +1,5 @@
 require 'crack/core_extensions' # Used for Hash#to_params
-require 'signature'
-require 'digest/md5'
 require 'hmac-sha2'
-
-require 'json'
-require 'uri'
 
 module Pusher
   class Channel
