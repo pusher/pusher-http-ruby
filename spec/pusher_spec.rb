@@ -81,7 +81,7 @@ describe Pusher do
           Pusher.send("#{config}=", nil)
           lambda {
             Pusher['test_channel']
-          }.should raise_error(ArgumentError)
+          }.should raise_error(Pusher::ConfigurationError)
         end
       end
     end
