@@ -213,6 +213,7 @@ describe Pusher do
       end
       
       before :each do
+        EM.send(:remove_const, :HttpRequest)
         EM::HttpRequest = EM::MockHttpRequest
         EM::HttpRequest.reset_registry!
         EM::HttpRequest.reset_counts!
