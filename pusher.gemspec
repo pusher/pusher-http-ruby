@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{pusher}
-  s.version = "0.5.1"
+  s.version = "0.5.2"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["New Bamboo"]
-  s.date = %q{2010-05-20}
+  s.date = %q{2010-05-25}
   s.description = %q{Wrapper for pusherapp.com REST api}
   s.email = %q{support@pusherapp.com}
   s.extra_rdoc_files = [
@@ -28,6 +28,7 @@ Gem::Specification.new do |s|
      "lib/pusher/channel.rb",
      "lib/pusher/request.rb",
      "pusher.gemspec",
+     "spec/channel_spec.rb",
      "spec/pusher_spec.rb",
      "spec/spec.opts",
      "spec/spec_helper.rb"
@@ -38,7 +39,8 @@ Gem::Specification.new do |s|
   s.rubygems_version = %q{1.3.6}
   s.summary = %q{Pusher App client}
   s.test_files = [
-    "spec/pusher_spec.rb",
+    "spec/channel_spec.rb",
+     "spec/pusher_spec.rb",
      "spec/spec_helper.rb"
   ]
 
