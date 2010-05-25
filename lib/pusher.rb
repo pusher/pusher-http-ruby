@@ -58,7 +58,7 @@ module Pusher
   def self.[](channel_name)
     raise ArgumentError, 'Missing configuration: please check that Pusher.url is configured' unless configured?
     @channels ||= {}
-    @channels[channel_name.to_s] = Channel.new(url, channel_name)
+    @channels[channel_name.to_s] ||= Channel.new(url, channel_name)
   end
 end
 

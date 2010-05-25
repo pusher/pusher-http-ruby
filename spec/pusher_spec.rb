@@ -66,8 +66,14 @@ describe Pusher do
         @channel = Pusher['test_channel']
       end
 
-      it 'should return a new channel' do
+      it 'should return a channel' do
         @channel.should be_kind_of(Pusher::Channel)
+      end
+
+      it "should reuse the same channel objects" do
+        channel1, channel2 = Pusher['test_channel'], Pusher['test_channel']
+
+        channel1.object_id.should == channel2.object_id
       end
 
       %w{app_id key secret}.each do |config|
@@ -178,14 +184,14 @@ describe Pusher do
         @http.should_receive(:post).and_raise("Fail")
         Pusher.logger.should_receive(:error).with("Fail (RuntimeError)")
         Pusher.logger.should_receive(:debug) #backtrace
-        Pusher['test_channel'].trigger('new_event', 'Some data')
+        Pusher::Channel.new(Pusher.url, 'test_channel').trigger('new_event', 'Some data')
       end
 
       it "should log failure if exception raised" do
         @http.should_receive(:post).and_raise("Fail")
         Pusher.logger.should_receive(:error).with("Fail (RuntimeError)")
         Pusher.logger.should_receive(:debug) #backtrace
-        Pusher['test_channel'].trigger('new_event', 'Some data')
+        Pusher::Channel.new(Pusher.url, 'test_channel').trigger('new_event', 'Some data')
       end
     end
 
