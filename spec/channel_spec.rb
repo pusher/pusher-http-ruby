@@ -5,6 +5,8 @@ describe Pusher::Channel do
     Pusher.app_id = '20'
     Pusher.key    = '12345678900000001'
     Pusher.secret = '12345678900000001'
+    Pusher.host = 'api.pusherapp.com'
+    Pusher.port = 80
   end
 
   after do
@@ -155,7 +157,6 @@ describe Pusher::Channel do
     end
 
     it "should return a deferrable which succeeds in success case" do
-      # Yeah, mocking EM::MockHttpRequest isn't that feature rich :)
       Time.stub(:now).and_return(123)
 
       url = 'http://api.pusherapp.com:80/apps/20/channels/test_channel/events?auth_key=12345678900000001&auth_signature=0ffe2a3749f886ca69c3f516a30c7bc9a12d2ebd8bda5b718b90ad58507c8261&auth_timestamp=123&auth_version=1.0&body_md5=5b82f8bf4df2bfb0e66ccaa7306fd024&name=new_event'
@@ -186,7 +187,6 @@ describe Pusher::Channel do
     end
 
     it "should return a deferrable which fails (with exception) in fail case" do
-      # Yeah, mocking EM::MockHttpRequest isn't that feature rich :)
       Time.stub(:now).and_return(123)
 
       url = 'http://api.pusherapp.com:80/apps/20/channels/test_channel/events?auth_key=12345678900000001&auth_signature=0ffe2a3749f886ca69c3f516a30c7bc9a12d2ebd8bda5b718b90ad58507c8261&auth_timestamp=123&auth_version=1.0&body_md5=5b82f8bf4df2bfb0e66ccaa7306fd024&name=new_event'
