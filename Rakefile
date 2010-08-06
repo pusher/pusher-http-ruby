@@ -15,6 +15,7 @@ begin
     gem.add_dependency "crack"
     gem.add_dependency "ruby-hmac"
     gem.add_dependency 'signature'
+    gem.add_dependency 'em-http-request'
     gem.add_development_dependency "rspec", ">= 1.2.9"
     gem.add_development_dependency "webmock"
     # gem is a Gem::Specification... see http://www.rubygems.org/read/chapter/20 for additional settings
