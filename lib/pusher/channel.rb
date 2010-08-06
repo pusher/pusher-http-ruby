@@ -62,10 +62,11 @@ module Pusher
       handle_error e
     end
 
-    def socket_auth(socket_id)
+    def socket_auth(socket_id, custom_string = nil)
       raise "Invalid socket_id" if socket_id.nil? || socket_id.empty?
+      raise 'Custom argument must be a string' unless custom_string.nil? || custom_string.kind_of?(String)
 
-      string_to_sign = "#{socket_id}:#{name}"
+      string_to_sign = [socket_id, name, custom_string].compact.map{|e|e.to_s}.join(':')
       Pusher.logger.debug "Signing #{string_to_sign}"
       token = Pusher.authentication_token
       signature = HMAC::SHA256.hexdigest(token.secret, string_to_sign)

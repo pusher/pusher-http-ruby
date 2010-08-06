@@ -235,5 +235,33 @@ describe Pusher::Channel do
         }.should raise_error
       end
     end
+    
+    describe 'with extra string argument' do
+      
+      it 'should be a string or nil' do
+        lambda {
+          @channel.socket_auth('socketid', 'boom')
+        }.should_not raise_error
+        
+        lambda {
+          @channel.socket_auth('socketid', 123)
+        }.should raise_error
+        
+        lambda {
+          @channel.socket_auth('socketid', nil)
+        }.should_not raise_error
+        
+        lambda {
+          @channel.socket_auth('socketid', {})
+        }.should raise_error
+      end
+      
+      it "should return an authentication string given a socket id and custom args" do
+        auth = @channel.socket_auth('socketid', 'foobar')
+
+        auth.should == "12345678900000001:#{HMAC::SHA256.hexdigest(Pusher.secret, "socketid:test_channel:foobar")}"
+      end
+      
+    end
   end
 end
