@@ -63,5 +63,6 @@ module Pusher
   end
 end
 
+require 'pusher/json'
 require 'pusher/channel'
 require 'pusher/request'

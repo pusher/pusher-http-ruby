@@ -1,6 +1,5 @@
 require 'signature'
 require 'digest/md5'
-require 'json'
 
 module Pusher
   class Request
@@ -17,7 +16,7 @@ module Pusher
         data
       else
         begin
-          self.class.turn_into_json(data)
+          Pusher::JSON.generate(data)
         rescue => e
           Pusher.logger.error("Could not convert #{data.inspect} into JSON")
           raise e
@@ -31,12 +30,5 @@ module Pusher
       @query = params.merge(auth_hash)
     end
 
-    def self.turn_into_json(data)
-      if Object.const_defined?('ActiveSupport')
-        ActiveSupport::JSON.encode(data)
-      else
-        JSON.generate(data)
-      end
-    end
   end
 end
