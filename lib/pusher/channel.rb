@@ -85,7 +85,7 @@ module Pusher
       custom_data = Pusher::JSON.generate(custom_data) if custom_data
       auth = socket_auth(socket_id, custom_data)
       r = {:auth => auth}
-      r[:data] = custom_data if custom_data
+      r[:channel_data] = custom_data if custom_data
       r
     end
 

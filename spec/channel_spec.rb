@@ -279,7 +279,7 @@ describe Pusher::Channel do
       
       response.should == {
         :auth => "12345678900000001:#{HMAC::SHA256.hexdigest(Pusher.secret, "socketid:test_channel:a json string")}",
-        :data => 'a json string'
+        :channel_data => 'a json string'
       }
     end
   end
