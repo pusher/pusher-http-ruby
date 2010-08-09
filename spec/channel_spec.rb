@@ -264,4 +264,23 @@ describe Pusher::Channel do
       
     end
   end
+  
+  describe '#authenticate' do
+    
+    before :each do
+      @channel = Pusher['test_channel']
+      @custom_data = {:uid => 123, :info => {:name => 'Foo'}}
+    end
+    
+    it 'should return a hash with signature including custom data and data as json string' do
+      Pusher::JSON.stub!(:generate).with(@custom_data).and_return 'a json string'
+      
+      response = @channel.authenticate('socketid', @custom_data)
+      
+      response.should == {
+        :auth => "12345678900000001:#{HMAC::SHA256.hexdigest(Pusher.secret, "socketid:test_channel:a json string")}",
+        :data => 'a json string'
+      }
+    end
+  end
 end

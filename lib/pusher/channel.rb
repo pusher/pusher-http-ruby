@@ -61,7 +61,12 @@ module Pusher
     rescue StandardError => e
       handle_error e
     end
-
+    
+    # Auth string is:
+    # if custom data provided:
+    # socket_id:channel_name:[JSON-encoded custom data]
+    # if no custom data:
+    # socket_id:channel_name
     def socket_auth(socket_id, custom_string = nil)
       raise "Invalid socket_id" if socket_id.nil? || socket_id.empty?
       raise 'Custom argument must be a string' unless custom_string.nil? || custom_string.kind_of?(String)
@@ -72,6 +77,16 @@ module Pusher
       signature = HMAC::SHA256.hexdigest(token.secret, string_to_sign)
 
       return "#{token.key}:#{signature}"
+    end
+    
+    # Custom data is sent to server as JSON-encoded string in the :data key
+    # If :data present, server must include it in auth check
+    def authenticate(socket_id, custom_data = nil)
+      custom_data = Pusher::JSON.generate(custom_data) if custom_data
+      auth = socket_auth(socket_id, custom_data)
+      r = {:auth => auth}
+      r[:data] = custom_data if custom_data
+      r
     end
 
     private
