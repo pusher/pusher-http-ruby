@@ -38,6 +38,15 @@ To avoid blocking in a typical web application, if you are running inside eventm
       # error is a pusher exception
     }
 
+Private channels
+-----------------------
+The Pusher Gem also deals with signing requests for authenticated private channels. A quick Rails controller example:
+
+    reponse = Pusher['private-my_channel'].authenticate(params[:socket_id])
+    render :json => response
+    
+Read more about private channels in [the docs](http://pusherapp.com/docs/private_channels).
+
 Copyright
 ---------
 
