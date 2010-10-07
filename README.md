@@ -47,6 +47,14 @@ The Pusher Gem also deals with signing requests for authenticated private channe
     
 Read more about private channels in [the docs](http://pusherapp.com/docs/private_channels).
 
+Developing
+----------
+
+Use bundler in order to run specs with the correct dependencies.
+
+    bundle
+    bundle exec spec spec/*_spec.rb
+
 Copyright
 ---------
 

@@ -18,6 +18,7 @@ begin
     # gem.add_dependency 'em-http-request', ">= 0.2.7"
     gem.add_development_dependency "rspec", ">= 1.2.9"
     gem.add_development_dependency "webmock"
+    gem.add_development_dependency "em-http-request", '0.2.7'
     # gem is a Gem::Specification... see http://www.rubygems.org/read/chapter/20 for additional settings
   end
   Jeweler::GemcutterTasks.new
