@@ -8,6 +8,7 @@ PATH
       signature
 
 GEM
+  remote: http://rubygems.org/
   specs:
     addressable (2.2.1)
     crack (0.1.8)
