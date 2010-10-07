@@ -2,10 +2,10 @@ PATH
   remote: .
   specs:
     pusher (0.6.0)
-      crack
-      json
-      ruby-hmac
-      signature
+      crack (~> 0.1.0)
+      json (~> 1.4.0)
+      ruby-hmac (~> 0.4.0)
+      signature (~> 0.1.0)
 
 GEM
   remote: http://rubygems.org/
@@ -29,11 +29,11 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  crack
+  crack (~> 0.1.0)
   em-http-request (= 0.2.7)
-  json
+  json (~> 1.4.0)
   pusher!
   rspec (>= 1.2.9)
-  ruby-hmac
-  signature
+  ruby-hmac (~> 0.4.0)
+  signature (~> 0.1.0)
   webmock

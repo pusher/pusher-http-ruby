@@ -13,10 +13,10 @@ Gem::Specification.new do |s|
 
   s.rubyforge_project = "foobar"
   
-  s.add_dependency "json"
-  s.add_dependency "crack"
-  s.add_dependency "ruby-hmac"
-  s.add_dependency 'signature'
+  s.add_dependency "json", "~> 1.4.0"
+  s.add_dependency "crack", "~> 0.1.0"
+  s.add_dependency "ruby-hmac", "~> 0.4.0"
+  s.add_dependency 'signature', "~> 0.1.0"
   
   s.add_development_dependency "rspec", ">= 1.2.9"
   s.add_development_dependency "webmock"
