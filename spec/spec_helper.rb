@@ -1,7 +1,8 @@
 require 'rubygems'
 
-require 'spec'
-require 'spec/autorun'
+require 'rspec'
+require 'rspec/autorun'
+require 'webmock/rspec'
 
 $LOAD_PATH.unshift(File.dirname(__FILE__))
 $LOAD_PATH.unshift(File.join(File.dirname(__FILE__), '..', 'lib'))
@@ -9,6 +10,6 @@ $LOAD_PATH.unshift(File.join(File.dirname(__FILE__), '..', 'lib'))
 require 'pusher'
 require 'eventmachine'
 
-Spec::Runner.configure do |config|
-  
+RSpec.configure do |config|
+  config.include WebMock::API
 end

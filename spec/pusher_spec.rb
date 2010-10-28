@@ -1,6 +1,5 @@
 require File.expand_path('../spec_helper', __FILE__)
 
-require 'webmock/rspec'
 require 'em-http'
 require 'em-http/mock'
 

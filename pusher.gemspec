@@ -18,7 +18,7 @@ Gem::Specification.new do |s|
   s.add_dependency "ruby-hmac", "~> 0.4.0"
   s.add_dependency 'signature', "~> 0.1.0"
   
-  s.add_development_dependency "rspec", ">= 1.2.9"
+  s.add_development_dependency "rspec", "~> 2.0"
   s.add_development_dependency "webmock"
   s.add_development_dependency "em-http-request", '0.2.7'
 

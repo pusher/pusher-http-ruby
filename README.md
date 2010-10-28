@@ -53,7 +53,7 @@ Developing
 Use bundler in order to run specs with the correct dependencies.
 
     bundle
-    bundle exec spec spec/*_spec.rb
+    bundle exec rspec spec/*_spec.rb
 
 Copyright
 ---------
