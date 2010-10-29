@@ -2,6 +2,7 @@ require 'rubygems'
 
 require 'rspec'
 require 'rspec/autorun'
+require 'em-http' # As of webmock 1.4.0, em-http must be loaded first
 require 'webmock/rspec'
 
 $LOAD_PATH.unshift(File.dirname(__FILE__))

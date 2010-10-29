@@ -1,7 +1,6 @@
 require File.expand_path('../spec_helper', __FILE__)
 
 require 'em-http'
-require 'em-http/mock'
 
 describe Pusher do
   describe 'configuration' do
