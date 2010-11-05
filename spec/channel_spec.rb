@@ -25,7 +25,7 @@ describe Pusher::Channel do
 
     it 'should configure HTTP library to talk to pusher API' do
       @channel.trigger!('new_event', 'Some data')
-      WebMock.request(:post, %r{api.pusherapp.com}).should have_been_made
+      WebMock.should have_requested(:post, %r{http://api.pusherapp.com})
     end
 
     it 'should POST with the correct parameters and convert data to JSON' do
@@ -33,9 +33,7 @@ describe Pusher::Channel do
         :name => 'Pusher',
         :last_name => 'App'
       })
-      WebMock.request(:post, %r{/apps/20/channels/test_channel/events}).
-      with do |req|
-
+      WebMock.should have_requested(:post, %r{/apps/20/channels/test_channel/events}).with do |req|
         query_hash = req.uri.query_values
         query_hash["name"].should == 'new_event'
         query_hash["auth_key"].should == Pusher.key
@@ -48,18 +46,18 @@ describe Pusher::Channel do
         }
 
         req.headers['Content-Type'].should == 'application/json'
-      end.should have_been_made
+      end
     end
 
-    it "should handle string data by sending unmodified in body" do
+    it "should POST string data unmodified in request body" do
       string = "foo\nbar\""
       @channel.trigger!('new_event', string)
-      WebMock.request(:post, %r{/apps/20/channels/test_channel/events}).with do |req|
+      WebMock.should have_requested(:post, %r{/apps/20/channels/test_channel/events}).with do |req|
         req.body.should == "foo\nbar\""
-      end.should have_been_made
+      end
     end
 
-    it "should raise error if an object sent which canot be JSONified" do
+    it "should raise error on non string values with cannot be jsonified" do
       lambda {
         @channel.trigger!('new_event', Object.new)
       }.should raise_error(JSON::GeneratorError)
@@ -133,8 +131,7 @@ describe Pusher::Channel do
     end
 
     it "should return a deferrable which succeeds in success case" do
-      stub_request(:post, @pusher_url_regexp).
-        to_return(:status => 202)
+      stub_request(:post, @pusher_url_regexp).to_return(:status => 202)
 
       EM.run {
         d = Pusher['test_channel'].trigger_async('new_event', 'Some data')
@@ -150,8 +147,7 @@ describe Pusher::Channel do
     end
 
     it "should return a deferrable which fails (with exception) in fail case" do
-      stub_request(:post, @pusher_url_regexp).
-        to_return(:status => 401)
+      stub_request(:post, @pusher_url_regexp).to_return(:status => 401)
 
       EM.run {
         d = Pusher['test_channel'].trigger_async('new_event', 'Some data')
