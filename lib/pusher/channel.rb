@@ -45,8 +45,14 @@ module Pusher
 
     def trigger!(event_name, data, socket_id = nil)
       require 'net/http' unless defined?(Net::HTTP)
+      require 'net/https' if (ssl? && !defined?(Net::HTTPS))
 
-      @http_sync ||= Net::HTTP.new(@uri.host, @uri.port)
+      @http_sync ||= begin
+        http = Net::HTTP.new(@uri.host, @uri.port)
+        http.use_ssl = true if ssl?
+        http.verify_mode = OpenSSL::SSL::VERIFY_NONE if ssl?
+        http
+      end
 
       request = Pusher::Request.new(@uri, event_name, data, socket_id)
 
@@ -109,6 +115,10 @@ module Pusher
       else
         raise Error, "Unknown error in Pusher: #{body}"
       end
+    end
+
+    def ssl?
+      @uri.scheme == 'https'
     end
   end
 end

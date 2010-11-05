@@ -7,7 +7,7 @@ module Pusher
   class ConfigurationError < Error; end
 
   class << self
-    attr_accessor :host, :port
+    attr_accessor :scheme, :host, :port
     attr_writer :logger
     attr_accessor :app_id, :key, :secret
 
@@ -25,7 +25,8 @@ module Pusher
 
     # Builds a connection url for Pusherapp
     def url
-      @url ||= URI::HTTP.build({
+      URI::Generic.build({
+        :scheme => self.scheme,
         :host => self.host,
         :port => self.port,
         :path => "/apps/#{self.app_id}"
@@ -42,6 +43,11 @@ module Pusher
       self.port   = uri.port
     end
 
+    # Configure ssl by setting Pusher.ssl = true
+    def ssl=(boolean)
+      Pusher.scheme = boolean ? 'https' : 'http'
+    end
+
     private
 
     def configured?
@@ -49,8 +55,9 @@ module Pusher
     end
   end
 
+  # Defaults
+  self.scheme = 'http'
   self.host = 'api.pusherapp.com'
-  self.port = 80
 
   if ENV['PUSHER_URL']
     self.url = ENV['PUSHER_URL']

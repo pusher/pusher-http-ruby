@@ -7,6 +7,7 @@ describe Pusher::Channel do
     Pusher.secret = '12345678900000001'
     Pusher.host = 'api.pusherapp.com'
     Pusher.port = 80
+    Pusher.ssl = false
   end
 
   after do
@@ -17,6 +18,7 @@ describe Pusher::Channel do
   
   describe 'trigger!' do
     before :each do
+      WebMock.disable_net_connect!
       WebMock.stub_request(
         :post, %r{/apps/20/channels/test_channel/events}
       ).to_return(:status => 202)
@@ -28,7 +30,13 @@ describe Pusher::Channel do
       WebMock.should have_requested(:post, %r{http://api.pusherapp.com})
     end
 
-    it 'should POST with the correct parameters and convert data to JSON' do
+    it "should POST to https api if ssl enabled" do
+      Pusher.ssl = true
+      Pusher::Channel.new(Pusher.url, 'test_channel').trigger('new_event', 'Some data')
+      WebMock.should have_requested(:post, %r{https://api.pusherapp.com})
+    end
+
+    it 'should POST hashes by encoding as JSON in the request body' do
       @channel.trigger!('new_event', {
         :name => 'Pusher',
         :last_name => 'App'
@@ -128,6 +136,29 @@ describe Pusher::Channel do
       WebMock.disable_net_connect!
 
       @pusher_url_regexp = %r{/apps/20/channels/test_channel/events}
+    end
+
+    it "should by default POST to http api" do
+      EM.run {
+        stub_request(:post, @pusher_url_regexp).to_return(:status => 202)
+        channel = Pusher::Channel.new(Pusher.url, 'test_channel')
+        channel.trigger_async('new_event', 'Some data').callback {
+          WebMock.should have_requested(:post, %r{http://api.pusherapp.com})
+          EM.stop
+        }
+      }
+    end
+
+    it "should POST to https api if ssl enabled" do
+      Pusher.ssl = true
+      EM.run {
+        stub_request(:post, @pusher_url_regexp).to_return(:status => 202)
+        channel = Pusher::Channel.new(Pusher.url, 'test_channel')
+        channel.trigger_async('new_event', 'Some data').callback {
+          WebMock.should have_requested(:post, %r{https://api.pusherapp.com})
+          EM.stop
+        }
+      }
     end
 
     it "should return a deferrable which succeeds in success case" do
