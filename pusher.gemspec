@@ -3,7 +3,7 @@ $:.push File.expand_path("../lib", __FILE__)
 
 Gem::Specification.new do |s|
   s.name        = "pusher"
-  s.version     = "0.6.0"
+  s.version     = "0.7.0"
   s.platform    = Gem::Platform::RUBY
   s.authors     = ["New Bamboo"]
   s.email       = ["support@pusherapp.com"]
