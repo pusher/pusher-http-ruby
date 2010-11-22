@@ -7,7 +7,7 @@ describe Pusher::Channel do
     Pusher.secret = '12345678900000001'
     Pusher.host = 'api.pusherapp.com'
     Pusher.port = 80
-    Pusher.ssl = false
+    Pusher.encrypted = false
   end
 
   after do
@@ -31,7 +31,7 @@ describe Pusher::Channel do
     end
 
     it "should POST to https api if ssl enabled" do
-      Pusher.ssl = true
+      Pusher.encrypted = true
       Pusher::Channel.new(Pusher.url, 'test_channel').trigger('new_event', 'Some data')
       WebMock.should have_requested(:post, %r{https://api.pusherapp.com})
     end
@@ -150,7 +150,7 @@ describe Pusher::Channel do
     end
 
     it "should POST to https api if ssl enabled" do
-      Pusher.ssl = true
+      Pusher.encrypted = true
       EM.run {
         stub_request(:post, @pusher_url_regexp).to_return(:status => 202)
         channel = Pusher::Channel.new(Pusher.url, 'test_channel')

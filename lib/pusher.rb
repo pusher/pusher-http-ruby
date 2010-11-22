@@ -43,8 +43,8 @@ module Pusher
       self.port   = uri.port
     end
 
-    # Configure ssl by setting Pusher.ssl = true
-    def ssl=(boolean)
+    # Configure ssl by setting Pusher.encrypted = true
+    def encrypted=(boolean)
       Pusher.scheme = boolean ? 'https' : 'http'
       # Configure port if it hasn't already been configured
       Pusher.port ||= boolean ? 443 : 80
