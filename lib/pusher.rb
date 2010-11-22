@@ -46,12 +46,14 @@ module Pusher
     # Configure ssl by setting Pusher.ssl = true
     def ssl=(boolean)
       Pusher.scheme = boolean ? 'https' : 'http'
+      # Configure port if it hasn't already been configured
+      Pusher.port ||= boolean ? 443 : 80
     end
 
     private
 
     def configured?
-      host && port && key && secret && app_id
+      host && scheme && key && secret && app_id
     end
   end
 
