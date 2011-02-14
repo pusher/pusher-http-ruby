@@ -105,7 +105,7 @@ describe Pusher::Channel do
       ).to_return(:status => 500, :body => "some error")
       lambda {
         Pusher['test_channel'].trigger!('new_event', 'Some data')
-      }.should raise_error(Pusher::Error, 'Unknown error in Pusher: some error')
+      }.should raise_error(Pusher::Error, 'Unknown error (status code 500): some error')
     end
   end
 

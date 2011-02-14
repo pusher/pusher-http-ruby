@@ -109,7 +109,7 @@ module Pusher
       when 404
         raise Error, "Resource not found: app_id is probably invalid"
       else
-        raise Error, "Unknown error in Pusher: #{body}"
+        raise Error, "Unknown error (status code #{status_code}): #{body}"
       end
     end
 
