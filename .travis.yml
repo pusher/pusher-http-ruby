@@ -1,0 +1,1 @@
+script: "rspec spec/*_spec.rb"
