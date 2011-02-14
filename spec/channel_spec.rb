@@ -132,7 +132,7 @@ describe Pusher::Channel do
 
   describe "trigger_async" do
     before :each do
-      WebMock.reset_webmock
+      WebMock.reset!
       WebMock.disable_net_connect!
 
       @pusher_url_regexp = %r{/apps/20/channels/test_channel/events}

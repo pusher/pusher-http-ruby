@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    pusher (0.6.0)
+    pusher (0.7.0)
       crack (~> 0.1.0)
       json (~> 1.4.0)
       ruby-hmac (~> 0.4.0)
@@ -10,28 +10,26 @@ PATH
 GEM
   remote: http://rubygems.org/
   specs:
-    addressable (2.2.2)
+    addressable (2.2.4)
     crack (0.1.8)
     diff-lcs (1.1.2)
-    em-http-request (0.2.14)
+    em-http-request (0.2.15)
       addressable (>= 2.0.0)
       eventmachine (>= 0.12.9)
     eventmachine (0.12.10)
     json (1.4.6)
-    rspec (2.0.1)
-      rspec-core (~> 2.0.1)
-      rspec-expectations (~> 2.0.1)
-      rspec-mocks (~> 2.0.1)
-    rspec-core (2.0.1)
-    rspec-expectations (2.0.1)
-      diff-lcs (>= 1.1.2)
-    rspec-mocks (2.0.1)
-      rspec-core (~> 2.0.1)
-      rspec-expectations (~> 2.0.1)
+    rspec (2.5.0)
+      rspec-core (~> 2.5.0)
+      rspec-expectations (~> 2.5.0)
+      rspec-mocks (~> 2.5.0)
+    rspec-core (2.5.1)
+    rspec-expectations (2.5.0)
+      diff-lcs (~> 1.1.2)
+    rspec-mocks (2.5.0)
     ruby-hmac (0.4.0)
     signature (0.1.2)
       ruby-hmac
-    webmock (1.4.0)
+    webmock (1.6.2)
       addressable (>= 2.2.2)
       crack (>= 0.1.7)
 
@@ -39,11 +37,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  crack (~> 0.1.0)
   em-http-request (~> 0.2.7)
-  json (~> 1.4.0)
   pusher!
   rspec (~> 2.0)
-  ruby-hmac (~> 0.4.0)
-  signature (~> 0.1.2)
   webmock
