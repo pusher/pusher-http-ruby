@@ -24,7 +24,7 @@ module Pusher
       deferrable = EM::DefaultDeferrable.new
       
       http = @http_async.post({
-        :query => request.query, :timeout => 2, :body => request.body,
+        :query => request.query, :timeout => 5, :body => request.body,
         :head => {'Content-Type'=> 'application/json'}
       })
       http.callback {
