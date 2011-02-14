@@ -65,7 +65,8 @@ module Pusher
     def trigger(event_name, data, socket_id = nil)
       trigger!(event_name, data, socket_id)
     rescue StandardError => e
-      handle_error e
+      Pusher.logger.error("#{e.message} (#{e.class})")
+      Pusher.logger.debug(e.backtrace.join("\n"))
     end
     
     # Auth string is:
@@ -96,11 +97,6 @@ module Pusher
     end
 
     private
-
-    def handle_error(e)
-      Pusher.logger.error("#{e.message} (#{e.class})")
-      Pusher.logger.debug(e.backtrace.join("\n"))
-    end
 
     def handle_response(status_code, body)
       case status_code
