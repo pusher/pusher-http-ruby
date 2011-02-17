@@ -2,6 +2,7 @@ require 'crack/core_extensions' # Used for Hash#to_params
 require 'hmac-sha2'
 
 module Pusher
+  # Trigger events on Channels
   class Channel
     attr_reader :name
 
@@ -11,6 +12,17 @@ module Pusher
       @name = name
     end
 
+    # Trigger event asynchronously using EventMachine::HttpRequest
+    #
+    # @param (see #trigger!)
+    # @return [EM::DefaultDeferrable]
+    #   Attach a callback to be notified of success (with no parameters).
+    #   Attach an errback to be notified of failure (with an error parameter
+    #   which includes the HTTP status code returned)
+    # @raise [LoadError] unless em-http-request gem is available
+    # @raise [Pusher::Error] unless the eventmachine reactor is running. You
+    #   probably want to run your application inside a server such as thin
+    #
     def trigger_async(event_name, data, socket_id = nil, &block)
       unless defined?(EventMachine) && EventMachine.reactor_running?
         raise Error, "In order to use trigger_async you must be running inside an eventmachine loop"
@@ -43,6 +55,23 @@ module Pusher
       deferrable
     end
 
+    # Trigger event
+    #
+    # @example
+    #   begin
+    #     Pusher['my-channel'].trigger!('an_event', {:some => 'data'})
+    #   rescue Pusher::Error => e
+    #     # Do something on error
+    #   end
+    #
+    # @param data [Object] Event data to be triggered in javascript.
+    #   Objects other than strings will be converted to JSON
+    # @param socket_id Allows excluding a given socket_id from receiving the
+    #   event - see http://pusherapp.com/docs/duplicates for more info
+    #
+    # @raise [Pusher::Error] on invalid Pusher response
+    # @raise any Net::HTTP related errors
+    #
     def trigger!(event_name, data, socket_id = nil)
       require 'net/http' unless defined?(Net::HTTP)
       require 'net/https' if (ssl? && !defined?(Net::HTTPS))
@@ -62,6 +91,11 @@ module Pusher
       handle_response(response.code.to_i, response.body.chomp)
     end
 
+    # Trigger event, catching and logging any errors.
+    #
+    # @note CAUTION! No exceptions will be raised on failure
+    # @param (see #trigger!)
+    #
     def trigger(event_name, data, socket_id = nil)
       trigger!(event_name, data, socket_id)
     rescue StandardError => e
@@ -69,12 +103,17 @@ module Pusher
       Pusher.logger.debug(e.backtrace.join("\n"))
     end
     
-    # Auth string is:
-    # if custom data provided:
-    # socket_id:channel_name:[JSON-encoded custom data]
-    # if no custom data:
-    # socket_id:channel_name
-    def socket_auth(socket_id, custom_string = nil)
+    # Compute authentication string required to subscribe to this channel.
+    #
+    # See http://pusherapp.com/docs/auth_signatures for more details.
+    #
+    # @param socket_id [String] Each Pusher socket connection receives a
+    #   unique socket_id. This is sent from pusher.js to your server when
+    #   channel authentication is required.
+    # @param custom_string [String] Allows signing additional data
+    # @return [String]
+    #
+    def authentication_string(socket_id, custom_string = nil)
       raise "Invalid socket_id" if socket_id.nil? || socket_id.empty?
       raise 'Custom argument must be a string' unless custom_string.nil? || custom_string.kind_of?(String)
 
@@ -86,8 +125,18 @@ module Pusher
       return "#{token.key}:#{signature}"
     end
     
-    # Custom data is sent to server as JSON-encoded string in the :data key
-    # If :data present, server must include it in auth check
+    # Deprecated - for backward compatibility
+    alias :socket_auth :authentication_string
+
+    # Generate an authentication endpoint response
+    #
+    # @example
+    #   render :json => Pusher['private-my_channel'].authenticate(params[:socket_id])
+    #
+    # @return [Hash]
+    #
+    # @private Custom data is sent to server as JSON-encoded string
+    #
     def authenticate(socket_id, custom_data = nil)
       custom_data = Pusher::JSON.generate(custom_data) if custom_data
       auth = socket_auth(socket_id, custom_data)

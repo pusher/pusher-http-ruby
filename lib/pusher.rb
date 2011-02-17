@@ -1,7 +1,18 @@
 autoload 'Logger', 'logger'
 require 'uri'
 
+# Used for configuring API credentials and creating Channel objects
+#
 module Pusher
+  # All Pusher errors descend from this class so you can easily rescue Pusher
+  # errors
+  #
+  # @example
+  #   begin
+  #     Pusher['a_channel'].trigger!('an_event', {:some => 'data'})
+  #   rescue Pusher::Error => e
+  #     # Do something on error
+  #   end
   class Error < RuntimeError; end
   class AuthenticationError < Error; end
   class ConfigurationError < Error; end
@@ -11,6 +22,7 @@ module Pusher
     attr_writer :logger
     attr_accessor :app_id, :key, :secret
 
+    # @private
     def logger
       @logger ||= begin
         log = Logger.new(STDOUT)
@@ -19,11 +31,12 @@ module Pusher
       end
     end
     
+    # @private
     def authentication_token
       Signature::Token.new(@key, @secret)
     end
 
-    # Builds a connection url for Pusherapp
+    # @private Builds a connection url for Pusherapp
     def url
       URI::Generic.build({
         :scheme => self.scheme,
@@ -33,7 +46,12 @@ module Pusher
       })
     end
 
-    # Allows configuration from a url
+    # Configure Pusher connection by providing a url rather than specifying
+    # scheme, key, secret, and app_id separately.
+    #
+    # @example
+    #   Pusher.url = http://KEY:SECRET@api.pusherapp.com/apps/APP_ID
+    #
     def url=(url)
       uri = URI.parse(url)
       self.app_id = uri.path.split('/').last
@@ -43,7 +61,12 @@ module Pusher
       self.port   = uri.port
     end
 
-    # Configure ssl by setting Pusher.encrypted = true
+    # Configure whether Pusher API calls should be made over SSL
+    # (default false)
+    #
+    # @example
+    #   Pusher.encrypted = true
+    #
     def encrypted=(boolean)
       Pusher.scheme = boolean ? 'https' : 'http'
       # Configure port if it hasn't already been configured
@@ -65,6 +88,13 @@ module Pusher
     self.url = ENV['PUSHER_URL']
   end
 
+  # Return a channel by name
+  #
+  # @example
+  #   Pusher['my-channel']
+  # @return [Channel]
+  # @raise [ConfigurationError] unless key, secret and app_id have been
+  #   configured
   def self.[](channel_name)
     raise ConfigurationError, 'Missing configuration: please check that Pusher.url is configured' unless configured?
     @channels ||= {}
