@@ -69,8 +69,8 @@ module Pusher
     # @param socket_id Allows excluding a given socket_id from receiving the
     #   event - see http://pusherapp.com/docs/duplicates for more info
     #
-    # @raise [Pusher::Error] on invalid Pusher response
-    # @raise any Net::HTTP related errors
+    # @raise [Pusher::Error] on invalid Pusher response - see the error message for more details
+    # @raise [Pusher::HTTPError] on any error raised inside Net::HTTP - the original error is available in the original_error attribute
     #
     def trigger!(event_name, data, socket_id = nil)
       require 'net/http' unless defined?(Net::HTTP)
