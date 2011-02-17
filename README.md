@@ -10,7 +10,7 @@ After registering at <http://pusherapp.com> configure your app with the security
     Pusher.key = 'your-pusher-key'
     Pusher.secret = 'your-pusher-secret'
 
-Trigger an event
+Trigger an event with {Pusher::Channel#trigger!}
 
     Pusher['a_channel'].trigger!('an_event', {:some => 'data'})
 
@@ -26,7 +26,7 @@ Optionally a socket id may be provided. This will exclude the event from being t
 
     Pusher['a_channel'].trigger!('an_event', {:some => 'data'}, socket_id)
 
-If you don't need to handle failure cases, then you can simply use the `trigger` method, which will rescue and log any errors for you
+If you don't need to handle failure cases, then you can simply use the {Pusher::Channel#trigger} method, which will rescue and log any errors for you
 
     Pusher['a_channel'].trigger('an_event', {:some => 'data'})
 
@@ -40,7 +40,7 @@ Errors are logged to `Pusher.logger`. It will by default use `Logger` from stdli
 Asynchronous triggering
 -----------------------
 
-To avoid blocking in a typical web application, you may wish to use the `trigger_async` method which uses the makes asynchronous API requests to Pusher. `trigger_async` returns a deferrable which you can optionally bind to with success and failure callbacks.
+To avoid blocking in a typical web application, you may wish to use the {Pusher::Channel#trigger_async} method which makes asynchronous API requests. `trigger_async` returns a deferrable which you can optionally bind to with success and failure callbacks.
 
 You need to be running eventmachine to make use of this functionality. This is already the case if, for example, you're deploying to Heroku or using the Thin web server. You will also need to add `em-http-request` to your Gemfile.
 
@@ -64,7 +64,7 @@ The Pusher Gem also deals with signing requests for authenticated private channe
     reponse = Pusher['private-my_channel'].authenticate(params[:socket_id])
     render :json => response
     
-Read more about private channels in [the docs](http://pusherapp.com/docs/private_channels).
+Read more about private channels in [the docs](http://pusherapp.com/docs/private_channels) and under {Pusher::Channel#authenticate}.
 
 Developing
 ----------
