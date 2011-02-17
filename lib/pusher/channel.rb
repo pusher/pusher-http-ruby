@@ -85,10 +85,19 @@ module Pusher
 
       request = Pusher::Request.new(@uri, event_name, data, socket_id)
 
-      response = @http_sync.post("#{@uri.path}?#{request.query.to_params}",
-        request.body, { 'Content-Type'=> 'application/json' })
+      begin
+        response = @http_sync.post("#{@uri.path}?#{request.query.to_params}",
+          request.body, { 'Content-Type'=> 'application/json' })
+      rescue Errno::EINVAL, Errno::ECONNRESET, Errno::ECONNREFUSED,
+             Timeout::Error, EOFError,
+             Net::HTTPBadResponse, Net::HTTPHeaderSyntaxError,
+             Net::ProtocolError => e
+        error = Pusher::HTTPError.new("#{e.message} (#{e.class})")
+        error.original_error = e
+        raise error
+      end
 
-      handle_response(response.code.to_i, response.body.chomp)
+      return handle_response(response.code.to_i, response.body.chomp)
     end
 
     # Trigger event, catching and logging any errors.
@@ -98,7 +107,7 @@ module Pusher
     #
     def trigger(event_name, data, socket_id = nil)
       trigger!(event_name, data, socket_id)
-    rescue StandardError => e
+    rescue Pusher::Error => e
       Pusher.logger.error("#{e.message} (#{e.class})")
       Pusher.logger.debug(e.backtrace.join("\n"))
     end

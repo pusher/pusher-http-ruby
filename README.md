@@ -10,13 +10,25 @@ After registering at <http://pusherapp.com> configure your app with the security
     Pusher.key = 'your-pusher-key'
     Pusher.secret = 'your-pusher-secret'
 
-Trigger an event. Channel and event names may only contain alphanumeric characters, '-' and '_'.
+Trigger an event
+
+    Pusher['a_channel'].trigger!('an_event', {:some => 'data'})
+
+Handle errors by rescuing `Pusher::Error` (all Pusher errors are descendants of this error)
+
+    begin
+      Pusher['a_channel'].trigger!('an_event', {:some => 'data'})
+    rescue Pusher::Error => e
+      # (Pusher::AuthenticationError, Pusher::HTTPError, or Pusher::Error)
+    end
+
+Optionally a socket id may be provided. This will exclude the event from being triggered on this socket id (see <http://pusherapp.com/docs/duplicates> for more info).
+
+    Pusher['a_channel'].trigger!('an_event', {:some => 'data'}, socket_id)
+
+If you don't need to handle failure cases, then you can simply use the `trigger` method, which will rescue and log any errors for you
 
     Pusher['a_channel'].trigger('an_event', {:some => 'data'})
-
-Optionally a socket id may be provided. This will prevent the event from being triggered on this specific socket id (see <http://pusherapp.com/docs/duplicates> for more info).
-
-    Pusher['a_channel'].trigger('an_event', {:some => 'data'}, socket_id)
 
 Logging
 -------

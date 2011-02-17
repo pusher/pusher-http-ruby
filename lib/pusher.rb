@@ -16,6 +16,7 @@ module Pusher
   class Error < RuntimeError; end
   class AuthenticationError < Error; end
   class ConfigurationError < Error; end
+  class HTTPError < Error; attr_accessor :original_error; end
 
   class << self
     attr_accessor :scheme, :host, :port
