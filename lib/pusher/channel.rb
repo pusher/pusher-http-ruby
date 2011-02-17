@@ -139,8 +139,20 @@ module Pusher
 
     # Generate an authentication endpoint response
     #
-    # @example
+    # @example Private channels
     #   render :json => Pusher['private-my_channel'].authenticate(params[:socket_id])
+    #
+    # @example Presence channels
+    #   render :json => Pusher['private-my_channel'].authenticate(params[:socket_id], {
+    #     :user_id => current_user.id, # => required
+    #     :user_info => { # => optional - for example
+    #       :name => current_user.name,
+    #       :email => current_user.email
+    #     }
+    #   })
+    #
+    # @param socket_id [String]
+    # @param custom_data [Hash] used for example by private channels
     #
     # @return [Hash]
     #
