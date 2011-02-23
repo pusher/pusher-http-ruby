@@ -8,3 +8,4 @@ RSpec::Core::RakeTask.new(:spec) do |s|
 end
 
 task :default => :spec
+task :test => :spec
