@@ -1,5 +1,6 @@
 require 'crack/core_extensions' # Used for Hash#to_params
 require 'hmac-sha2'
+require 'multi_json'
 
 module Pusher
   # Trigger events on Channels
@@ -159,7 +160,7 @@ module Pusher
     # @private Custom data is sent to server as JSON-encoded string
     #
     def authenticate(socket_id, custom_data = nil)
-      custom_data = Pusher::JSON.generate(custom_data) if custom_data
+      custom_data = MultiJson.encode(custom_data) if custom_data
       auth = socket_auth(socket_id, custom_data)
       r = {:auth => auth}
       r[:channel_data] = custom_data if custom_data

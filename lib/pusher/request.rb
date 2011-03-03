@@ -1,5 +1,6 @@
 require 'signature'
 require 'digest/md5'
+require 'multi_json'
 
 module Pusher
   class Request
@@ -16,8 +17,8 @@ module Pusher
         data
       else
         begin
-          Pusher::JSON.generate(data)
-        rescue => e
+          MultiJson.encode(data)
+        rescue MultiJson::DecodeError => e
           Pusher.logger.error("Could not convert #{data.inspect} into JSON")
           raise e
         end
