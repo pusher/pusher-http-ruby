@@ -26,7 +26,7 @@ module Pusher
     # @private
     def logger
       @logger ||= begin
-        log = Logger.new(STDOUT)
+        log = Logger.new($stdout)
         log.level = Logger::INFO
         log
       end

@@ -69,9 +69,16 @@ describe Pusher::Channel do
     end
 
     it "should raise error on non string values with cannot be jsonified" do
-      lambda {
-        @channel.trigger!('new_event', Object.new)
-      }.should raise_error(JSON::GeneratorError)
+      begin
+        original_stdout = $stdout
+        $stdout = StringIO.new
+
+        lambda {
+          @channel.trigger!('new_event', Object.new)
+        }.should raise_error(JSON::GeneratorError)
+      ensure
+        $stdout = original_stdout
+      end
     end
 
     it "should catch all Net::HTTP exceptions and raise a Pusher::HTTPError, exposing the original error if required" do
