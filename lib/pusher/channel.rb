@@ -1,4 +1,4 @@
-require 'crack/core_extensions' # Used for Hash#to_params
+require 'pusher/core_ext/hash'
 require 'hmac-sha2'
 require 'multi_json'
 
@@ -29,13 +29,13 @@ module Pusher
         raise Error, "In order to use trigger_async you must be running inside an eventmachine loop"
       end
       require 'em-http' unless defined?(EventMachine::HttpRequest)
-      
+
       @http_async ||= EventMachine::HttpRequest.new(@uri)
 
       request = Pusher::Request.new(@uri, event_name, data, socket_id)
 
       deferrable = EM::DefaultDeferrable.new
-      
+
       http = @http_async.post({
         :query => request.query, :timeout => 5, :body => request.body,
         :head => {'Content-Type'=> 'application/json'}
@@ -52,7 +52,7 @@ module Pusher
         Pusher.logger.debug("Network error connecting to pusher: #{http.inspect}")
         deferrable.fail(Error.new("Network error connecting to pusher"))
       }
-      
+
       deferrable
     end
 
@@ -112,7 +112,7 @@ module Pusher
       Pusher.logger.error("#{e.message} (#{e.class})")
       Pusher.logger.debug(e.backtrace.join("\n"))
     end
-    
+
     # Compute authentication string required to subscribe to this channel.
     #
     # See http://pusherapp.com/docs/auth_signatures for more details.
@@ -134,7 +134,7 @@ module Pusher
 
       return "#{token.key}:#{signature}"
     end
-    
+
     # Deprecated - for backward compatibility
     alias :socket_auth :authentication_string
 
