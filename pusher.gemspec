@@ -10,15 +10,15 @@ Gem::Specification.new do |s|
   s.homepage    = "http://github.com/newbamboo/pusher-gem"
   s.summary     = %q{Pusherapp client}
   s.description = %q{Wrapper for pusherapp.com REST api}
-  
-  s.add_dependency "json", "~> 1.4.0"
-  s.add_dependency "crack", "~> 0.1.0"
-  s.add_dependency "ruby-hmac", "~> 0.4.0"
-  s.add_dependency 'signature', "~> 0.1.2"
-  
-  s.add_development_dependency "rspec", "~> 2.0"
+
+  s.add_dependency "json", ">= 1.4.0"
+  s.add_dependency "crack", ">= 0.1.0"
+  s.add_dependency "ruby-hmac", ">= 0.4.0"
+  s.add_dependency 'signature', ">= 0.1.2"
+
+  s.add_development_dependency "rspec", ">= 2.0"
   s.add_development_dependency "webmock"
-  s.add_development_dependency "em-http-request", "~> 0.2.7"
+  s.add_development_dependency "em-http-request", ">= 0.2.7"
 
   s.files         = `git ls-files`.split("\n")
   s.test_files    = `git ls-files -- {test,spec,features}/*`.split("\n")
