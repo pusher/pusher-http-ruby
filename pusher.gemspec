@@ -5,11 +5,11 @@ Gem::Specification.new do |s|
   s.name        = "pusher"
   s.version     = "0.8.0"
   s.platform    = Gem::Platform::RUBY
-  s.authors     = ["New Bamboo"]
-  s.email       = ["support@pusherapp.com"]
+  s.authors     = ["Pusher"]
+  s.email       = ["support@pusher.com"]
   s.homepage    = "http://github.com/newbamboo/pusher-gem"
-  s.summary     = %q{Pusherapp client}
-  s.description = %q{Wrapper for pusherapp.com REST api}
+  s.summary     = %q{Pusher API client}
+  s.description = %q{Wrapper for pusher.com REST api}
 
   s.add_dependency "multi_json", "~> 1.0"
   s.add_dependency "crack",     "~> 0.1.0"
