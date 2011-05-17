@@ -11,7 +11,3 @@ require 'webmock/rspec'
 
 require 'pusher'
 require 'eventmachine'
-
-RSpec.configure do |config|
-  config.include WebMock::API
-end
