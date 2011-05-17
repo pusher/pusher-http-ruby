@@ -1,4 +1,4 @@
-require File.expand_path('../spec_helper', __FILE__)
+require 'spec_helper'
 
 describe Pusher::Channel do
   before do
@@ -20,7 +20,7 @@ describe Pusher::Channel do
     Pusher.key = nil
     Pusher.secret = nil
   end
-  
+
   describe 'trigger!' do
     before :each do
       WebMock.stub_request(:post, @pusher_url_regexp).
@@ -50,7 +50,7 @@ describe Pusher::Channel do
         query_hash["auth_key"].should == Pusher.key
         query_hash["auth_timestamp"].should_not be_nil
 
-        parsed = JSON.parse(req.body)
+        parsed = MultiJson.decode(req.body)
         parsed.should == {
           "name" => 'Pusher',
           "last_name" => 'App'
@@ -66,12 +66,6 @@ describe Pusher::Channel do
       WebMock.should have_requested(:post, %r{/apps/20/channels/test_channel/events}).with do |req|
         req.body.should == "foo\nbar\""
       end
-    end
-
-    it "should raise error on non string values with cannot be jsonified" do
-      lambda {
-        @channel.trigger!('new_event', Object.new)
-      }.should raise_error(JSON::GeneratorError)
     end
 
     it "should catch all Net::HTTP exceptions and raise a Pusher::HTTPError, exposing the original error if required" do
@@ -92,7 +86,7 @@ describe Pusher::Channel do
 
     it "should raise AuthenticationError if pusher returns 401" do
       WebMock.stub_request(
-        :post, 
+        :post,
         %r{/apps/20/channels/test_channel/events}
       ).to_return(:status => 401)
       lambda {
@@ -211,48 +205,48 @@ describe Pusher::Channel do
         }.should raise_error
       end
     end
-    
+
     describe 'with extra string argument' do
-      
+
       it 'should be a string or nil' do
         lambda {
           @channel.socket_auth('socketid', 'boom')
         }.should_not raise_error
-        
+
         lambda {
           @channel.socket_auth('socketid', 123)
         }.should raise_error
-        
+
         lambda {
           @channel.socket_auth('socketid', nil)
         }.should_not raise_error
-        
+
         lambda {
           @channel.socket_auth('socketid', {})
         }.should raise_error
       end
-      
+
       it "should return an authentication string given a socket id and custom args" do
         auth = @channel.socket_auth('socketid', 'foobar')
 
         auth.should == "12345678900000001:#{HMAC::SHA256.hexdigest(Pusher.secret, "socketid:test_channel:foobar")}"
       end
-      
+
     end
   end
-  
+
   describe '#authenticate' do
-    
+
     before :each do
       @channel = Pusher['test_channel']
       @custom_data = {:uid => 123, :info => {:name => 'Foo'}}
     end
-    
+
     it 'should return a hash with signature including custom data and data as json string' do
-      Pusher::JSON.stub!(:generate).with(@custom_data).and_return 'a json string'
-      
+      MultiJson.stub!(:encode).with(@custom_data).and_return 'a json string'
+
       response = @channel.authenticate('socketid', @custom_data)
-      
+
       response.should == {
         :auth => "12345678900000001:#{HMAC::SHA256.hexdigest(Pusher.secret, "socketid:test_channel:a json string")}",
         :channel_data => 'a json string'

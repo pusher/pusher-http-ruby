@@ -18,6 +18,7 @@ coverage
 rdoc
 pkg
 .yardoc
+Gemfile.lock
 
 ## PROJECT::SPECIFIC
 .bundle

@@ -26,12 +26,12 @@ module Pusher
     # @private
     def logger
       @logger ||= begin
-        log = Logger.new(STDOUT)
+        log = Logger.new($stdout)
         log.level = Logger::INFO
         log
       end
     end
-    
+
     # @private
     def authentication_token
       Signature::Token.new(@key, @secret)
@@ -103,6 +103,5 @@ module Pusher
   end
 end
 
-require 'pusher/json'
 require 'pusher/channel'
 require 'pusher/request'
