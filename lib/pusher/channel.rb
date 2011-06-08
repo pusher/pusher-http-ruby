@@ -29,14 +29,12 @@ module Pusher
         raise Error, "In order to use trigger_async you must be running inside an eventmachine loop"
       end
       require 'em-http' unless defined?(EventMachine::HttpRequest)
-      
-      @http_async ||= EventMachine::HttpRequest.new(@uri)
 
       request = Pusher::Request.new(@uri, event_name, data, socket_id)
 
       deferrable = EM::DefaultDeferrable.new
       
-      http = @http_async.post({
+      http = EventMachine::HttpRequest.new(@uri).post({
         :query => request.query, :timeout => 5, :body => request.body,
         :head => {'Content-Type'=> 'application/json'}
       })
