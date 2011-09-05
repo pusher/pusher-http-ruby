@@ -97,7 +97,7 @@ module Pusher
   # @raise [ConfigurationError] unless key, secret and app_id have been
   #   configured
   def self.[](channel_name)
-    raise ConfigurationError, 'Missing configuration: please check that Pusher.url is configured' unless configured?
+    raise ConfigurationError, 'Missing configuration: please check that Pusher.key, Pusher.secret and Pusher.app_id are configured.' unless configured?
     @channels ||= {}
     @channels[channel_name.to_s] ||= Channel.new(url, channel_name)
   end
