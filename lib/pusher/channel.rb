@@ -66,7 +66,7 @@ module Pusher
     # @param data [Object] Event data to be triggered in javascript.
     #   Objects other than strings will be converted to JSON
     # @param socket_id Allows excluding a given socket_id from receiving the
-    #   event - see http://pusherapp.com/docs/duplicates for more info
+    #   event - see http://pusher.com/docs/publisher_api_guide/publisher_excluding_recipients for more info
     #
     # @raise [Pusher::Error] on invalid Pusher response - see the error message for more details
     # @raise [Pusher::HTTPError] on any error raised inside Net::HTTP - the original error is available in the original_error attribute
@@ -113,7 +113,7 @@ module Pusher
     
     # Compute authentication string required to subscribe to this channel.
     #
-    # See http://pusherapp.com/docs/auth_signatures for more details.
+    # See http://pusher.com/docs/auth_signatures for more details.
     #
     # @param socket_id [String] Each Pusher socket connection receives a
     #   unique socket_id. This is sent from pusher.js to your server when
