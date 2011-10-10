@@ -88,6 +88,7 @@ module Pusher
         response = @http_sync.post("#{@uri.path}?#{request.query.to_params}",
           request.body, { 'Content-Type'=> 'application/json' })
       rescue Errno::EINVAL, Errno::ECONNRESET, Errno::ECONNREFUSED,
+             Errno::ETIMEDOUT, Errno::EHOSTUNREACH, Errno::ECONNRESET,
              Timeout::Error, EOFError,
              Net::HTTPBadResponse, Net::HTTPHeaderSyntaxError,
              Net::ProtocolError => e
