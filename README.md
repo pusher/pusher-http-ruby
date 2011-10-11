@@ -4,7 +4,7 @@ Pusher gem
 Getting started
 ---------------
 
-After registering at <http://pusherapp.com> configure your app with the security credentials
+After registering at <http://pusher.com> configure your app with the security credentials
 
     Pusher.app_id = 'your-pusher-app-id'
     Pusher.key = 'your-pusher-key'
@@ -22,7 +22,7 @@ Handle errors by rescuing `Pusher::Error` (all Pusher errors are descendants of 
       # (Pusher::AuthenticationError, Pusher::HTTPError, or Pusher::Error)
     end
 
-Optionally a socket id may be provided. This will exclude the event from being triggered on this socket id (see <http://pusherapp.com/docs/duplicates> for more info).
+Optionally a socket id may be provided. This will exclude the event from being triggered on this socket id (see <http://pusher.com/docs/publisher_api_guide/publisher_excluding_recipients> for more info).
 
     Pusher['a_channel'].trigger!('an_event', {:some => 'data'}, socket_id)
 
@@ -64,7 +64,7 @@ The Pusher Gem also deals with signing requests for authenticated private channe
     reponse = Pusher['private-my_channel'].authenticate(params[:socket_id])
     render :json => response
     
-Read more about private channels in [the docs](http://pusherapp.com/docs/private_channels) and under {Pusher::Channel#authenticate}.
+Read more about private channels in [the docs](http://pusher.com/docs/client_api_guide/client_channels#subscribe-private-channels) and under {Pusher::Channel#authenticate}.
 
 Developing
 ----------

@@ -3,11 +3,11 @@ $:.push File.expand_path("../lib", __FILE__)
 
 Gem::Specification.new do |s|
   s.name        = "pusher"
-  s.version     = "0.8.2"
+  s.version     = "0.8.3"
   s.platform    = Gem::Platform::RUBY
   s.authors     = ["Pusher"]
   s.email       = ["support@pusher.com"]
-  s.homepage    = "http://github.com/newbamboo/pusher-gem"
+  s.homepage    = "http://github.com/pusher/pusher-gem"
   s.summary     = %q{Pusher API client}
   s.description = %q{Wrapper for pusher.com REST api}
 
@@ -18,7 +18,8 @@ Gem::Specification.new do |s|
 
   s.add_development_dependency "rspec", "~> 2.0"
   s.add_development_dependency "webmock"
-  s.add_development_dependency "em-http-request", "~> 0.3.0"
+  s.add_development_dependency "em-http-request", "~> 1.0.0"
+  s.add_development_dependency "rake"
 
   s.files         = `git ls-files`.split("\n")
   s.test_files    = `git ls-files -- {test,spec,features}/*`.split("\n")
