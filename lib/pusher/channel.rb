@@ -7,10 +7,11 @@ module Pusher
   class Channel
     attr_reader :name
 
-    def initialize(base_url, name)
+    def initialize(base_url, name, token = nil)
       @uri = base_url.dup
       @uri.path = @uri.path + "/channels/#{name}/events"
       @name = name
+      @token = token
     end
 
     # Trigger event asynchronously using EventMachine::HttpRequest
@@ -30,7 +31,7 @@ module Pusher
       end
       require 'em-http' unless defined?(EventMachine::HttpRequest)
 
-      request = Pusher::Request.new(@uri, event_name, data, socket_id)
+      request = Pusher::Request.new(@uri, event_name, data, socket_id, @token)
 
       deferrable = EM::DefaultDeferrable.new
       
@@ -82,7 +83,7 @@ module Pusher
         http
       end
 
-      request = Pusher::Request.new(@uri, event_name, data, socket_id)
+      request = Pusher::Request.new(@uri, event_name, data, socket_id, @token)
 
       begin
         response = @http_sync.post("#{@uri.path}?#{request.query.to_params}",
@@ -128,7 +129,7 @@ module Pusher
 
       string_to_sign = [socket_id, name, custom_string].compact.map{|e|e.to_s}.join(':')
       Pusher.logger.debug "Signing #{string_to_sign}"
-      token = Pusher.authentication_token
+      token = @token || Pusher.authentication_token
       signature = HMAC::SHA256.hexdigest(token.secret, string_to_sign)
 
       return "#{token.key}:#{signature}"
