@@ -9,7 +9,7 @@ module Pusher
 
     def initialize(base_url, name)
       @uri = base_url.dup
-      @uri.path = @uri.path + "/channels/#{name}/events"
+      @uri.path = @uri.path + "/channels/#{name}/"
       @name = name
     end
 
@@ -25,33 +25,8 @@ module Pusher
     #   probably want to run your application inside a server such as thin
     #
     def trigger_async(event_name, data, socket_id = nil, &block)
-      unless defined?(EventMachine) && EventMachine.reactor_running?
-        raise Error, "In order to use trigger_async you must be running inside an eventmachine loop"
-      end
-      require 'em-http' unless defined?(EventMachine::HttpRequest)
-
-      request = Pusher::Request.new(@uri, event_name, data, socket_id)
-
-      deferrable = EM::DefaultDeferrable.new
-      
-      http = EventMachine::HttpRequest.new(@uri).post({
-        :query => request.query, :timeout => 5, :body => request.body,
-        :head => {'Content-Type'=> 'application/json'}
-      })
-      http.callback {
-        begin
-          handle_response(http.response_header.status, http.response.chomp)
-          deferrable.succeed
-        rescue => e
-          deferrable.fail(e)
-        end
-      }
-      http.errback {
-        Pusher.logger.debug("Network error connecting to pusher: #{http.inspect}")
-        deferrable.fail(Error.new("Network error connecting to pusher"))
-      }
-      
-      deferrable
+      request = construct_event_request(event_name, data, socket_id)
+      request.send_async
     end
 
     # Trigger event
@@ -72,32 +47,8 @@ module Pusher
     # @raise [Pusher::HTTPError] on any error raised inside Net::HTTP - the original error is available in the original_error attribute
     #
     def trigger!(event_name, data, socket_id = nil)
-      require 'net/http' unless defined?(Net::HTTP)
-      require 'net/https' if (ssl? && !defined?(Net::HTTPS))
-
-      @http_sync ||= begin
-        http = Net::HTTP.new(@uri.host, @uri.port)
-        http.use_ssl = true if ssl?
-        http.verify_mode = OpenSSL::SSL::VERIFY_NONE if ssl?
-        http
-      end
-
-      request = Pusher::Request.new(@uri, event_name, data, socket_id)
-
-      begin
-        response = @http_sync.post("#{@uri.path}?#{request.query.to_params}",
-          request.body, { 'Content-Type'=> 'application/json' })
-      rescue Errno::EINVAL, Errno::ECONNRESET, Errno::ECONNREFUSED,
-             Errno::ETIMEDOUT, Errno::EHOSTUNREACH, Errno::ECONNRESET,
-             Timeout::Error, EOFError,
-             Net::HTTPBadResponse, Net::HTTPHeaderSyntaxError,
-             Net::ProtocolError => e
-        error = Pusher::HTTPError.new("#{e.message} (#{e.class})")
-        error.original_error = e
-        raise error
-      end
-
-      return handle_response(response.code.to_i, response.body.chomp)
+      request = construct_event_request(event_name, data, socket_id)
+      request.send_sync
     end
 
     # Trigger event, catching and logging any errors.
@@ -112,6 +63,11 @@ module Pusher
       Pusher.logger.debug(e.backtrace.join("\n"))
     end
     
+    def stats
+      request = Pusher::Request.new(:get, @uri + 'stats', {})
+      return request.send_sync
+    end
+
     # Compute authentication string required to subscribe to this channel.
     #
     # See http://pusher.com/docs/auth_signatures for more details.
@@ -168,23 +124,25 @@ module Pusher
 
     private
 
-    def handle_response(status_code, body)
-      case status_code
-      when 202
-        return true
-      when 400
-        raise Error, "Bad request: #{body}"
-      when 401
-        raise AuthenticationError, body
-      when 404
-        raise Error, "Resource not found: app_id is probably invalid"
-      else
-        raise Error, "Unknown error (status code #{status_code}): #{body}"
-      end
-    end
+    def construct_event_request(event_name, data, socket_id)
+      params = {
+        :name => event_name,
+      }
+      params[:socket_id] = socket_id if socket_id
 
-    def ssl?
-      @uri.scheme == 'https'
+      body = case data
+      when String
+        data
+      else
+        begin
+          MultiJson.encode(data)
+        rescue MultiJson::DecodeError => e
+          Pusher.logger.error("Could not convert #{data.inspect} into JSON")
+          raise e
+        end
+      end
+
+      request = Pusher::Request.new(:post, @uri + 'events', params, body)
     end
   end
 end

@@ -187,6 +187,24 @@ describe Pusher::Channel do
     end
   end
 
+  describe "stats" do
+    before :each do
+      @api_path = %r{/apps/20/channels/presence-test_channel/stats}
+    end
+
+    it "should call the user_count api" do
+      WebMock.stub_request(:get, @api_path).to_return({
+        :status => 200,
+        :body => JSON.generate(:user_count => 1)
+      })
+      @channel = Pusher['presence-test_channel']
+
+      @channel.stats.should == {
+        :user_count => 1
+      }
+    end
+  end
+
   describe "socket_auth" do
     before :each do
       @channel = Pusher['test_channel']
