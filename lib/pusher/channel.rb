@@ -63,9 +63,9 @@ module Pusher
       Pusher.logger.debug(e.backtrace.join("\n"))
     end
     
-    def user_count
-      request = Pusher::Request.new(:get, @uri + 'count', {})
-      request.send_sync[:count]
+    def stats
+      request = Pusher::Request.new(:get, @uri + 'stats', {})
+      return request.send_sync
     end
 
     # Compute authentication string required to subscribe to this channel.
