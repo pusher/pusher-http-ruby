@@ -11,10 +11,10 @@ Gem::Specification.new do |s|
   s.summary     = %q{Pusher API client}
   s.description = %q{Wrapper for pusher.com REST api}
 
-  s.add_dependency "multi_json", "~> 1.0"
-  s.add_dependency "crack",     "~> 0.1.0"
-  s.add_dependency "ruby-hmac", "~> 0.4.0"
-  s.add_dependency 'signature', "~> 0.1.2"
+  s.add_dependency "multi_json", ">= 1.0"
+  s.add_dependency "crack",     ">= 0.1.0"
+  s.add_dependency "ruby-hmac", ">= 0.4.0"
+  s.add_dependency 'signature', ">= 0.1.2"
 
   s.add_development_dependency "rspec", "~> 2.0"
   s.add_development_dependency "webmock"
