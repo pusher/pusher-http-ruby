@@ -73,8 +73,3 @@ Use bundler in order to run specs with the correct dependencies.
 
     bundle
     bundle exec rspec spec/*_spec.rb
-
-Copyright
----------
-
-Copyright (c) 2010 New Bamboo. See LICENSE for details.
