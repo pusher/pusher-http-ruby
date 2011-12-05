@@ -1,4 +1,3 @@
-require 'crack/core_extensions' # Used for Hash#to_params
 require 'hmac-sha2'
 require 'multi_json'
 
