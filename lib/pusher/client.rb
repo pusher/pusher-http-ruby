@@ -8,6 +8,7 @@ module Pusher
       options = {
         scheme: 'http',
         host: 'api.pusherapp.com',
+        port: 80,
       }.merge(options)
       @scheme, @host, @port, @app_id, @key, @secret, @logger = options.values_at(
         :scheme, :host, :port, :app_id, :key, :secret, :logger
