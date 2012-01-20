@@ -9,9 +9,9 @@ module Pusher
         scheme: 'http',
         host: 'api.pusherapp.com',
       }.merge(options)
-      @scheme, @host, @port, @app_id, @key, @secret, @logger = options.values_at([
+      @scheme, @host, @port, @app_id, @key, @secret, @logger = options.values_at(
         :scheme, :host, :port, :app_id, :key, :secret, :logger
-      ])
+      )
     end
 
     # Returns the logger associated to the client
