@@ -87,8 +87,8 @@ describe Pusher do
       end
 
       it 'should use standard logger if no other logger if defined' do
-        @client.logger.debug('foo')
-        @client.logger.should be_kind_of(Logger)
+        Pusher.logger.debug('foo')
+        Pusher.logger.should be_kind_of(Logger)
       end
     end
 
@@ -96,9 +96,9 @@ describe Pusher do
       it "can be configured to use any logger" do
         logger = mock("ALogger")
         logger.should_receive(:debug).with('foo')
-        @client.logger = logger
-        @client.logger.debug('foo')
-        @client.logger = nil
+        Pusher.logger = logger
+        Pusher.logger.debug('foo')
+        Pusher.logger = nil
       end
     end
 

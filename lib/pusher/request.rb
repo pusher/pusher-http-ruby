@@ -125,7 +125,7 @@ module Pusher
         end
       }
       http.errback {
-        @client.logger.debug("Network error connecting to pusher: #{http.inspect}")
+        Pusher.logger.debug("Network error connecting to pusher: #{http.inspect}")
         deferrable.fail(Error.new("Network error connecting to pusher"))
       }
 

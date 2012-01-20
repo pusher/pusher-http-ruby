@@ -59,8 +59,8 @@ module Pusher
     def trigger(event_name, data, socket_id = nil)
       trigger!(event_name, data, socket_id)
     rescue Pusher::Error => e
-      @client.logger.error("#{e.message} (#{e.class})")
-      @client.logger.debug(e.backtrace.join("\n"))
+      Pusher.logger.error("#{e.message} (#{e.class})")
+      Pusher.logger.debug(e.backtrace.join("\n"))
     end
     
     # Request channel stats
@@ -89,7 +89,7 @@ module Pusher
       raise 'Custom argument must be a string' unless custom_string.nil? || custom_string.kind_of?(String)
 
       string_to_sign = [socket_id, name, custom_string].compact.map{|e|e.to_s}.join(':')
-      @client.logger.debug "Signing #{string_to_sign}"
+      Pusher.logger.debug "Signing #{string_to_sign}"
       token = @client.authentication_token
       signature = HMAC::SHA256.hexdigest(token.secret, string_to_sign)
 
@@ -143,7 +143,7 @@ module Pusher
         begin
           MultiJson.encode(data)
         rescue MultiJson::DecodeError => e
-          @client.logger.error("Could not convert #{data.inspect} into JSON")
+          Pusher.logger.error("Could not convert #{data.inspect} into JSON")
           raise e
         end
       end

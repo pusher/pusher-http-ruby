@@ -21,11 +21,13 @@ module Pusher
   class << self
     extend Forwardable
 
-    def_delegators :default_client, :scheme, :host, :port, :app_id, :key, :secret, :logger
-    def_delegators :default_client, :scheme, :host=, :port=, :app_id=, :key=, :secret=, :logger=
+    def_delegators :default_client, :scheme, :host, :port, :app_id, :key, :secret
+    def_delegators :default_client, :scheme, :host=, :port=, :app_id=, :key=, :secret=
 
     def_delegators :default_client, :authentication_token, :url
     def_delegators :default_client, :encrypted=, :url=
+
+    attr_writer :logger
 
     # Return a channel by name
     #
@@ -39,6 +41,14 @@ module Pusher
         default_client[channel_name]
       rescue ConfigurationError
         raise ConfigurationError, 'Missing configuration: please check that Pusher.key, Pusher.secret and Pusher.app_id are configured.'
+      end
+    end
+
+    def logger
+      @logger ||= begin
+        log = Logger.new($stdout)
+        log.level = Logger::INFO
+        log
       end
     end
 

@@ -41,7 +41,7 @@ module Pusher
           return check_signature(token[:secret]) if @key == token[:key]
         end
       end
-      @client.logger.warn "Received webhook with unknown key: #{key}"
+      Pusher.logger.warn "Received webhook with unknown key: #{key}"
       return false
     end
 
@@ -82,7 +82,7 @@ module Pusher
       if @signature == expected
         return true
       else
-        @client.logger.warn "Received WebHook with invalid signature: got #{@signature}, expected #{expected}"
+        Pusher.logger.warn "Received WebHook with invalid signature: got #{@signature}, expected #{expected}"
         return false
       end
     end

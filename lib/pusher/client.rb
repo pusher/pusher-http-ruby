@@ -3,7 +3,6 @@ require 'signature'
 module Pusher
   class Client
     attr_accessor :scheme, :host, :port, :app_id, :key, :secret
-    attr_writer :logger
 
     # Initializes the client object.
     def initialize(options = {})
@@ -12,18 +11,9 @@ module Pusher
         host: 'api.pusherapp.com',
         port: 80,
       }.merge(options)
-      @scheme, @host, @port, @app_id, @key, @secret, @logger = options.values_at(
-        :scheme, :host, :port, :app_id, :key, :secret, :logger
+      @scheme, @host, @port, @app_id, @key, @secret = options.values_at(
+        :scheme, :host, :port, :app_id, :key, :secret
       )
-    end
-
-    # Returns the logger associated to the client
-    def logger
-      @logger ||= begin
-        log = Logger.new($stdout)
-        log.level = Logger::INFO
-        log
-      end
     end
 
     # @private Returns the authentication token for the client
