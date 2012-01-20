@@ -52,9 +52,10 @@ module Pusher
 
     include QueryEncoder
 
-    def initialize(verb, uri, params, body = nil, token = nil)
+    def initialize(verb, uri, params, body = nil, token = nil, client = Pusher)
       @verb = verb
       @uri = uri
+      @client = client
 
       if body
         @body = body
@@ -62,7 +63,7 @@ module Pusher
       end
 
       request = Signature::Request.new(verb.to_s.upcase, uri.path, params)
-      auth_hash = request.sign(token || Pusher.authentication_token)
+      auth_hash = request.sign(token || @client.authentication_token)
       @params = params.merge(auth_hash)
     end
 
@@ -124,7 +125,7 @@ module Pusher
         end
       }
       http.errback {
-        Pusher.logger.debug("Network error connecting to pusher: #{http.inspect}")
+        @client.logger.debug("Network error connecting to pusher: #{http.inspect}")
         deferrable.fail(Error.new("Network error connecting to pusher"))
       }
 

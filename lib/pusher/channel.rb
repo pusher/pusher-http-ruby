@@ -70,7 +70,7 @@ module Pusher
     # @raise [Pusher::HTTPError] on any error raised inside Net::HTTP - the original error is available in the original_error attribute
     #
     def stats
-      request = Pusher::Request.new(:get, @uri + 'stats', {})
+      request = Pusher::Request.new(:get, @uri + 'stats', {}, nil, nil, @client)
       return request.send_sync
     end
 
@@ -148,7 +148,7 @@ module Pusher
         end
       end
 
-      request = Pusher::Request.new(:post, @uri + 'events', params, body)
+      request = Pusher::Request.new(:post, @uri + 'events', params, body, nil, @client)
     end
   end
 end
