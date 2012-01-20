@@ -6,10 +6,11 @@ module Pusher
   class Channel
     attr_reader :name
 
-    def initialize(base_url, name)
+    def initialize(base_url, name, client = Pusher)
       @uri = base_url.dup
       @uri.path = @uri.path + "/channels/#{name}/"
       @name = name
+      @client = client
     end
 
     # Trigger event asynchronously using EventMachine::HttpRequest
@@ -58,8 +59,8 @@ module Pusher
     def trigger(event_name, data, socket_id = nil)
       trigger!(event_name, data, socket_id)
     rescue Pusher::Error => e
-      Pusher.logger.error("#{e.message} (#{e.class})")
-      Pusher.logger.debug(e.backtrace.join("\n"))
+      @client.logger.error("#{e.message} (#{e.class})")
+      @client.logger.debug(e.backtrace.join("\n"))
     end
     
     # Request channel stats
@@ -88,8 +89,8 @@ module Pusher
       raise 'Custom argument must be a string' unless custom_string.nil? || custom_string.kind_of?(String)
 
       string_to_sign = [socket_id, name, custom_string].compact.map{|e|e.to_s}.join(':')
-      Pusher.logger.debug "Signing #{string_to_sign}"
-      token = Pusher.authentication_token
+      @client.logger.debug "Signing #{string_to_sign}"
+      token = @client.authentication_token
       signature = HMAC::SHA256.hexdigest(token.secret, string_to_sign)
 
       return "#{token.key}:#{signature}"
@@ -142,7 +143,7 @@ module Pusher
         begin
           MultiJson.encode(data)
         rescue MultiJson::DecodeError => e
-          Pusher.logger.error("Could not convert #{data.inspect} into JSON")
+          @client.logger.error("Could not convert #{data.inspect} into JSON")
           raise e
         end
       end
