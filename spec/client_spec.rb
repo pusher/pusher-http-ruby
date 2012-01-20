@@ -3,6 +3,75 @@ require 'spec_helper'
 require 'em-http'
 
 describe Pusher do
+  describe 'different clients' do
+    before :each do
+      @client1 = Pusher::Client.new
+      @client2 = Pusher::Client.new
+
+      @client1.scheme = 'ws'
+      @client2.scheme = 'wss'
+      @client1.host = 'one'
+      @client2.host = 'two'
+      @client1.port = 81
+      @client2.port = 82
+      @client1.app_id = '1111'
+      @client2.app_id = '2222'
+      @client1.key = 'AAAA'
+      @client2.key = 'BBBB'
+      @client1.secret = 'aaaaaaaa'
+      @client2.secret = 'bbbbbbbb'
+    end
+
+    it "should send scheme messages to different objects" do
+      @client1.scheme.should_not == @client2.scheme
+    end
+
+    it "should send host messages to different objects" do
+      @client1.host.should_not == @client2.host
+    end
+
+    it "should send port messages to different objects" do
+      @client1.port.should_not == @client2.port
+    end
+
+    it "should send app_id messages to different objects" do
+      @client1.app_id.should_not == @client2.app_id
+    end
+
+    it "should send app_id messages to different objects" do
+      @client1.key.should_not == @client2.key
+    end
+
+    it "should send app_id messages to different objects" do
+      @client1.secret.should_not == @client2.secret
+    end
+
+    it "should send app_id messages to different objects" do
+      @client1.authentication_token.key.should_not == @client2.authentication_token.key
+      @client1.authentication_token.secret.should_not == @client2.authentication_token.secret
+    end
+
+    it "should send url messages to different objects" do
+      @client1.url.to_s.should_not == @client2.url.to_s
+      @client1.url = 'ws://one/apps/111'
+      @client2.url = 'wss://two/apps/222'
+      @client1.scheme.should_not == @client2.scheme
+      @client1.host.should_not == @client2.host
+      @client1.app_id.should_not == @client2.app_id
+    end
+
+    it "should send encrypted messages to different objects" do
+      @client1.encrypted = false
+      @client2.encrypted = true
+      @client1.scheme.should_not == @client2.scheme
+      @client1.port.should_not == @client2.port
+    end
+
+    it "should send [] messages to different objects" do
+      @client1['test'].should_not == @client2['test']
+    end
+  end
+
   [lambda { Pusher }, lambda { Pusher::Client.new }].each do |client_gen|
     before :each do
       @client = client_gen.call

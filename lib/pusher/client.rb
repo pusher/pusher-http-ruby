@@ -1,3 +1,5 @@
+require 'signature'
+
 module Pusher
   class Client
     attr_accessor :scheme, :host, :port, :app_id, :key, :secret
