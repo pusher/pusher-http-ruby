@@ -59,11 +59,47 @@ describe Pusher::WebHook do
       @wh.should be_valid
     end
 
+    it "should not validate if key is wrong" do
+      Pusher.key = '12345'
+      Pusher.secret = 'asdf'
+      Pusher.logger.should_receive(:warn).with("Received webhook with unknown key: 1234")
+      @wh.should_not be_valid
+    end
+
     it "should not validate if secret is wrong" do
       Pusher.key = '1234'
       Pusher.secret = 'asdfxxx'
       Pusher.logger.should_receive(:warn).with("Received WebHook with invalid signature: got a18bd1374b3b198ec457fb11d636ee2024d8077fc542829443729988bd1e4aa4, expected bb81a112a46dee1e4154ee4f328621f32558192c7af12adfc0395082cfcd3c6c")
       @wh.should_not be_valid
+    end
+
+    it "should validate with an extra token" do
+      Pusher.key = '12345'
+      Pusher.secret = 'xxx'
+      @wh.valid?({key: '1234', secret: 'asdf'}).should be_true
+    end
+
+    it "should validate with an array of extra tokens" do
+      Pusher.key = '123456'
+      Pusher.secret = 'xxx'
+      @wh.valid?([
+        {key: '12345', secret: 'wtf'},
+        {key: '1234', secret: 'asdf'}
+      ]).should be_true
+    end
+
+    it "should not validate if all keys are wrong with extra tokens" do
+      Pusher.key = '123456'
+      Pusher.secret = 'asdf'
+      Pusher.logger.should_receive(:warn).with("Received webhook with unknown key: 1234")
+      @wh.valid?({key: '12345', secret: 'asdf'}).should be_false
+    end
+
+    it "should not validate if secret is wrong with extra tokens" do
+      Pusher.key = '123456'
+      Pusher.secret = 'asdfxxx'
+      Pusher.logger.should_receive(:warn).with(/Received WebHook with invalid signature/)
+      @wh.valid?({key: '1234', secret: 'wtf'}).should be_false
     end
 
     it "should expose events" do

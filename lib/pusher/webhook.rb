@@ -23,16 +23,25 @@ module Pusher
       end
     end
 
-    # Returns true if the WebHook is valid or false otherwise. In the case
-    # that the webhook is not valid, the reason is logged
+    # Returns whether the WebHook is valid by checking that the signature
+    # matches the configured key & secret. In the case that the webhook is
+    # invalid, the reason is logged
     #
-    def valid?
+    # @param extra_tokens [Hash] If you have extra tokens for your Pusher
+    # app, you can specify them here so that they're used to attempt
+    # validation.
+    #
+    def valid?(extra_tokens = nil)
+      extra_tokens = [extra_tokens] if extra_tokens.kind_of?(Hash)
       if @key == Pusher.key
         return check_signature(Pusher.secret)
-      else
-        Pusher.logger.warn "Received webhook with unknown key: #{key}"
-        return false
+      elsif extra_tokens
+        extra_tokens.each do |token|
+          return check_signature(token[:secret]) if @key == token[:key]
+        end
       end
+      Pusher.logger.warn "Received webhook with unknown key: #{key}"
+      return false
     end
 
     # Array of events (as Hashes) contained inside the webhook
