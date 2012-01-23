@@ -16,8 +16,8 @@ describe Pusher::WebHook do
   describe "initialization" do
     it "can be initialized with Rack::Request" do
       request = Rack::Request.new({
-        'HTTP_X_PUSHER_APPKEY' => '1234',
-        'HTTP_X_PUSHER_HMAC_SHA256' => 'asdf',
+        'HTTP_X_PUSHER_KEY' => '1234',
+        'HTTP_X_PUSHER_SIGNATURE' => 'asdf',
         'CONTENT_TYPE' => 'application/json',
         'rack.input' => StringIO.new(MultiJson.encode(@hook_data))
       })

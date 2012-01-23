@@ -10,8 +10,8 @@ module Pusher
     #
     def initialize(request)
       if request.kind_of?(Rack::Request)
-        @key = request.env['HTTP_X_PUSHER_APPKEY']
-        @signature = request.env["HTTP_X_PUSHER_HMAC_SHA256"]
+        @key = request.env['HTTP_X_PUSHER_KEY']
+        @signature = request.env["HTTP_X_PUSHER_SIGNATURE"]
         @content_type = request.content_type
 
         request.body.rewind
