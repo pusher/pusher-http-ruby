@@ -52,6 +52,8 @@ module Pusher
 
     include QueryEncoder
 
+    attr_reader :body, :params
+
     def initialize(verb, uri, params, body = nil, token = nil, client = Pusher)
       @verb = verb
       @uri = uri
