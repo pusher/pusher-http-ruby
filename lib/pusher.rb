@@ -1,5 +1,6 @@
 autoload 'Logger', 'logger'
 require 'uri'
+require 'pusher/client'
 
 # Used for configuring API credentials and creating Channel objects
 #
@@ -60,11 +61,10 @@ module Pusher
   end
 
   if ENV['PUSHER_URL']
-    url = ENV['PUSHER_URL']
+    self.url = ENV['PUSHER_URL']
   end
 end
 
-require 'pusher/client'
 require 'pusher/channel'
 require 'pusher/request'
 require 'pusher/webhook'
