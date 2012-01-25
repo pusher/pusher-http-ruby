@@ -2,6 +2,26 @@ require 'multi_json'
 require 'hmac-sha2'
 
 module Pusher
+  # Used to parse and authenticate WebHooks
+  #
+  # @example
+  #   post '/webhooks' do
+  #     webhook = Pusher::WebHook.new(request)
+  #     if webhook.valid?
+  #       webhook.events.each do |event|
+  #         case event["name"]
+  #         when 'channel_occupied'
+  #           puts "Channel occupied: #{event["channel"]}"
+  #         when 'channel_vacated'
+  #           puts "Channel vacated: #{event["channel"]}"
+  #         end
+  #       end
+  #     else
+  #       status 401
+  #     end
+  #     return
+  #   end
+  #
   class WebHook
     attr_reader :key, :signature
 

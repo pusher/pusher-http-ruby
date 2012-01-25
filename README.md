@@ -66,6 +66,11 @@ The Pusher Gem also deals with signing requests for authenticated private channe
     
 Read more about private channels in [the docs](http://pusher.com/docs/client_api_guide/client_channels#subscribe-private-channels) and under {Pusher::Channel#authenticate}.
 
+WebHooks
+--------
+
+See {Pusher::WebHook}
+
 Developing
 ----------
 
