@@ -2,12 +2,14 @@ require 'spec_helper'
 
 describe Pusher::Channel do
   before do
-    Pusher.app_id = '20'
-    Pusher.key    = '12345678900000001'
-    Pusher.secret = '12345678900000001'
-    Pusher.host = 'api.pusherapp.com'
-    Pusher.port = 80
-    Pusher.encrypted = false
+    @client = Pusher::Client.new(
+      app_id: '20',
+      key: '12345678900000001',
+      secret: '12345678900000001',
+      host: 'api.pusherapp.com',
+      port: 80,
+    )
+    @client.encrypted = false
 
     WebMock.reset!
     WebMock.disable_net_connect!
@@ -15,17 +17,11 @@ describe Pusher::Channel do
     @pusher_url_regexp = %r{/apps/20/channels/test_channel/events}
   end
 
-  after do
-    Pusher.app_id = nil
-    Pusher.key = nil
-    Pusher.secret = nil
-  end
-
   describe 'trigger!' do
     before :each do
       WebMock.stub_request(:post, @pusher_url_regexp).
         to_return(:status => 202)
-      @channel = Pusher['test_channel']
+      @channel = @client['test_channel']
     end
 
     it 'should configure HTTP library to talk to pusher API' do
@@ -34,8 +30,9 @@ describe Pusher::Channel do
     end
 
     it "should POST to https api if ssl enabled" do
-      Pusher.encrypted = true
-      Pusher::Channel.new(Pusher.url, 'test_channel').trigger('new_event', 'Some data')
+      @client.encrypted = true
+      encrypted_channel = Pusher::Channel.new(@client.url, 'test_channel', @client)
+      encrypted_channel.trigger('new_event', 'Some data')
       WebMock.should have_requested(:post, %r{https://api.pusherapp.com})
     end
 
@@ -47,7 +44,7 @@ describe Pusher::Channel do
       WebMock.should have_requested(:post, %r{/apps/20/channels/test_channel/events}).with do |req|
         query_hash = req.uri.query_values
         query_hash["name"].should == 'new_event'
-        query_hash["auth_key"].should == Pusher.key
+        query_hash["auth_key"].should == @client.key
         query_hash["auth_timestamp"].should_not be_nil
 
         parsed = MultiJson.decode(req.body)
@@ -75,7 +72,7 @@ describe Pusher::Channel do
 
       error_raised = nil
       begin
-        Pusher['test_channel'].trigger!('new_event', 'Some data')
+        @client['test_channel'].trigger!('new_event', 'Some data')
       rescue => e
         error_raised = e
       end
@@ -90,7 +87,7 @@ describe Pusher::Channel do
         %r{/apps/20/channels/test_channel/events}
       ).to_return(:status => 401)
       lambda {
-        Pusher['test_channel'].trigger!('new_event', 'Some data')
+        @client['test_channel'].trigger!('new_event', 'Some data')
       }.should raise_error(Pusher::AuthenticationError)
     end
 
@@ -99,7 +96,7 @@ describe Pusher::Channel do
         :post, %r{/apps/20/channels/test_channel/events}
       ).to_return(:status => 404)
       lambda {
-        Pusher['test_channel'].trigger!('new_event', 'Some data')
+        @client['test_channel'].trigger!('new_event', 'Some data')
       }.should raise_error(Pusher::Error, 'Resource not found: app_id is probably invalid')
     end
 
@@ -108,7 +105,7 @@ describe Pusher::Channel do
         :post, %r{/apps/20/channels/test_channel/events}
       ).to_return(:status => 500, :body => "some error")
       lambda {
-        Pusher['test_channel'].trigger!('new_event', 'Some data')
+        @client['test_channel'].trigger!('new_event', 'Some data')
       }.should raise_error(Pusher::Error, 'Unknown error (status code 500): some error')
     end
   end
@@ -118,7 +115,8 @@ describe Pusher::Channel do
       stub_request(:post, @pusher_url_regexp).to_raise(Net::HTTPBadResponse)
       Pusher.logger.should_receive(:error).with("Exception from WebMock (Net::HTTPBadResponse) (Pusher::HTTPError)")
       Pusher.logger.should_receive(:debug) #backtrace
-      Pusher::Channel.new(Pusher.url, 'test_channel').trigger('new_event', 'Some data')
+      channel = Pusher::Channel.new(@client.url, 'test_channel', @client)
+      channel.trigger('new_event', 'Some data')
     end
 
     it "should log failure if Pusher returns an error response" do
@@ -126,7 +124,8 @@ describe Pusher::Channel do
       # @http.should_receive(:post).and_raise(Net::HTTPBadResponse)
       Pusher.logger.should_receive(:error).with(" (Pusher::AuthenticationError)")
       Pusher.logger.should_receive(:debug) #backtrace
-      Pusher::Channel.new(Pusher.url, 'test_channel').trigger('new_event', 'Some data')
+      channel = Pusher::Channel.new(@client.url, 'test_channel', @client)
+      channel.trigger('new_event', 'Some data')
     end
   end
 
@@ -134,7 +133,7 @@ describe Pusher::Channel do
     it "should by default POST to http api" do
       EM.run {
         stub_request(:post, @pusher_url_regexp).to_return(:status => 202)
-        channel = Pusher::Channel.new(Pusher.url, 'test_channel')
+        channel = Pusher::Channel.new(@client.url, 'test_channel', @client)
         channel.trigger_async('new_event', 'Some data').callback {
           WebMock.should have_requested(:post, %r{http://api.pusherapp.com})
           EM.stop
@@ -143,10 +142,10 @@ describe Pusher::Channel do
     end
 
     it "should POST to https api if ssl enabled" do
-      Pusher.encrypted = true
+      @client.encrypted = true
       EM.run {
         stub_request(:post, @pusher_url_regexp).to_return(:status => 202)
-        channel = Pusher::Channel.new(Pusher.url, 'test_channel')
+        channel = Pusher::Channel.new(@client.url, 'test_channel', @client)
         channel.trigger_async('new_event', 'Some data').callback {
           WebMock.should have_requested(:post, %r{https://api.pusherapp.com})
           EM.stop
@@ -158,7 +157,7 @@ describe Pusher::Channel do
       stub_request(:post, @pusher_url_regexp).to_return(:status => 202)
 
       EM.run {
-        d = Pusher['test_channel'].trigger_async('new_event', 'Some data')
+        d = @client['test_channel'].trigger_async('new_event', 'Some data')
         d.callback {
           WebMock.should have_requested(:post, @pusher_url_regexp)
           EM.stop
@@ -174,7 +173,7 @@ describe Pusher::Channel do
       stub_request(:post, @pusher_url_regexp).to_return(:status => 401)
 
       EM.run {
-        d = Pusher['test_channel'].trigger_async('new_event', 'Some data')
+        d = @client['test_channel'].trigger_async('new_event', 'Some data')
         d.callback {
           fail
         }
@@ -197,7 +196,7 @@ describe Pusher::Channel do
         :status => 200,
         :body => JSON.generate(:user_count => 1)
       })
-      @channel = Pusher['presence-test_channel']
+      @channel = @client['presence-test_channel']
 
       @channel.stats.should == {
         :user_count => 1
@@ -207,7 +206,7 @@ describe Pusher::Channel do
 
   describe "socket_auth" do
     before :each do
-      @channel = Pusher['test_channel']
+      @channel = @client['test_channel']
     end
 
     it "should return an authentication string given a socket id" do
@@ -247,7 +246,7 @@ describe Pusher::Channel do
       it "should return an authentication string given a socket id and custom args" do
         auth = @channel.socket_auth('socketid', 'foobar')
 
-        auth.should == "12345678900000001:#{HMAC::SHA256.hexdigest(Pusher.secret, "socketid:test_channel:foobar")}"
+        auth.should == "12345678900000001:#{HMAC::SHA256.hexdigest(@client.secret, "socketid:test_channel:foobar")}"
       end
 
     end
@@ -256,7 +255,7 @@ describe Pusher::Channel do
   describe '#authenticate' do
 
     before :each do
-      @channel = Pusher['test_channel']
+      @channel = @client['test_channel']
       @custom_data = {:uid => 123, :info => {:name => 'Foo'}}
     end
 
@@ -266,7 +265,7 @@ describe Pusher::Channel do
       response = @channel.authenticate('socketid', @custom_data)
 
       response.should == {
-        :auth => "12345678900000001:#{HMAC::SHA256.hexdigest(Pusher.secret, "socketid:test_channel:a json string")}",
+        :auth => "12345678900000001:#{HMAC::SHA256.hexdigest(@client.secret, "socketid:test_channel:a json string")}",
         :channel_data => 'a json string'
       }
     end

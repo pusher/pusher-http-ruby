@@ -6,10 +6,11 @@ module Pusher
   class Channel
     attr_reader :name
 
-    def initialize(base_url, name)
+    def initialize(base_url, name, client = Pusher)
       @uri = base_url.dup
       @uri.path = @uri.path + "/channels/#{name}/"
       @name = name
+      @client = client
     end
 
     # Trigger event asynchronously using EventMachine::HttpRequest
@@ -69,7 +70,7 @@ module Pusher
     # @raise [Pusher::HTTPError] on any error raised inside Net::HTTP - the original error is available in the original_error attribute
     #
     def stats
-      request = Pusher::Request.new(:get, @uri + 'stats', {})
+      request = Pusher::Request.new(:get, @uri + 'stats', {}, nil, nil, @client)
       return request.send_sync
     end
 
@@ -89,7 +90,7 @@ module Pusher
 
       string_to_sign = [socket_id, name, custom_string].compact.map{|e|e.to_s}.join(':')
       Pusher.logger.debug "Signing #{string_to_sign}"
-      token = Pusher.authentication_token
+      token = @client.authentication_token
       signature = HMAC::SHA256.hexdigest(token.secret, string_to_sign)
 
       return "#{token.key}:#{signature}"
@@ -147,7 +148,7 @@ module Pusher
         end
       end
 
-      request = Pusher::Request.new(:post, @uri + 'events', params, body)
+      request = Pusher::Request.new(:post, @uri + 'events', params, body, nil, @client)
     end
   end
 end

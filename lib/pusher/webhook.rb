@@ -8,7 +8,8 @@ module Pusher
     # Provide either a Rack::Request or a Hash containing :key, :signature,
     # :body, and :content_type (optional)
     #
-    def initialize(request)
+    def initialize(request, client = Pusher)
+      @client = client
       if request.kind_of?(Rack::Request)
         @key = request.env['HTTP_X_PUSHER_KEY']
         @signature = request.env["HTTP_X_PUSHER_SIGNATURE"]
@@ -33,8 +34,8 @@ module Pusher
     #
     def valid?(extra_tokens = nil)
       extra_tokens = [extra_tokens] if extra_tokens.kind_of?(Hash)
-      if @key == Pusher.key
-        return check_signature(Pusher.secret)
+      if @key == @client.key
+        return check_signature(@client.secret)
       elsif extra_tokens
         extra_tokens.each do |token|
           return check_signature(token[:secret]) if @key == token[:key]

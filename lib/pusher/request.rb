@@ -52,9 +52,12 @@ module Pusher
 
     include QueryEncoder
 
-    def initialize(verb, uri, params, body = nil, token = nil)
+    attr_reader :body, :params
+
+    def initialize(verb, uri, params, body = nil, token = nil, client = Pusher)
       @verb = verb
       @uri = uri
+      @client = client
 
       if body
         @body = body
@@ -62,7 +65,7 @@ module Pusher
       end
 
       request = Signature::Request.new(verb.to_s.upcase, uri.path, params)
-      auth_hash = request.sign(token || Pusher.authentication_token)
+      auth_hash = request.sign(token || @client.authentication_token)
       @params = params.merge(auth_hash)
     end
 
