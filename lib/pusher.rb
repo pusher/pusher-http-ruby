@@ -105,3 +105,4 @@ end
 
 require 'pusher/channel'
 require 'pusher/request'
+require 'pusher/webhook'
