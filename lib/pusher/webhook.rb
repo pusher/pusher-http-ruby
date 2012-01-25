@@ -4,7 +4,7 @@ require 'hmac-sha2'
 module Pusher
   # Used to parse and authenticate WebHooks
   #
-  # @example
+  # @example Sinatra
   #   post '/webhooks' do
   #     webhook = Pusher::WebHook.new(request)
   #     if webhook.valid?
@@ -48,9 +48,7 @@ module Pusher
     # matches the configured key & secret. In the case that the webhook is
     # invalid, the reason is logged
     #
-    # @param extra_tokens [Hash] If you have extra tokens for your Pusher
-    # app, you can specify them here so that they're used to attempt
-    # validation.
+    # @param extra_tokens [Hash] If you have extra tokens for your Pusher app, you can specify them so that they're used to attempt validation.
     #
     def valid?(extra_tokens = nil)
       extra_tokens = [extra_tokens] if extra_tokens.kind_of?(Hash)
