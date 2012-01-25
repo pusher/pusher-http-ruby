@@ -29,10 +29,10 @@ describe Pusher::WebHook do
 
     it "can be initialized with a hash" do
       request = {
-        key: '1234',
-        signature: 'asdf',
-        content_type: 'application/json',
-        body: MultiJson.encode(@hook_data),
+        :key => '1234',
+        :signature => 'asdf',
+        :content_type => 'application/json',
+        :body => MultiJson.encode(@hook_data),
       }
       wh = Pusher::WebHook.new(request)
       wh.key.should == '1234'
@@ -45,10 +45,10 @@ describe Pusher::WebHook do
     before :each do
       body = MultiJson.encode(@hook_data)
       request = {
-        key: '1234',
-        signature: HMAC::SHA256.hexdigest('asdf', body),
-        content_type: 'application/json',
-        body: body
+        :key => '1234',
+        :signature => HMAC::SHA256.hexdigest('asdf', body),
+        :content_type => 'application/json',
+        :body => body
       }
 
       @client = Pusher::Client.new
@@ -78,15 +78,15 @@ describe Pusher::WebHook do
     it "should validate with an extra token" do
       @client.key = '12345'
       @client.secret = 'xxx'
-      @wh.valid?({key: '1234', secret: 'asdf'}).should be_true
+      @wh.valid?({:key => '1234', :secret => 'asdf'}).should be_true
     end
 
     it "should validate with an array of extra tokens" do
       @client.key = '123456'
       @client.secret = 'xxx'
       @wh.valid?([
-        {key: '12345', secret: 'wtf'},
-        {key: '1234', secret: 'asdf'}
+        {:key => '12345', :secret => 'wtf'},
+        {:key => '1234', :secret => 'asdf'}
       ]).should be_true
     end
 
@@ -94,14 +94,14 @@ describe Pusher::WebHook do
       @client.key = '123456'
       @client.secret = 'asdf'
       Pusher.logger.should_receive(:warn).with("Received webhook with unknown key: 1234")
-      @wh.valid?({key: '12345', secret: 'asdf'}).should be_false
+      @wh.valid?({:key => '12345', :secret => 'asdf'}).should be_false
     end
 
     it "should not validate if secret is wrong with extra tokens" do
       @client.key = '123456'
       @client.secret = 'asdfxxx'
       Pusher.logger.should_receive(:warn).with(/Received WebHook with invalid signature/)
-      @wh.valid?({key: '1234', secret: 'wtf'}).should be_false
+      @wh.valid?({:key => '1234', :secret => 'wtf'}).should be_false
     end
 
     it "should expose events" do

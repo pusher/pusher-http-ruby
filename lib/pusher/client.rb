@@ -7,9 +7,9 @@ module Pusher
     # Initializes the client object.
     def initialize(options = {})
       options = {
-        scheme: 'http',
-        host: 'api.pusherapp.com',
-        port: 80,
+        :scheme => 'http',
+        :host => 'api.pusherapp.com',
+        :port => 80,
       }.merge(options)
       @scheme, @host, @port, @app_id, @key, @secret = options.values_at(
         :scheme, :host, :port, :app_id, :key, :secret
