@@ -104,13 +104,22 @@ describe Pusher do
 
     describe "configuration using url" do
       it "should be possible to configure everything by setting the url" do
-        @client.url = "http://somekey:somesecret@api.staging.pusherapp.com:8080/apps/87"
+        @client.url = "test://somekey:somesecret@api.staging.pusherapp.com:8080/apps/87"
 
+        @client.scheme.should == 'test'
         @client.host.should == 'api.staging.pusherapp.com'
         @client.port.should == 8080
         @client.key.should == 'somekey'
         @client.secret.should == 'somesecret'
         @client.app_id.should == '87'
+      end
+
+      it "should override scheme and port when setting encrypted=true after url" do
+        @client.url = "http://somekey:somesecret@api.staging.pusherapp.com:8080/apps/87"
+        @client.encrypted = true
+
+        @client.scheme.should == 'https'
+        @client.port.should == 443
       end
     end
 

@@ -39,6 +39,7 @@ module Pusher
     #
     def url=(url)
       uri = URI.parse(url)
+      @scheme = uri.scheme
       @app_id = uri.path.split('/').last
       @key    = uri.user
       @secret = uri.password
@@ -55,7 +56,7 @@ module Pusher
     def encrypted=(boolean)
       @scheme = boolean ? 'https' : 'http'
       # Configure port if it hasn't already been configured
-      @port ||= boolean ? 443 : 80
+      @port = boolean ? 443 : 80
     end
 
     # Return a channel by name
