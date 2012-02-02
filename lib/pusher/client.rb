@@ -72,6 +72,24 @@ module Pusher
       @channels[channel_name.to_s] ||= Channel.new(url, channel_name, self)
     end
 
+    # Request a list of occupied channels from the API
+    #
+    # GET /apps/[id]/channels
+    #
+    # @return [Hash] See Pusher api docs
+    # @raise [Pusher::Error] on invalid Pusher response - see the error message for more details
+    # @raise [Pusher::HTTPError] on any error raised inside Net::HTTP - the original error is available in the original_error attribute
+    #
+    def channels
+      @_channels_url ||= begin
+        uri = url.dup
+        uri.path = uri.path + '/channels'
+        uri
+      end
+      request = Pusher::Request.new(:get, @_channels_url, {}, nil, nil, self)
+      return request.send_sync
+    end
+
     private
 
     def configured?
