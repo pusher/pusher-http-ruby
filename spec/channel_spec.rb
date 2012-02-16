@@ -41,7 +41,7 @@ describe Pusher::Channel do
         :name => 'Pusher',
         :last_name => 'App'
       })
-      WebMock.should have_requested(:post, %r{/apps/20/channels/test_channel/events}).with do |req|
+      WebMock.should have_requested(:post, %r{/apps/20/channels/test_channel/events}).with { |req|
         query_hash = req.uri.query_values
         query_hash["name"].should == 'new_event'
         query_hash["auth_key"].should == @client.key
@@ -54,15 +54,13 @@ describe Pusher::Channel do
         }
 
         req.headers['Content-Type'].should == 'application/json'
-      end
+      }
     end
 
     it "should POST string data unmodified in request body" do
       string = "foo\nbar\""
       @channel.trigger!('new_event', string)
-      WebMock.should have_requested(:post, %r{/apps/20/channels/test_channel/events}).with do |req|
-        req.body.should == "foo\nbar\""
-      end
+      WebMock.should have_requested(:post, %r{/apps/20/channels/test_channel/events}).with { |req| req.body.should == "foo\nbar\"" }
     end
 
     it "should catch all Net::HTTP exceptions and raise a Pusher::HTTPError, exposing the original error if required" do
