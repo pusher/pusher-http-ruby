@@ -121,7 +121,7 @@ module Pusher
     # @private Custom data is sent to server as JSON-encoded string
     #
     def authenticate(socket_id, custom_data = nil)
-      custom_data = MultiJson.encode(custom_data) if custom_data
+      custom_data = MultiJson.dump(custom_data) if custom_data
       auth = socket_auth(socket_id, custom_data)
       r = {:auth => auth}
       r[:channel_data] = custom_data if custom_data
@@ -141,7 +141,7 @@ module Pusher
         data
       else
         begin
-          MultiJson.encode(data)
+          MultiJson.dump(data)
         rescue MultiJson::DecodeError => e
           Pusher.logger.error("Could not convert #{data.inspect} into JSON")
           raise e

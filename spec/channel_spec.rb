@@ -194,7 +194,7 @@ describe Pusher::Channel do
     it "should call the user_count api" do
       WebMock.stub_request(:get, @api_path).to_return({
         :status => 200,
-        :body => MultiJson.encode(:user_count => 1)
+        :body => MultiJson.dump(:user_count => 1)
       })
       @channel = @client['presence-test_channel']
 
@@ -260,7 +260,7 @@ describe Pusher::Channel do
     end
 
     it 'should return a hash with signature including custom data and data as json string' do
-      MultiJson.stub!(:encode).with(@custom_data).and_return 'a json string'
+      MultiJson.stub!(:dump).with(@custom_data).and_return 'a json string'
 
       response = @channel.authenticate('socketid', @custom_data)
 
