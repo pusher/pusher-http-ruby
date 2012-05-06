@@ -46,7 +46,7 @@ describe Pusher::WebHook do
       body = MultiJson.encode(@hook_data)
       request = {
         :key => '1234',
-        :signature => HMAC::SHA256.hexdigest('asdf', body),
+        :signature => hmac('asdf', body),
         :content_type => 'application/json',
         :body => body
       }

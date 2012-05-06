@@ -1,5 +1,5 @@
 require 'multi_json'
-require 'hmac-sha2'
+require 'openssl'
 
 module Pusher
   # Used to parse and authenticate WebHooks
@@ -96,7 +96,8 @@ module Pusher
     # Checks signature against secret and returns boolean
     #
     def check_signature(secret)
-      expected = HMAC::SHA256.hexdigest(secret, @body)
+      digest = OpenSSL::Digest::SHA256.new
+      expected = OpenSSL::HMAC.hexdigest(digest, secret, @body)
       if @signature == expected
         return true
       else

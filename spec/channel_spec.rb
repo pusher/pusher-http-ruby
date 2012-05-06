@@ -246,7 +246,7 @@ describe Pusher::Channel do
       it "should return an authentication string given a socket id and custom args" do
         auth = @channel.socket_auth('socketid', 'foobar')
 
-        auth.should == "12345678900000001:#{HMAC::SHA256.hexdigest(@client.secret, "socketid:test_channel:foobar")}"
+        auth.should == "12345678900000001:#{hmac(@client.secret, "socketid:test_channel:foobar")}"
       end
 
     end
@@ -265,7 +265,7 @@ describe Pusher::Channel do
       response = @channel.authenticate('socketid', @custom_data)
 
       response.should == {
-        :auth => "12345678900000001:#{HMAC::SHA256.hexdigest(@client.secret, "socketid:test_channel:a json string")}",
+        :auth => "12345678900000001:#{hmac(@client.secret, "socketid:test_channel:a json string")}",
         :channel_data => 'a json string'
       }
     end

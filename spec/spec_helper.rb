@@ -11,3 +11,8 @@ require 'webmock/rspec'
 
 require 'pusher'
 require 'eventmachine'
+
+def hmac(key, data)
+  digest = OpenSSL::Digest::SHA256.new
+  expected = OpenSSL::HMAC.hexdigest(digest, key, data)
+end
