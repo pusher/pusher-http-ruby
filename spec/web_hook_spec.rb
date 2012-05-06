@@ -19,7 +19,7 @@ describe Pusher::WebHook do
         'HTTP_X_PUSHER_KEY' => '1234',
         'HTTP_X_PUSHER_SIGNATURE' => 'asdf',
         'CONTENT_TYPE' => 'application/json',
-        'rack.input' => StringIO.new(MultiJson.encode(@hook_data))
+        'rack.input' => StringIO.new(MultiJson.dump(@hook_data))
       })
       wh = Pusher::WebHook.new(request)
       wh.key.should == '1234'
@@ -32,7 +32,7 @@ describe Pusher::WebHook do
         :key => '1234',
         :signature => 'asdf',
         :content_type => 'application/json',
-        :body => MultiJson.encode(@hook_data),
+        :body => MultiJson.dump(@hook_data),
       }
       wh = Pusher::WebHook.new(request)
       wh.key.should == '1234'
@@ -43,7 +43,7 @@ describe Pusher::WebHook do
 
   describe "after initialization" do
     before :each do
-      body = MultiJson.encode(@hook_data)
+      body = MultiJson.dump(@hook_data)
       request = {
         :key => '1234',
         :signature => hmac('asdf', body),

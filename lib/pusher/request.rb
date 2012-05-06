@@ -139,7 +139,7 @@ module Pusher
     def handle_response(status_code, body)
       case status_code
       when 200
-        return MultiJson.decode(body, :symbolize_keys => true)
+        return MultiJson.load(body, :symbolize_keys => true)
       when 202
         return true
       when 400
