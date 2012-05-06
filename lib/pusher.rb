@@ -30,7 +30,7 @@ module Pusher
     def_delegators :default_client, :authentication_token, :url
     def_delegators :default_client, :encrypted=, :url=
 
-    def_delegators :default_client, :channels
+    def_delegators :default_client, :channels, :presence_channels
 
     attr_writer :logger
 
