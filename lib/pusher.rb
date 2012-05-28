@@ -25,7 +25,7 @@ module Pusher
     extend Forwardable
 
     def_delegators :default_client, :scheme, :host, :port, :app_id, :key, :secret
-    def_delegators :default_client, :scheme, :host=, :port=, :app_id=, :key=, :secret=
+    def_delegators :default_client, :scheme=, :host=, :port=, :app_id=, :key=, :secret=
 
     def_delegators :default_client, :authentication_token, :url
     def_delegators :default_client, :encrypted=, :url=
