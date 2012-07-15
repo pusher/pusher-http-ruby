@@ -26,6 +26,10 @@ describe Pusher::Channel do
     WebMock.stub_request(:post, pusher_url_regexp).to_return(options)
   end
 
+  def stub_post_to_raise e
+    WebMock.stub_request(:post, pusher_url_regexp).to_raise(e)
+  end
+
   describe 'trigger!' do
     before :each do
       stub_post 202
@@ -71,25 +75,25 @@ describe Pusher::Channel do
       WebMock.should have_requested(:post, pusher_url_regexp).with { |req| req.body.should == "foo\nbar\"" }
     end
 
-    it "should catch all Net::HTTP exceptions and raise a Pusher::HTTPError, exposing the original error if required" do
-      WebMock.stub_request(
-        :post, pusher_url_regexp
-      ).to_raise(Timeout::Error)
+    def trigger
+      lambda { @client['test_channel'].trigger!('new_event', 'Some data') }
+    end
 
+    it "should catch all Net::HTTP exceptions and raise a Pusher::HTTPError, exposing the original error if required" do
+      stub_post_to_raise Timeout::Error
       error_raised = nil
+
       begin
-        @client['test_channel'].trigger!('new_event', 'Some data')
+        trigger.call
       rescue => e
         error_raised = e
       end
+
       error_raised.class.should == Pusher::HTTPError
       error_raised.message.should == 'Exception from WebMock (Timeout::Error)'
       error_raised.original_error.class.should == Timeout::Error
     end
 
-    def trigger
-      lambda { @client['test_channel'].trigger!('new_event', 'Some data') }
-    end
 
     it "should raise Pusher::Error if pusher returns 400" do
       stub_post 400
@@ -114,7 +118,8 @@ describe Pusher::Channel do
 
   describe 'trigger' do
     it "should log failure if error raised in Net::HTTP call" do
-      stub_request(:post, pusher_url_regexp).to_raise(Net::HTTPBadResponse)
+      stub_post_to_raise(Net::HTTPBadResponse)
+
       Pusher.logger.should_receive(:error).with("Exception from WebMock (Net::HTTPBadResponse) (Pusher::HTTPError)")
       Pusher.logger.should_receive(:debug) #backtrace
       channel = Pusher::Channel.new(@client.url, 'test_channel', @client)
@@ -122,7 +127,7 @@ describe Pusher::Channel do
     end
 
     it "should log failure if Pusher returns an error response" do
-      stub_request(:post, pusher_url_regexp).to_return(:status => 401)
+      stub_post 401
       # @http.should_receive(:post).and_raise(Net::HTTPBadResponse)
       Pusher.logger.should_receive(:error).with(" (Pusher::AuthenticationError)")
       Pusher.logger.should_receive(:debug) #backtrace
@@ -134,7 +139,7 @@ describe Pusher::Channel do
   describe "trigger_async" do
     it "should by default POST to http api" do
       EM.run {
-        stub_request(:post, pusher_url_regexp).to_return(:status => 202)
+        stub_post 202
         channel = Pusher::Channel.new(@client.url, 'test_channel', @client)
         channel.trigger_async('new_event', 'Some data').callback {
           WebMock.should have_requested(:post, %r{http://api.pusherapp.com})
@@ -146,7 +151,7 @@ describe Pusher::Channel do
     it "should POST to https api if ssl enabled" do
       @client.encrypted = true
       EM.run {
-        stub_request(:post, pusher_url_regexp).to_return(:status => 202)
+        stub_post 202
         channel = Pusher::Channel.new(@client.url, 'test_channel', @client)
         channel.trigger_async('new_event', 'Some data').callback {
           WebMock.should have_requested(:post, %r{https://api.pusherapp.com})
@@ -156,7 +161,7 @@ describe Pusher::Channel do
     end
 
     it "should return a deferrable which succeeds in success case" do
-      stub_request(:post, pusher_url_regexp).to_return(:status => 202)
+      stub_post 202
 
       EM.run {
         d = @client['test_channel'].trigger_async('new_event', 'Some data')
@@ -172,7 +177,7 @@ describe Pusher::Channel do
     end
 
     it "should return a deferrable which fails (with exception) in fail case" do
-      stub_request(:post, pusher_url_regexp).to_return(:status => 401)
+      stub_post 401
 
       EM.run {
         d = @client['test_channel'].trigger_async('new_event', 'Some data')
