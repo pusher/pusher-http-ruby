@@ -65,8 +65,8 @@ module Pusher
       end
 
       request = Signature::Request.new(verb.to_s.upcase, uri.path, params)
-      auth_hash = request.sign(token || @client.authentication_token)
-      @params = params.merge(auth_hash)
+      request.sign(token || @client.authentication_token)
+      @params = request.signed_params
     end
 
     def send_sync
