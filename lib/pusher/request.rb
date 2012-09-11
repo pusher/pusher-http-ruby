@@ -139,7 +139,7 @@ module Pusher
     def handle_response(status_code, body)
       case status_code
       when 200
-        return MultiJson.decode(body, :symbolize_keys => true)
+        return symbolize_first_level(MultiJson.decode(body))
       when 202
         return true
       when 400
@@ -155,6 +155,13 @@ module Pusher
 
     def ssl?
       @uri.scheme == 'https'
+    end
+
+    def symbolize_first_level(hash)
+      hash.inject({}) do |result, (key, value)|
+        result[key.to_sym] = value
+        result
+      end
     end
   end
 end
