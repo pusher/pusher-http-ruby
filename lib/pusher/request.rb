@@ -69,8 +69,11 @@ module Pusher
     end
 
     def send_sync
-      require 'net/http' unless defined?(Net::HTTP)
-      require 'net/https' if (ssl? && !defined?(Net::HTTPS))
+      if ssl?
+        require 'net/https' unless defined?(Net::HTTPS)
+      else
+        require 'net/http' unless defined?(Net::HTTP)
+      end
 
       @http_sync ||= begin
         http = Net::HTTP.new(@uri.host, @uri.port)
