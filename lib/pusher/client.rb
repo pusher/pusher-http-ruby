@@ -76,35 +76,18 @@ module Pusher
     #
     # GET /apps/[id]/channels
     #
-    # @return [Hash] See Pusher api docs
+    # @param options [Hash] Hash of options for the API - see Pusher API docs
+    # @return [Hash] See Pusher API docs
     # @raise [Pusher::Error] on invalid Pusher response - see the error message for more details
     # @raise [Pusher::HTTPError] on any error raised inside Net::HTTP - the original error is available in the original_error attribute
     #
-    def channels
+    def channels(options = {})
       @_channels_url ||= begin
         uri = url.dup
         uri.path = uri.path + '/channels'
         uri
       end
-      request = Pusher::Request.new(:get, @_channels_url, {}, nil, nil, self)
-      return request.send_sync
-    end
-
-    # Request presence channels from the API
-    #
-    # GET /apps/[id]/channels/presence
-    #
-    # @return [Hash] See Pusher api docs
-    # @raise [Pusher::Error] on invalid Pusher response - see the error message for more details
-    # @raise [Pusher::HTTPError] on any error raised inside Net::HTTP - the original error is available in the original_error attribute
-    #
-    def presence_channels
-      @_pc_url ||= begin
-        uri = url.dup
-        uri.path = uri.path + '/channels/presence'
-        uri
-      end
-      request = Pusher::Request.new(:get, @_pc_url, {}, nil, nil, self)
+      request = Pusher::Request.new(:get, @_channels_url, options, nil, nil, self)
       return request.send_sync
     end
 
