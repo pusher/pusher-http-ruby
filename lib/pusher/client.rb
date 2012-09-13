@@ -108,6 +108,36 @@ module Pusher
       return request.send_sync
     end
 
+    def trigger(channels, event_name, data, socket_id = nil)
+      @_trigger_url ||= begin
+        uri = url.dup
+        uri.path = uri.path + '/events'
+        uri
+      end
+
+      encoded_data = case data
+      when String
+        data
+      else
+        begin
+          MultiJson.encode(data)
+        rescue MultiJson::DecodeError => e
+          Pusher.logger.error("Could not convert #{data.inspect} into JSON")
+          raise e
+        end
+      end
+
+      body = {
+        name: event_name,
+        channels: channels,
+        data: encoded_data,
+      }
+      body[:socket_id] = socket_id if socket_id
+
+      request = Pusher::Request.new(:post, @_trigger_url, {}, MultiJson.encode(body), nil, self)
+      return request.send_sync
+    end
+
     private
 
     def configured?
