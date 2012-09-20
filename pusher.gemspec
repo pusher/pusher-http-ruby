@@ -3,7 +3,7 @@ $:.push File.expand_path("../lib", __FILE__)
 
 Gem::Specification.new do |s|
   s.name        = "pusher"
-  s.version     = "0.9.2"
+  s.version     = "0.9.4"
   s.platform    = Gem::Platform::RUBY
   s.authors     = ["Pusher"]
   s.email       = ["support@pusher.com"]
@@ -12,8 +12,7 @@ Gem::Specification.new do |s|
   s.description = %q{Wrapper for pusher.com REST api}
 
   s.add_dependency "multi_json", "~> 1.0"
-  s.add_dependency "ruby-hmac", "~> 0.4.0"
-  s.add_dependency 'signature', "~> 0.1.2"
+  s.add_dependency 'signature', "~> 0.1.4"
 
   s.add_development_dependency "rspec", "~> 2.0"
   s.add_development_dependency "webmock"

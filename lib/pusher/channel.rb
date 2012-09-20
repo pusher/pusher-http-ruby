@@ -1,4 +1,4 @@
-require 'hmac-sha2'
+require 'openssl'
 require 'multi_json'
 
 module Pusher
@@ -91,7 +91,8 @@ module Pusher
       string_to_sign = [socket_id, name, custom_string].compact.map{|e|e.to_s}.join(':')
       Pusher.logger.debug "Signing #{string_to_sign}"
       token = @client.authentication_token
-      signature = HMAC::SHA256.hexdigest(token.secret, string_to_sign)
+      digest = OpenSSL::Digest::SHA256.new
+      signature = OpenSSL::HMAC.hexdigest(digest, token.secret, string_to_sign)
 
       return "#{token.key}:#{signature}"
     end
