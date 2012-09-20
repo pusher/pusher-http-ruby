@@ -105,7 +105,9 @@ module Pusher
         raise error
       end
 
-      return handle_response(response.code.to_i, response.body.chomp)
+      body = response.body ? response.body.chomp : nil
+
+      return handle_response(response.code.to_i, body)
     end
 
     def send_async
