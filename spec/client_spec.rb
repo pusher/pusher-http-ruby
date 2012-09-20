@@ -192,14 +192,33 @@ describe Pusher do
       end
 
       describe '#trigger' do
-        it "should call correct URL" do
-          api_path = %r{/apps/20/events}
-          WebMock.stub_request(:post, api_path).to_return({
+        before :each do
+          @api_path = %r{/apps/20/events}
+          WebMock.stub_request(:post, @api_path).to_return({
             :status => 200,
             :body => MultiJson.encode({})
           })
+        end
+
+        it "should call correct URL" do
           @client.trigger('mychannel', 'event', {'some' => 'data'}).
             should == {}
+        end
+
+        it "should pass any options in the body of the request" do
+          @client.trigger('mychannel', 'event', {'some' => 'data'}, {
+            :socket_id => "1234"
+          })
+          WebMock.should have_requested(:post, @api_path).with { |req|
+            MultiJson.decode(req.body)["socket_id"].should == '1234'
+          }
+        end
+
+        it "should convert non string data to JSON before posting" do
+          @client.trigger('mychannel', 'event', {'some' => 'data'})
+          WebMock.should have_requested(:post, @api_path).with { |req|
+            MultiJson.decode(req.body)["data"].should == '{"some":"data"}'
+          }
         end
       end
     end
