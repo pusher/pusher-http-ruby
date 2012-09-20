@@ -204,6 +204,22 @@ describe Pusher::Channel do
     end
   end
 
+  describe '#info' do
+    it "should call the Client#channel_info" do
+      @client.should_receive(:channel_info).with('mychannel', anything)
+      @channel = @client['mychannel']
+      @channel.info
+    end
+
+    it "should assemble the requested attribes into the info option" do
+      @client.should_receive(:channel_info).with(anything, {
+        :info => "user_count,connection_count"
+      })
+      @channel = @client['presence-foo']
+      @channel.info(%w{user_count connection_count})
+    end
+  end
+
   describe "socket_auth" do
     before :each do
       @channel = @client['test_channel']
