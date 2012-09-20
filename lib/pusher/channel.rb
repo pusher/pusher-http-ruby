@@ -74,6 +74,17 @@ module Pusher
       return request.send_sync
     end
 
+    # Request info for a channel
+    #
+    # @param info [Array] Array of attributes required (as lowercase strings)
+    # @return [Hash] Hash of requested attributes for this channel
+    # @raise [Pusher::Error] on invalid Pusher response - see the error message for more details
+    # @raise [Pusher::HTTPError] on any error raised inside Net::HTTP - the original error is available in the original_error attribute
+    #
+    def info(attributes = [])
+      @client.channel_info(name, info: attributes.join(','))
+    end
+
     # Compute authentication string required to subscribe to this channel.
     #
     # See http://pusher.com/docs/auth_signatures for more details.
