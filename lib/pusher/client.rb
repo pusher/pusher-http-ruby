@@ -21,13 +21,13 @@ module Pusher
       Signature::Token.new(@key, @secret)
     end
 
-    # @private Builds a connection url for Pusherapp
-    def url
+    # @private Builds a url for this app, optionally appending a path
+    def url(path = nil)
       URI::Generic.build({
         :scheme => @scheme,
         :host => @host,
         :port => @port,
-        :path => "/apps/#{@app_id}"
+        :path => "/apps/#{@app_id}#{path}"
       })
     end
 
@@ -59,7 +59,7 @@ module Pusher
       @port = boolean ? 443 : 80
     end
 
-    # Return a channel by name
+    # Return a convenience channel object by name. No API request is made.
     #
     # @example
     #   Pusher['my-channel']
@@ -82,21 +82,13 @@ module Pusher
     # @raise [Pusher::HTTPError] on any error raised inside Net::HTTP - the original error is available in the original_error attribute
     #
     def channels(options = {})
-      @_channels_url ||= begin
-        uri = url.dup
-        uri.path = uri.path + '/channels'
-        uri
-      end
-      request = Pusher::Request.new(:get, @_channels_url, options, nil, nil, self)
+      @_channels_url ||= url('/channels')
+      request = Request.new(:get, @_channels_url, options, nil, nil, self)
       return request.send_sync
     end
 
     def trigger(channels, event_name, data, socket_id = nil)
-      @_trigger_url ||= begin
-        uri = url.dup
-        uri.path = uri.path + '/events'
-        uri
-      end
+      @_trigger_url ||= url('/events')
 
       encoded_data = case data
       when String
@@ -117,7 +109,7 @@ module Pusher
       }
       body[:socket_id] = socket_id if socket_id
 
-      request = Pusher::Request.new(:post, @_trigger_url, {}, MultiJson.encode(body), nil, self)
+      request = Request.new(:post, @_trigger_url, {}, MultiJson.encode(body), nil, self)
       return request.send_sync
     end
 
