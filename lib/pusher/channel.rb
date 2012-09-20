@@ -62,17 +62,6 @@ module Pusher
       Pusher.logger.error("#{e.message} (#{e.class})")
       Pusher.logger.debug(e.backtrace.join("\n"))
     end
-    
-    # Request channel stats
-    #
-    # @return [Hash] See Pusher api docs for reported stats
-    # @raise [Pusher::Error] on invalid Pusher response - see the error message for more details
-    # @raise [Pusher::HTTPError] on any error raised inside Net::HTTP - the original error is available in the original_error attribute
-    #
-    def stats
-      request = Pusher::Request.new(:get, @uri + 'stats', {}, nil, nil, @client)
-      return request.send_sync
-    end
 
     # Request info for a channel
     #

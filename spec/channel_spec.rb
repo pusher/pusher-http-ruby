@@ -186,24 +186,6 @@ describe Pusher::Channel do
     end
   end
 
-  describe "stats" do
-    before :each do
-      @api_path = %r{/apps/20/channels/presence-test_channel/stats}
-    end
-
-    it "should call the user_count api" do
-      WebMock.stub_request(:get, @api_path).to_return({
-        :status => 200,
-        :body => MultiJson.encode(:user_count => 1)
-      })
-      @channel = @client['presence-test_channel']
-
-      @channel.stats.should == {
-        :user_count => 1
-      }
-    end
-  end
-
   describe '#info' do
     it "should call the Client#channel_info" do
       @client.should_receive(:channel_info).with('mychannel', anything)
