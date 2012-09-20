@@ -87,6 +87,21 @@ module Pusher
       return request.send_sync
     end
 
+    # Request info for a specific channel
+    #
+    # GET /apps/[id]/channels/[channel_name]
+    #
+    # @param channel_name [String] Channel name
+    # @param options [Hash] Hash of options for the API - see Pusher API docs
+    # @return [Hash] See Pusher API docs
+    # @raise [Pusher::Error] on invalid Pusher response - see the error message for more details
+    # @raise [Pusher::HTTPError] on any error raised inside Net::HTTP - the original error is available in the original_error attribute
+    #
+    def channel_info(channel_name, options = {})
+      request = Request.new(:get, url("/channels/#{channel_name}"), options, nil, nil, self)
+      return request.send_sync
+    end
+
     def trigger(channels, event_name, data, socket_id = nil)
       @_trigger_url ||= url('/events')
 
