@@ -70,6 +70,12 @@ describe Pusher do
     it "should send [] messages to different objects" do
       @client1['test'].should_not == @client2['test']
     end
+
+    it "should send http_proxy messages to different objects" do
+      @client1.http_proxy = 'http://oneuser:onepassword@onehost:8080'
+      @client2.http_proxy = 'http://twouser:twopassword@twohost:8880'
+      @client1.http_proxy.should_not == @client2.http_proxy
+    end
   end
 
   # The behaviour should be the same when using the Client object, or the
@@ -122,6 +128,14 @@ describe Pusher do
 
         @client.scheme.should == 'https'
         @client.port.should == 443
+      end
+    end
+
+    describe 'configuration using http_proxy' do
+      it "should be possible to configure everything by setting the http_proxy" do
+        @client.http_proxy = 'http://someuser:somepassword@proxy.host.com:8080'
+
+        @client.proxy.should == {scheme: 'http', host: 'proxy.host.com', port: 8080, user: 'someuser', password: 'somepassword'}
       end
     end
 

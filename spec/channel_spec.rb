@@ -67,10 +67,17 @@ describe Pusher::Channel do
       }
     end
 
-    it "should POST string data unmodified in request body" do
-      string = "foo\nbar\""
-      @channel.trigger!('new_event', string)
-      WebMock.should have_requested(:post, pusher_url_regexp).with { |req| req.body.should == "foo\nbar\"" }
+    [{proxy: true}, {proxy: false}].each do |c|
+      context "#{c[:proxy] ? 'with' : 'without'} http proxy" do
+        before do
+          @client.http_proxy = 'http://someuser:somepassword@proxy.host.com:8080' if c[:proxy]
+        end
+        it "should POST string data unmodified in request body" do
+          string = "foo\nbar\""
+          @channel.trigger!('new_event', string)
+          WebMock.should have_requested(:post, pusher_url_regexp).with { |req| req.body.should == "foo\nbar\"" }
+        end
+      end
     end
 
     def trigger
@@ -108,6 +115,15 @@ describe Pusher::Channel do
       trigger.should raise_error(Pusher::Error, 'Resource not found: app_id is probably invalid')
     end
 
+    it "should raise Pusher::Error if pusher returns 407" do
+      WebMock.stub_request(
+        :post, %r{/apps/20/channels/test_channel/events}
+      ).to_return(:status => 407)
+      lambda {
+        @client['test_channel'].trigger!('new_event', 'Some data')
+      }.should raise_error(Pusher::Error, 'Proxy Authentication Required')
+    end
+
     it "should raise Pusher::Error if pusher returns 500" do
       stub_post 500, "some error"
       trigger.should raise_error(Pusher::Error, 'Unknown error (status code 500): some error')
@@ -133,15 +149,22 @@ describe Pusher::Channel do
     end
   end
 
-  describe "#trigger_async" do
-    it "should by default POST to http api" do
-      EM.run {
-        stub_post 202
-        @channel.trigger_async('new_event', 'Some data').callback {
-          WebMock.should have_requested(:post, %r{http://api.pusherapp.com})
-          EM.stop
-        }
-      }
+  describe "trigger_async" do
+    [{proxy: true}, {proxy: false}].each do |c|
+      context "#{c[:proxy] ? 'with' : 'without'} http proxy" do
+        before do
+          @client.http_proxy = 'http://someuser:somepassword@proxy.host.com:8080' if c[:proxy]
+        end
+        it "should by default POST to http api" do
+          EM.run {
+            stub_post 202
+            @channel.trigger_async('new_event', 'Some data').callback {
+              WebMock.should have_requested(:post, %r{http://api.pusherapp.com})
+              EM.stop
+            }
+          }
+        end
+      end
     end
 
     it "should POST to https api if ssl enabled" do

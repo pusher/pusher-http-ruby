@@ -2,7 +2,8 @@ require 'signature'
 
 module Pusher
   class Client
-    attr_accessor :scheme, :host, :port, :app_id, :key, :secret
+    attr_accessor :scheme, :host, :port, :app_id, :key, :secret, :http_proxy
+    attr_reader :proxy
 
     # Initializes the client object.
     def initialize(options = {})
@@ -14,6 +15,7 @@ module Pusher
       @scheme, @host, @port, @app_id, @key, @secret = options.values_at(
         :scheme, :host, :port, :app_id, :key, :secret
       )
+      http_proxy = options.values_at(:http_proxy) if options.key?(:http_proxy)
     end
 
     # @private Returns the authentication token for the client
@@ -45,6 +47,19 @@ module Pusher
       @secret = uri.password
       @host   = uri.host
       @port   = uri.port
+    end
+
+    def http_proxy= http_proxy
+      @http_proxy = http_proxy
+      uri = URI.parse(http_proxy)
+      @proxy = {
+        scheme: uri.scheme,
+        host: uri.host,
+        port: uri.port,
+        user: uri.user,
+        password: uri.password
+      }
+      @http_proxy
     end
 
     # Configure whether Pusher API calls should be made over SSL
