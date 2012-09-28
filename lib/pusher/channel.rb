@@ -71,7 +71,7 @@ module Pusher
     # @raise [Pusher::HTTPError] on any error raised inside Net::HTTP - the original error is available in the original_error attribute
     #
     def info(attributes = [])
-      @client.channel_info(name, info: attributes.join(','))
+      @client.channel_info(name, :info => attributes.join(','))
     end
 
     # Compute authentication string required as part of the authentication

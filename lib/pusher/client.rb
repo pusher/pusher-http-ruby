@@ -131,9 +131,9 @@ module Pusher
       end
 
       options.merge!({
-        name: event_name,
-        channels: channels,
-        data: encoded_data,
+        :name => event_name,
+        :channels => channels,
+        :data => encoded_data,
       })
 
       request = Request.new(:post, @_trigger_url, {}, MultiJson.encode(options), nil, self)
