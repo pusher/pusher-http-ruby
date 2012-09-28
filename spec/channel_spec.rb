@@ -14,13 +14,25 @@ describe Pusher::Channel do
     WebMock.reset!
     WebMock.disable_net_connect!
 
-    @pusher_url_regexp = %r{/apps/20/channels/test_channel/events}
+  end
+
+  let(:pusher_url_regexp) { %r{/apps/20/channels/test_channel/events} }
+
+
+  def stub_post status, body=nil
+    options = {:status => status}
+    options.merge!({:body => body}) if body
+
+    WebMock.stub_request(:post, pusher_url_regexp).to_return(options)
+  end
+
+  def stub_post_to_raise e
+    WebMock.stub_request(:post, pusher_url_regexp).to_raise(e)
   end
 
   describe 'trigger!' do
     before :each do
-      WebMock.stub_request(:post, @pusher_url_regexp).
-        to_return(:status => 202)
+      stub_post 202
       @channel = @client['test_channel']
     end
 
@@ -41,7 +53,7 @@ describe Pusher::Channel do
         :name => 'Pusher',
         :last_name => 'App'
       })
-      WebMock.should have_requested(:post, %r{/apps/20/channels/test_channel/events}).with { |req|
+      WebMock.should have_requested(:post, pusher_url_regexp).with { |req|
         query_hash = req.uri.query_values
         query_hash["name"].should == 'new_event'
         query_hash["auth_key"].should == @client.key
@@ -60,57 +72,54 @@ describe Pusher::Channel do
     it "should POST string data unmodified in request body" do
       string = "foo\nbar\""
       @channel.trigger!('new_event', string)
-      WebMock.should have_requested(:post, %r{/apps/20/channels/test_channel/events}).with { |req| req.body.should == "foo\nbar\"" }
+      WebMock.should have_requested(:post, pusher_url_regexp).with { |req| req.body.should == "foo\nbar\"" }
+    end
+
+    def trigger
+      lambda { @client['test_channel'].trigger!('new_event', 'Some data') }
     end
 
     it "should catch all Net::HTTP exceptions and raise a Pusher::HTTPError, exposing the original error if required" do
-      WebMock.stub_request(
-        :post, %r{/apps/20/channels/test_channel/events}
-      ).to_raise(Timeout::Error)
-
+      stub_post_to_raise Timeout::Error
       error_raised = nil
+
       begin
-        @client['test_channel'].trigger!('new_event', 'Some data')
+        trigger.call
       rescue => e
         error_raised = e
       end
+
       error_raised.class.should == Pusher::HTTPError
       error_raised.message.should == 'Exception from WebMock (Timeout::Error)'
       error_raised.original_error.class.should == Timeout::Error
     end
 
+
+    it "should raise Pusher::Error if pusher returns 400" do
+      stub_post 400
+      trigger.should raise_error(Pusher::Error)
+    end
+
     it "should raise AuthenticationError if pusher returns 401" do
-      WebMock.stub_request(
-        :post,
-        %r{/apps/20/channels/test_channel/events}
-      ).to_return(:status => 401)
-      lambda {
-        @client['test_channel'].trigger!('new_event', 'Some data')
-      }.should raise_error(Pusher::AuthenticationError)
+      stub_post 401
+      trigger.should raise_error(Pusher::AuthenticationError)
     end
 
     it "should raise Pusher::Error if pusher returns 404" do
-      WebMock.stub_request(
-        :post, %r{/apps/20/channels/test_channel/events}
-      ).to_return(:status => 404)
-      lambda {
-        @client['test_channel'].trigger!('new_event', 'Some data')
-      }.should raise_error(Pusher::Error, 'Resource not found: app_id is probably invalid')
+      stub_post 404
+      trigger.should raise_error(Pusher::Error, 'Resource not found: app_id is probably invalid')
     end
 
     it "should raise Pusher::Error if pusher returns 500" do
-      WebMock.stub_request(
-        :post, %r{/apps/20/channels/test_channel/events}
-      ).to_return(:status => 500, :body => "some error")
-      lambda {
-        @client['test_channel'].trigger!('new_event', 'Some data')
-      }.should raise_error(Pusher::Error, 'Unknown error (status code 500): some error')
+      stub_post 500, "some error"
+      trigger.should raise_error(Pusher::Error, 'Unknown error (status code 500): some error')
     end
   end
 
   describe 'trigger' do
     it "should log failure if error raised in Net::HTTP call" do
-      stub_request(:post, @pusher_url_regexp).to_raise(Net::HTTPBadResponse)
+      stub_post_to_raise(Net::HTTPBadResponse)
+
       Pusher.logger.should_receive(:error).with("Exception from WebMock (Net::HTTPBadResponse) (Pusher::HTTPError)")
       Pusher.logger.should_receive(:debug) #backtrace
       channel = Pusher::Channel.new(@client.url, 'test_channel', @client)
@@ -118,7 +127,7 @@ describe Pusher::Channel do
     end
 
     it "should log failure if Pusher returns an error response" do
-      stub_request(:post, @pusher_url_regexp).to_return(:status => 401)
+      stub_post 401
       # @http.should_receive(:post).and_raise(Net::HTTPBadResponse)
       Pusher.logger.should_receive(:error).with(" (Pusher::AuthenticationError)")
       Pusher.logger.should_receive(:debug) #backtrace
@@ -130,7 +139,7 @@ describe Pusher::Channel do
   describe "trigger_async" do
     it "should by default POST to http api" do
       EM.run {
-        stub_request(:post, @pusher_url_regexp).to_return(:status => 202)
+        stub_post 202
         channel = Pusher::Channel.new(@client.url, 'test_channel', @client)
         channel.trigger_async('new_event', 'Some data').callback {
           WebMock.should have_requested(:post, %r{http://api.pusherapp.com})
@@ -142,7 +151,7 @@ describe Pusher::Channel do
     it "should POST to https api if ssl enabled" do
       @client.encrypted = true
       EM.run {
-        stub_request(:post, @pusher_url_regexp).to_return(:status => 202)
+        stub_post 202
         channel = Pusher::Channel.new(@client.url, 'test_channel', @client)
         channel.trigger_async('new_event', 'Some data').callback {
           WebMock.should have_requested(:post, %r{https://api.pusherapp.com})
@@ -152,12 +161,12 @@ describe Pusher::Channel do
     end
 
     it "should return a deferrable which succeeds in success case" do
-      stub_request(:post, @pusher_url_regexp).to_return(:status => 202)
+      stub_post 202
 
       EM.run {
         d = @client['test_channel'].trigger_async('new_event', 'Some data')
         d.callback {
-          WebMock.should have_requested(:post, @pusher_url_regexp)
+          WebMock.should have_requested(:post, pusher_url_regexp)
           EM.stop
         }
         d.errback {
@@ -168,7 +177,7 @@ describe Pusher::Channel do
     end
 
     it "should return a deferrable which fails (with exception) in fail case" do
-      stub_request(:post, @pusher_url_regexp).to_return(:status => 401)
+      stub_post 401
 
       EM.run {
         d = @client['test_channel'].trigger_async('new_event', 'Some data')
@@ -176,7 +185,7 @@ describe Pusher::Channel do
           fail
         }
         d.errback { |error|
-          WebMock.should have_requested(:post, @pusher_url_regexp)
+          WebMock.should have_requested(:post, pusher_url_regexp)
           error.should be_kind_of(Pusher::AuthenticationError)
           EM.stop
         }
@@ -213,32 +222,24 @@ describe Pusher::Channel do
       auth.should == '12345678900000001:827076f551e22451357939e4c7bb1200de29f921d5bf80b40d71668f9cd61c40'
     end
 
+    def socket_auth *data
+      lambda { @channel.socket_auth(*data) }
+    end
+
     it "should raise error if authentication is invalid" do
       [nil, ''].each do |invalid|
-        lambda {
-          @channel.socket_auth(invalid)
-        }.should raise_error
+        socket_auth(invalid).should raise_error Pusher::Error
       end
     end
 
     describe 'with extra string argument' do
 
       it 'should be a string or nil' do
-        lambda {
-          @channel.socket_auth('socketid', 'boom')
-        }.should_not raise_error
+        socket_auth('socketid', 123)   .should     raise_error Pusher::Error
+        socket_auth('socketid', {})    .should     raise_error Pusher::Error
 
-        lambda {
-          @channel.socket_auth('socketid', 123)
-        }.should raise_error
-
-        lambda {
-          @channel.socket_auth('socketid', nil)
-        }.should_not raise_error
-
-        lambda {
-          @channel.socket_auth('socketid', {})
-        }.should raise_error
+        socket_auth('socketid', 'boom').should_not raise_error
+        socket_auth('socketid', nil)   .should_not raise_error
       end
 
       it "should return an authentication string given a socket id and custom args" do

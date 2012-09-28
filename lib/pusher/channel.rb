@@ -62,7 +62,7 @@ module Pusher
       Pusher.logger.error("#{e.message} (#{e.class})")
       Pusher.logger.debug(e.backtrace.join("\n"))
     end
-    
+
     # Request channel stats
     #
     # @return [Hash] See Pusher api docs for reported stats
@@ -85,8 +85,11 @@ module Pusher
     # @return [String]
     #
     def authentication_string(socket_id, custom_string = nil)
-      raise "Invalid socket_id" if socket_id.nil? || socket_id.empty?
-      raise 'Custom argument must be a string' unless custom_string.nil? || custom_string.kind_of?(String)
+      raise Pusher::Error, "nil or empty socket_id" if socket_id.nil? || socket_id.empty?
+
+      unless custom_string.nil? || custom_string.kind_of?(String)
+        raise Pusher::Error, 'Custom argument must be a string'
+      end
 
       string_to_sign = [socket_id, name, custom_string].compact.map{|e|e.to_s}.join(':')
       Pusher.logger.debug "Signing #{string_to_sign}"
@@ -96,7 +99,7 @@ module Pusher
 
       return "#{token.key}:#{signature}"
     end
-    
+
     # Deprecated - for backward compatibility
     alias :socket_auth :authentication_string
 
