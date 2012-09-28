@@ -91,7 +91,7 @@ module Pusher
             'Content-Type'=> 'application/json'
           })
         else
-          raise Pusher::Error, "Unknown verb"
+          raise "Unknown verb"
         end
       rescue Errno::EINVAL, Errno::ECONNRESET, Errno::ECONNREFUSED,
              Errno::ETIMEDOUT, Errno::EHOSTUNREACH, Errno::ECONNRESET,

@@ -18,15 +18,14 @@ describe Pusher::Channel do
 
   let(:pusher_url_regexp) { %r{/apps/20/channels/test_channel/events} }
 
-
-  def stub_post status, body=nil
+  def stub_post(status, body = nil)
     options = {:status => status}
     options.merge!({:body => body}) if body
 
     WebMock.stub_request(:post, pusher_url_regexp).to_return(options)
   end
 
-  def stub_post_to_raise e
+  def stub_post_to_raise(e)
     WebMock.stub_request(:post, pusher_url_regexp).to_raise(e)
   end
 
