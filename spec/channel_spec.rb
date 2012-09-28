@@ -10,10 +10,10 @@ describe Pusher::Channel do
       :port => 80,
     })
     @client.encrypted = false
+    @channel = @client['test_channel']
 
     WebMock.reset!
     WebMock.disable_net_connect!
-
   end
 
   let(:pusher_url_regexp) { %r{/apps/20/channels/test_channel/events} }
@@ -32,7 +32,6 @@ describe Pusher::Channel do
   describe 'trigger!' do
     before :each do
       stub_post 202
-      @channel = @client['test_channel']
     end
 
     it 'should configure HTTP library to talk to pusher API' do
@@ -75,7 +74,7 @@ describe Pusher::Channel do
     end
 
     def trigger
-      lambda { @client['test_channel'].trigger!('new_event', 'Some data') }
+      lambda { @channel.trigger!('new_event', 'Some data') }
     end
 
     it "should catch all Net::HTTP exceptions and raise a Pusher::HTTPError, exposing the original error if required" do
@@ -115,7 +114,7 @@ describe Pusher::Channel do
     end
   end
 
-  describe 'trigger' do
+  describe '#trigger' do
     it "should log failure if error raised in Net::HTTP call" do
       stub_post_to_raise(Net::HTTPBadResponse)
 
@@ -127,7 +126,6 @@ describe Pusher::Channel do
 
     it "should log failure if Pusher returns an error response" do
       stub_post 401
-      # @http.should_receive(:post).and_raise(Net::HTTPBadResponse)
       Pusher.logger.should_receive(:error).with("Pusher::AuthenticationError (Pusher::AuthenticationError)")
       Pusher.logger.should_receive(:debug) #backtrace
       channel = Pusher::Channel.new(@client.url, 'test_channel', @client)
@@ -135,12 +133,11 @@ describe Pusher::Channel do
     end
   end
 
-  describe "trigger_async" do
+  describe "#trigger_async" do
     it "should by default POST to http api" do
       EM.run {
         stub_post 202
-        channel = Pusher::Channel.new(@client.url, 'test_channel', @client)
-        channel.trigger_async('new_event', 'Some data').callback {
+        @channel.trigger_async('new_event', 'Some data').callback {
           WebMock.should have_requested(:post, %r{http://api.pusherapp.com})
           EM.stop
         }
@@ -163,7 +160,7 @@ describe Pusher::Channel do
       stub_post 202
 
       EM.run {
-        d = @client['test_channel'].trigger_async('new_event', 'Some data')
+        d = @channel.trigger_async('new_event', 'Some data')
         d.callback {
           WebMock.should have_requested(:post, pusher_url_regexp)
           EM.stop
@@ -179,7 +176,7 @@ describe Pusher::Channel do
       stub_post 401
 
       EM.run {
-        d = @client['test_channel'].trigger_async('new_event', 'Some data')
+        d = @channel.trigger_async('new_event', 'Some data')
         d.callback {
           fail
         }
@@ -208,11 +205,7 @@ describe Pusher::Channel do
     end
   end
 
-  describe "authentication_string" do
-    before :each do
-      @channel = @client['test_channel']
-    end
-
+  describe "#authentication_string" do
     def authentication_string(*data)
       lambda { @channel.authentication_string(*data) }
     end
@@ -230,13 +223,12 @@ describe Pusher::Channel do
     end
 
     describe 'with extra string argument' do
-
       it 'should be a string or nil' do
-        authentication_string('socketid', 123)   .should     raise_error Pusher::Error
-        authentication_string('socketid', {})    .should     raise_error Pusher::Error
+        authentication_string('socketid', 123).should raise_error Pusher::Error
+        authentication_string('socketid', {}).should raise_error Pusher::Error
 
         authentication_string('socketid', 'boom').should_not raise_error
-        authentication_string('socketid', nil)   .should_not raise_error
+        authentication_string('socketid', nil).should_not raise_error
       end
 
       it "should return an authentication string given a socket id and custom args" do
@@ -244,14 +236,11 @@ describe Pusher::Channel do
 
         auth.should == "12345678900000001:#{hmac(@client.secret, "socketid:test_channel:foobar")}"
       end
-
     end
   end
 
   describe '#authenticate' do
-
     before :each do
-      @channel = @client['test_channel']
       @custom_data = {:uid => 123, :info => {:name => 'Foo'}}
     end
 
