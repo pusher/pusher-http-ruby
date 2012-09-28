@@ -96,7 +96,7 @@ module Pusher
           raise "Unknown verb"
         end
       rescue Errno::EINVAL, Errno::ECONNRESET, Errno::ECONNREFUSED,
-             Errno::ETIMEDOUT, Errno::EHOSTUNREACH, Errno::ECONNRESET,
+             Errno::ETIMEDOUT, Errno::EHOSTUNREACH,
              Timeout::Error, EOFError,
              Net::HTTPBadResponse, Net::HTTPHeaderSyntaxError,
              Net::ProtocolError => e
