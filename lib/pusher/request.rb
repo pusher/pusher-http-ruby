@@ -57,7 +57,6 @@ module Pusher
     def initialize(verb, uri, params, body = nil, token = nil, client = Pusher)
       @verb = verb
       @uri = uri
-      @client = client
 
       if body
         @body = body
@@ -65,13 +64,16 @@ module Pusher
       end
 
       request = Signature::Request.new(verb.to_s.upcase, uri.path, params)
-      request.sign(token || @client.authentication_token)
+      request.sign(token || client.authentication_token)
       @params = request.signed_params
     end
 
     def send_sync
-      require 'net/http' unless defined?(Net::HTTP)
-      require 'net/https' if (ssl? && !defined?(Net::HTTPS))
+      if ssl?
+        require 'net/https' unless defined?(Net::HTTPS)
+      else
+        require 'net/http' unless defined?(Net::HTTP)
+      end
 
       @http_sync ||= begin
         http = Net::HTTP.new(@uri.host, @uri.port)
@@ -103,7 +105,9 @@ module Pusher
         raise error
       end
 
-      return handle_response(response.code.to_i, response.body.chomp)
+      body = response.body ? response.body.chomp : nil
+
+      return handle_response(response.code.to_i, body)
     end
 
     def send_async
@@ -139,7 +143,7 @@ module Pusher
     def handle_response(status_code, body)
       case status_code
       when 200
-        return MultiJson.decode(body, :symbolize_keys => true)
+        return symbolize_first_level(MultiJson.decode(body))
       when 202
         return true
       when 400
@@ -155,6 +159,13 @@ module Pusher
 
     def ssl?
       @uri.scheme == 'https'
+    end
+
+    def symbolize_first_level(hash)
+      hash.inject({}) do |result, (key, value)|
+        result[key.to_sym] = value
+        result
+      end
     end
   end
 end

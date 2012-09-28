@@ -3,7 +3,7 @@ require 'spec_helper'
 require 'em-http'
 
 describe Pusher do
-  describe 'different clients' do
+  describe 'using multiple Client objects' do
     before :each do
       @client1 = Pusher::Client.new
       @client2 = Pusher::Client.new
@@ -72,6 +72,8 @@ describe Pusher do
     end
   end
 
+  # The behaviour should be the same when using the Client object, or the
+  # 'global' client delegated through the Pusher class
   [lambda { Pusher }, lambda { Pusher::Client.new }].each do |client_gen|
     before :each do
       @client = client_gen.call
@@ -130,7 +132,7 @@ describe Pusher do
         @client.secret = '12345678900000001'
       end
 
-      describe '.[]' do
+      describe '#[]' do
         before do
           @channel = @client['test_channel']
         end
@@ -152,6 +154,71 @@ describe Pusher do
               @client['test_channel']
             }.should raise_error(Pusher::ConfigurationError)
           end
+        end
+      end
+
+      describe '#channels' do
+        it "should call the correct URL and symbolise response correctly" do
+          api_path = %r{/apps/20/channels}
+          WebMock.stub_request(:get, api_path).to_return({
+            :status => 200,
+            :body => MultiJson.encode('channels' => {
+              "channel1" => {},
+              "channel2" => {}
+            })
+          })
+          @client.channels.should == {
+            :channels => {
+              "channel1" => {},
+              "channel2" => {}
+            }
+          }
+        end
+      end
+
+      describe '#channel_info' do
+        it "should call correct URL and symbolise response" do
+          api_path = %r{/apps/20/channels/mychannel}
+          WebMock.stub_request(:get, api_path).to_return({
+            :status => 200,
+            :body => MultiJson.encode({
+              'occupied' => false,
+            })
+          })
+          @client.channel_info('mychannel').should == {
+            :occupied => false,
+          }
+        end
+      end
+
+      describe '#trigger' do
+        before :each do
+          @api_path = %r{/apps/20/events}
+          WebMock.stub_request(:post, @api_path).to_return({
+            :status => 200,
+            :body => MultiJson.encode({})
+          })
+        end
+
+        it "should call correct URL" do
+          @client.trigger('mychannel', 'event', {'some' => 'data'}).
+            should == {}
+        end
+
+        it "should pass any options in the body of the request" do
+          @client.trigger('mychannel', 'event', {'some' => 'data'}, {
+            :socket_id => "1234"
+          })
+          WebMock.should have_requested(:post, @api_path).with { |req|
+            MultiJson.decode(req.body)["socket_id"].should == '1234'
+          }
+        end
+
+        it "should convert non string data to JSON before posting" do
+          @client.trigger('mychannel', 'event', {'some' => 'data'})
+          WebMock.should have_requested(:post, @api_path).with { |req|
+            MultiJson.decode(req.body)["data"].should == '{"some":"data"}'
+          }
         end
       end
     end

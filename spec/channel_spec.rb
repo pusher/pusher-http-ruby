@@ -120,7 +120,7 @@ describe Pusher::Channel do
     it "should log failure if Pusher returns an error response" do
       stub_request(:post, @pusher_url_regexp).to_return(:status => 401)
       # @http.should_receive(:post).and_raise(Net::HTTPBadResponse)
-      Pusher.logger.should_receive(:error).with(" (Pusher::AuthenticationError)")
+      Pusher.logger.should_receive(:error).with("Pusher::AuthenticationError (Pusher::AuthenticationError)")
       Pusher.logger.should_receive(:debug) #backtrace
       channel = Pusher::Channel.new(@client.url, 'test_channel', @client)
       channel.trigger('new_event', 'Some data')
@@ -184,21 +184,19 @@ describe Pusher::Channel do
     end
   end
 
-  describe "stats" do
-    before :each do
-      @api_path = %r{/apps/20/channels/presence-test_channel/stats}
+  describe '#info' do
+    it "should call the Client#channel_info" do
+      @client.should_receive(:channel_info).with('mychannel', anything)
+      @channel = @client['mychannel']
+      @channel.info
     end
 
-    it "should call the user_count api" do
-      WebMock.stub_request(:get, @api_path).to_return({
-        :status => 200,
-        :body => MultiJson.encode(:user_count => 1)
+    it "should assemble the requested attribes into the info option" do
+      @client.should_receive(:channel_info).with(anything, {
+        :info => "user_count,connection_count"
       })
-      @channel = @client['presence-test_channel']
-
-      @channel.stats.should == {
-        :user_count => 1
-      }
+      @channel = @client['presence-foo']
+      @channel.info(%w{user_count connection_count})
     end
   end
 
