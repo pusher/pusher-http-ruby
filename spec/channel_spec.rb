@@ -208,39 +208,39 @@ describe Pusher::Channel do
     end
   end
 
-  describe "socket_auth" do
+  describe "authentication_string" do
     before :each do
       @channel = @client['test_channel']
     end
 
+    def authentication_string(*data)
+      lambda { @channel.authentication_string(*data) }
+    end
+
     it "should return an authentication string given a socket id" do
-      auth = @channel.socket_auth('socketid')
+      auth = @channel.authentication_string('socketid')
 
       auth.should == '12345678900000001:827076f551e22451357939e4c7bb1200de29f921d5bf80b40d71668f9cd61c40'
     end
 
-    def socket_auth *data
-      lambda { @channel.socket_auth(*data) }
-    end
-
     it "should raise error if authentication is invalid" do
       [nil, ''].each do |invalid|
-        socket_auth(invalid).should raise_error Pusher::Error
+        authentication_string(invalid).should raise_error Pusher::Error
       end
     end
 
     describe 'with extra string argument' do
 
       it 'should be a string or nil' do
-        socket_auth('socketid', 123)   .should     raise_error Pusher::Error
-        socket_auth('socketid', {})    .should     raise_error Pusher::Error
+        authentication_string('socketid', 123)   .should     raise_error Pusher::Error
+        authentication_string('socketid', {})    .should     raise_error Pusher::Error
 
-        socket_auth('socketid', 'boom').should_not raise_error
-        socket_auth('socketid', nil)   .should_not raise_error
+        authentication_string('socketid', 'boom').should_not raise_error
+        authentication_string('socketid', nil)   .should_not raise_error
       end
 
       it "should return an authentication string given a socket id and custom args" do
-        auth = @channel.socket_auth('socketid', 'foobar')
+        auth = @channel.authentication_string('socketid', 'foobar')
 
         auth.should == "12345678900000001:#{hmac(@client.secret, "socketid:test_channel:foobar")}"
       end

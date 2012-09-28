@@ -74,9 +74,9 @@ module Pusher
       @client.channel_info(name, info: attributes.join(','))
     end
 
-    # Compute authentication string required to subscribe to this channel.
-    #
-    # See http://pusher.com/docs/auth_signatures for more details.
+    # Compute authentication string required as part of the authentication
+    # endpoint response. Generally the authenticate method should be used in
+    # preference to this one
     #
     # @param socket_id [String] Each Pusher socket connection receives a
     #   unique socket_id. This is sent from pusher.js to your server when
@@ -103,10 +103,8 @@ module Pusher
       return "#{token.key}:#{signature}"
     end
 
-    # Deprecated - for backward compatibility
-    alias :socket_auth :authentication_string
-
-    # Generate an authentication endpoint response
+    # Generate the expected response for an authentication endpoint.
+    # See http://pusher.com/docs/authenticating_users for details.
     #
     # @example Private channels
     #   render :json => Pusher['private-my_channel'].authenticate(params[:socket_id])
@@ -129,7 +127,7 @@ module Pusher
     #
     def authenticate(socket_id, custom_data = nil)
       custom_data = MultiJson.encode(custom_data) if custom_data
-      auth = socket_auth(socket_id, custom_data)
+      auth = authentication_string(socket_id, custom_data)
       r = {:auth => auth}
       r[:channel_data] = custom_data if custom_data
       r
