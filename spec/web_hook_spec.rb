@@ -43,12 +43,12 @@ describe Pusher::WebHook do
 
   describe "after initialization" do
     before :each do
-      body = MultiJson.encode(@hook_data)
+      @body = MultiJson.encode(@hook_data)
       request = {
         :key => '1234',
-        :signature => hmac('asdf', body),
+        :signature => hmac('asdf', @body),
         :content_type => 'application/json',
-        :body => body
+        :body => @body
       }
 
       @client = Pusher::Client.new
@@ -71,7 +71,9 @@ describe Pusher::WebHook do
     it "should not validate if secret is wrong" do
       @client.key = '1234'
       @client.secret = 'asdfxxx'
-      Pusher.logger.should_receive(:warn).with("Received WebHook with invalid signature: got a18bd1374b3b198ec457fb11d636ee2024d8077fc542829443729988bd1e4aa4, expected bb81a112a46dee1e4154ee4f328621f32558192c7af12adfc0395082cfcd3c6c")
+      digest = OpenSSL::Digest::SHA256.new
+      expected = OpenSSL::HMAC.hexdigest(digest, @client.secret, @body)
+      Pusher.logger.should_receive(:warn).with("Received WebHook with invalid signature: got #{@wh.signature}, expected #{expected}")
       @wh.should_not be_valid
     end
 
