@@ -135,7 +135,7 @@ describe Pusher do
       it "should be possible to configure everything by setting the http_proxy" do
         @client.http_proxy = 'http://someuser:somepassword@proxy.host.com:8080'
 
-        @client.proxy.should == {scheme: 'http', host: 'proxy.host.com', port: 8080, user: 'someuser', password: 'somepassword'}
+        @client.proxy.should == {:scheme => 'http', :host => 'proxy.host.com', :port => 8080, :user => 'someuser', :password => 'somepassword'}
       end
     end
 

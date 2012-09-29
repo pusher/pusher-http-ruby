@@ -67,7 +67,7 @@ describe Pusher::Channel do
       }
     end
 
-    [{proxy: true}, {proxy: false}].each do |c|
+    [{:proxy => true}, {:proxy => false}].each do |c|
       context "#{c[:proxy] ? 'with' : 'without'} http proxy" do
         before do
           @client.http_proxy = 'http://someuser:somepassword@proxy.host.com:8080' if c[:proxy]
@@ -150,7 +150,7 @@ describe Pusher::Channel do
   end
 
   describe "trigger_async" do
-    [{proxy: true}, {proxy: false}].each do |c|
+    [{:proxy => true}, {:proxy => false}].each do |c|
       context "#{c[:proxy] ? 'with' : 'without'} http proxy" do
         before do
           @client.http_proxy = 'http://someuser:somepassword@proxy.host.com:8080' if c[:proxy]

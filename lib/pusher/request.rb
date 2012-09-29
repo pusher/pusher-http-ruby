@@ -122,8 +122,8 @@ module Pusher
       connection_opts = {}
       unless @proxy.nil?
         connection_opts[:proxy] = {
-          host: @proxy[:host],
-          port: @proxy[:port]
+          :host => @proxy[:host],
+          :port => @proxy[:port]
         }
         connection_opts[:proxy][:authorization] = [@proxy[:user], @proxy[:password]] unless @proxy[:user].nil?
       end

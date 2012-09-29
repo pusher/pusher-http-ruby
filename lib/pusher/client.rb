@@ -53,11 +53,11 @@ module Pusher
       @http_proxy = http_proxy
       uri = URI.parse(http_proxy)
       @proxy = {
-        scheme: uri.scheme,
-        host: uri.host,
-        port: uri.port,
-        user: uri.user,
-        password: uri.password
+        :scheme => uri.scheme,
+        :host => uri.host,
+        :port => uri.port,
+        :user => uri.user,
+        :password => uri.password
       }
       @http_proxy
     end
