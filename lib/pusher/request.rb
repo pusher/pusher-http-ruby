@@ -66,6 +66,7 @@ module Pusher
       request = Signature::Request.new(verb.to_s.upcase, uri.path, params)
       request.sign(token || client.authentication_token)
       @params = request.signed_params
+      @proxy = client.proxy
     end
 
     def send_sync
@@ -76,7 +77,7 @@ module Pusher
       end
 
       @http_sync ||= begin
-        http = Net::HTTP.new(@uri.host, @uri.port)
+        http = (@proxy.nil? ? Net::HTTP : Net::HTTP.Proxy(@proxy[:host], @proxy[:port], @proxy[:user], @proxy[:password])).new(@uri.host, @uri.port)
         http.use_ssl = true if ssl?
         http.verify_mode = OpenSSL::SSL::VERIFY_NONE if ssl?
         http
@@ -118,7 +119,16 @@ module Pusher
 
       deferrable = EM::DefaultDeferrable.new
 
-      http = EventMachine::HttpRequest.new(@uri).post({
+      connection_opts = {}
+      unless @proxy.nil?
+        connection_opts[:proxy] = {
+          :host => @proxy[:host],
+          :port => @proxy[:port]
+        }
+        connection_opts[:proxy][:authorization] = [@proxy[:user], @proxy[:password]] unless @proxy[:user].nil?
+      end
+
+      http = EventMachine::HttpRequest.new(@uri, connection_opts).post({
         :query => @params, :timeout => 5, :body => @body,
         :head => {'Content-Type'=> 'application/json'}
       })
@@ -152,6 +162,8 @@ module Pusher
         raise AuthenticationError, body
       when 404
         raise Error, "Resource not found: app_id is probably invalid"
+      when 407
+        raise Error, "Proxy Authentication Required"
       else
         raise Error, "Unknown error (status code #{status_code}): #{body}"
       end
