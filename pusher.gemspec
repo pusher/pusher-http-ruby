@@ -3,7 +3,7 @@ $:.push File.expand_path("../lib", __FILE__)
 
 Gem::Specification.new do |s|
   s.name        = "pusher"
-  s.version     = "0.9.4"
+  s.version     = "0.10.0"
   s.platform    = Gem::Platform::RUBY
   s.authors     = ["Pusher"]
   s.email       = ["support@pusher.com"]
@@ -13,6 +13,7 @@ Gem::Specification.new do |s|
 
   s.add_dependency "multi_json", "~> 1.0"
   s.add_dependency 'signature', "~> 0.1.4"
+  s.add_dependency "jruby-openssl" if defined?(JRUBY_VERSION)
 
   s.add_development_dependency "rspec", "~> 2.0"
   s.add_development_dependency "webmock"
