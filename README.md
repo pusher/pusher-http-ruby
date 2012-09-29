@@ -12,6 +12,10 @@ After registering at <http://pusher.com> configure your app with the security cr
     Pusher.key = 'your-pusher-key'
     Pusher.secret = 'your-pusher-secret'
 
+If you need to request over HTTP proxy, then you can configure the {Pusher#http_proxy}.
+
+    Pusher.http_proxy = 'http://(user):(password)@(host):(port)'
+
 Trigger an event with {Pusher::Channel#trigger!}
 
     Pusher['a_channel'].trigger!('an_event', {:some => 'data'})
