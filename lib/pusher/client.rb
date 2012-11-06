@@ -74,6 +74,28 @@ module Pusher
       @port = boolean ? 443 : 80
     end
 
+    ## INTERACE WITH THE API ##
+
+    def resource(path)
+      Resource.new(self, path)
+    end
+
+    def get(path, params = {})
+      Resource.new(self, path).get(params)
+    end
+
+    def get_async(path, params = {})
+      Resource.new(self, path).get_async(params)
+    end
+
+    def post(path, params = {})
+      Resource.new(self, path).post(params)
+    end
+
+    def post_async(path, params = {})
+      Resource.new(self, path).post_async(params)
+    end
+
     # Return a convenience channel object by name. No API request is made.
     #
     # @example

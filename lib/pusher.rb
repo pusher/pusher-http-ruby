@@ -30,6 +30,7 @@ module Pusher
     def_delegators :default_client, :authentication_token, :url
     def_delegators :default_client, :encrypted=, :url=
 
+    def_delegators :default_client, :get, :get_async, :post, :post_async
     def_delegators :default_client, :channels, :channel_info, :trigger
 
     attr_writer :logger
@@ -72,4 +73,5 @@ end
 require 'pusher/channel'
 require 'pusher/query_encoder'
 require 'pusher/request'
+require 'pusher/resource'
 require 'pusher/webhook'
