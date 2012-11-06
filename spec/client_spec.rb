@@ -155,12 +155,6 @@ describe Pusher do
           @channel.should be_kind_of(Pusher::Channel)
         end
 
-        it "should reuse the same channel objects" do
-          channel1, channel2 = @client['test_channel'], @client['test_channel']
-
-          channel1.object_id.should == channel2.object_id
-        end
-
         %w{app_id key secret}.each do |config|
           it "should raise exception if #{config} not configured" do
             @client.send("#{config}=", nil)
