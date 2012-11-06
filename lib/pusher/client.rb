@@ -156,6 +156,19 @@ module Pusher
     # @raise [Pusher::HTTPError] on any error raised inside Net::HTTP - the original error is available in the original_error attribute
     #
     def trigger(channels, event_name, data, options = {})
+      post('/events', trigger_params(channels, event_name, data, options))
+    end
+
+    # Trigger an event on one or more channels asynchronously.
+    # For parameters see #trigger
+    #
+    def trigger_async(channels, event_name, data, options = {})
+      post_async('/events', trigger_params(channels, event_name, data, options))
+    end
+
+    private
+
+    def trigger_params(channels, event_name, data, params)
       encoded_data = case data
       when String
         data
@@ -168,16 +181,12 @@ module Pusher
         end
       end
 
-      options.merge!({
+      return params.merge({
         :name => event_name,
         :channels => channels,
         :data => encoded_data,
       })
-
-      post('/events', options)
     end
-
-    private
 
     def configured?
       host && scheme && key && secret && app_id
