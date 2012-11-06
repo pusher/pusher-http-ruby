@@ -109,10 +109,12 @@ module Pusher
     # @return [Channel]
     # @raise [ConfigurationError] unless key, secret and app_id have been
     #   configured
-    def [](channel_name)
+    def channel(channel_name)
       raise ConfigurationError, 'Missing client configuration: please check that key, secret and app_id are configured.' unless configured?
       Channel.new(url, channel_name, self)
     end
+
+    alias :[] :channel
 
     # Request a list of occupied channels from the API
     #
