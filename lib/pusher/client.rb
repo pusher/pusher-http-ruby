@@ -119,9 +119,7 @@ module Pusher
     # @raise [Pusher::HTTPError] on any error raised inside Net::HTTP - the original error is available in the original_error attribute
     #
     def channels(options = {})
-      @_channels_url ||= url('/channels')
-      request = Request.new(:get, @_channels_url, options, nil, nil, self)
-      return request.send_sync
+      get('/channels', options)
     end
 
     # Request info for a specific channel
@@ -135,8 +133,7 @@ module Pusher
     # @raise [Pusher::HTTPError] on any error raised inside Net::HTTP - the original error is available in the original_error attribute
     #
     def channel_info(channel_name, options = {})
-      request = Request.new(:get, url("/channels/#{channel_name}"), options, nil, nil, self)
-      return request.send_sync
+      get("/channels/#{channel_name}", options)
     end
 
     # Trigger an event on one or more channels
@@ -153,8 +150,6 @@ module Pusher
     # @raise [Pusher::HTTPError] on any error raised inside Net::HTTP - the original error is available in the original_error attribute
     #
     def trigger(channels, event_name, data, options = {})
-      @_trigger_url ||= url('/events')
-
       encoded_data = case data
       when String
         data
@@ -173,8 +168,7 @@ module Pusher
         :data => encoded_data,
       })
 
-      request = Request.new(:post, @_trigger_url, {}, MultiJson.encode(options), nil, self)
-      return request.send_sync
+      post('/events', options)
     end
 
     private
