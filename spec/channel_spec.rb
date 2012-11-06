@@ -16,7 +16,7 @@ describe Pusher::Channel do
     WebMock.disable_net_connect!
   end
 
-  let(:pusher_url_regexp) { %r{/apps/20/channels/test_channel/events} }
+  let(:pusher_url_regexp) { %r{/apps/20/events} }
 
   def stub_post(status, body = nil)
     options = {:status => status}
@@ -53,12 +53,13 @@ describe Pusher::Channel do
       })
       WebMock.should have_requested(:post, pusher_url_regexp).with { |req|
         query_hash = req.uri.query_values
-        query_hash["name"].should == 'new_event'
+
         query_hash["auth_key"].should == @client.key
         query_hash["auth_timestamp"].should_not be_nil
 
         parsed = MultiJson.decode(req.body)
-        parsed.should == {
+        parsed["name"].should == 'new_event'
+        MultiJson.decode(parsed["data"]).should == {
           "name" => 'Pusher',
           "last_name" => 'App'
         }
@@ -75,7 +76,10 @@ describe Pusher::Channel do
         it "should POST string data unmodified in request body" do
           string = "foo\nbar\""
           @channel.trigger!('new_event', string)
-          WebMock.should have_requested(:post, pusher_url_regexp).with { |req| req.body.should == "foo\nbar\"" }
+          WebMock.should have_requested(:post, pusher_url_regexp).with { |req|
+            parsed = MultiJson.decode(req.body)
+            parsed['data'].should == "foo\nbar\""
+          }
         end
       end
     end
@@ -117,7 +121,7 @@ describe Pusher::Channel do
 
     it "should raise Pusher::Error if pusher returns 407" do
       WebMock.stub_request(
-        :post, %r{/apps/20/channels/test_channel/events}
+        :post, %r{/apps/20/events}
       ).to_return(:status => 407)
       lambda {
         @client['test_channel'].trigger!('new_event', 'Some data')

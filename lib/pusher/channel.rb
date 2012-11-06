@@ -24,9 +24,10 @@ module Pusher
     # @raise [Pusher::Error] unless the eventmachine reactor is running. You
     #   probably want to run your application inside a server such as thin
     #
-    def trigger_async(event_name, data, socket_id = nil, &block)
-      request = construct_event_request(event_name, data, socket_id)
-      request.send_async
+    def trigger_async(event_name, data, socket_id = nil)
+      params = {}
+      params[:socket_id] = socket_id if socket_id
+      @client.trigger_async([name], event_name, data, params)
     end
 
     # Trigger event
@@ -47,8 +48,9 @@ module Pusher
     # @raise [Pusher::HTTPError] on any error raised inside Net::HTTP - the original error is available in the original_error attribute
     #
     def trigger!(event_name, data, socket_id = nil)
-      request = construct_event_request(event_name, data, socket_id)
-      request.send_sync
+      params = {}
+      params[:socket_id] = socket_id if socket_id
+      @client.trigger([name], event_name, data, params)
     end
 
     # Trigger event, catching and logging any errors.
@@ -131,29 +133,6 @@ module Pusher
       r = {:auth => auth}
       r[:channel_data] = custom_data if custom_data
       r
-    end
-
-    private
-
-    def construct_event_request(event_name, data, socket_id)
-      params = {
-        :name => event_name,
-      }
-      params[:socket_id] = socket_id if socket_id
-
-      body = case data
-      when String
-        data
-      else
-        begin
-          MultiJson.encode(data)
-        rescue MultiJson::DecodeError => e
-          Pusher.logger.error("Could not convert #{data.inspect} into JSON")
-          raise e
-        end
-      end
-
-      request = Pusher::Request.new(:post, @uri + 'events', params, body, nil, @client)
     end
   end
 end
