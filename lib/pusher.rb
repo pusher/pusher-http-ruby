@@ -32,6 +32,7 @@ module Pusher
 
     def_delegators :default_client, :get, :get_async, :post, :post_async
     def_delegators :default_client, :channels, :channel_info, :trigger
+    def_delegators :default_client, :webhook
 
     attr_writer :logger
 

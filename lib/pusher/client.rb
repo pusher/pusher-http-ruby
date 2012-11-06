@@ -96,6 +96,12 @@ module Pusher
       Resource.new(self, path).post_async(params)
     end
 
+    ## HELPER FUNCTIONS
+
+    def webhook(request)
+      WebHook.new(request, self)
+    end
+
     # Return a convenience channel object by name. No API request is made.
     #
     # @example
