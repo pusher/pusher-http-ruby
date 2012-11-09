@@ -9,8 +9,7 @@ module Pusher
     attr_reader :body, :params
 
     def initialize(client, verb, uri, params, body = nil)
-      @verb = verb
-      @uri = uri
+      @client, @verb, @uri = client, verb, uri
 
       if body
         @body = body
@@ -20,31 +19,19 @@ module Pusher
       request = Signature::Request.new(verb.to_s.upcase, uri.path, params)
       request.sign(client.authentication_token)
       @params = request.signed_params
-      @proxy = client.proxy
     end
 
     def send_sync
-      if ssl?
-        require 'net/https' unless defined?(Net::HTTPS)
-      else
-        require 'net/http' unless defined?(Net::HTTP)
-      end
-
-      @http_sync ||= begin
-        http = (@proxy.nil? ? Net::HTTP : Net::HTTP.Proxy(@proxy[:host], @proxy[:port], @proxy[:user], @proxy[:password])).new(@uri.host, @uri.port)
-        http.use_ssl = true if ssl?
-        http.verify_mode = OpenSSL::SSL::VERIFY_NONE if ssl?
-        http
-      end
+      http = @client.net_http_client
 
       begin
         case @verb
         when :post
-          response = @http_sync.post(encode_query(@uri, @params), @body, {
+          response = http.post(encode_query(@uri, @params), @body, {
             'Content-Type'=> 'application/json'
           })
         when :get
-          response = @http_sync.get(encode_query(@uri, @params), {
+          response = http.get(encode_query(@uri, @params), {
             'Content-Type'=> 'application/json'
           })
         else
@@ -66,40 +53,26 @@ module Pusher
     end
 
     def send_async
-      unless defined?(EventMachine) && EventMachine.reactor_running?
-        raise Error, "In order to use trigger_async you must be running inside an eventmachine loop"
-      end
-      require 'em-http' unless defined?(EventMachine::HttpRequest)
+      df = EM::DefaultDeferrable.new
 
-      deferrable = EM::DefaultDeferrable.new
-
-      connection_opts = {}
-      unless @proxy.nil?
-        connection_opts[:proxy] = {
-          :host => @proxy[:host],
-          :port => @proxy[:port]
-        }
-        connection_opts[:proxy][:authorization] = [@proxy[:user], @proxy[:password]] unless @proxy[:user].nil?
-      end
-
-      http = EventMachine::HttpRequest.new(@uri, connection_opts).post({
+      http = @client.em_http_client(@uri).post({
         :query => @params, :timeout => 5, :body => @body,
         :head => {'Content-Type'=> 'application/json'}
       })
       http.callback {
         begin
           handle_response(http.response_header.status, http.response.chomp)
-          deferrable.succeed
+          df.succeed
         rescue => e
-          deferrable.fail(e)
+          df.fail(e)
         end
       }
       http.errback {
         Pusher.logger.debug("Network error connecting to pusher: #{http.inspect}")
-        deferrable.fail(Error.new("Network error connecting to pusher"))
+        df.fail(Error.new("Network error connecting to pusher"))
       }
 
-      deferrable
+      df
     end
 
     private
@@ -121,10 +94,6 @@ module Pusher
       else
         raise Error, "Unknown error (status code #{status_code}): #{body}"
       end
-    end
-
-    def ssl?
-      @uri.scheme == 'https'
     end
 
     def symbolize_first_level(hash)

@@ -74,6 +74,10 @@ module Pusher
       @port = boolean ? 443 : 80
     end
 
+    def encrypted?
+      @scheme == 'https'
+    end
+
     ## INTERACE WITH THE API ##
 
     def resource(path)
@@ -165,6 +169,57 @@ module Pusher
     #
     def trigger_async(channels, event_name, data, options = {})
       post_async('/events', trigger_params(channels, event_name, data, options))
+    end
+
+    # @private Construct a net/http http client
+    def net_http_client
+      @_http_sync ||= begin
+        if encrypted?
+          require 'net/https' unless defined?(Net::HTTPS)
+        else
+          require 'net/http' unless defined?(Net::HTTP)
+        end
+
+        http_klass = if (p = @proxy)
+          Net::HTTP.Proxy(p[:host], p[:port], p[:user], p[:password])
+        else
+          Net::HTTP
+        end
+
+        http = http_klass.new(@host, @port)
+
+        if encrypted?
+          http.use_ssl = true
+          http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+        end
+
+        http
+      end
+    end
+
+    # @private Construct an em-http-request http client
+    def em_http_client(uri)
+      begin
+        unless defined?(EventMachine) && EventMachine.reactor_running?
+          raise Error, "In order to use async calling you must be running inside an eventmachine loop"
+        end
+        require 'em-http' unless defined?(EventMachine::HttpRequest)
+
+        connection_opts = {}
+
+        if @proxy
+          proxy_opts = {
+            :host => @proxy[:host],
+            :port => @proxy[:port]
+          }
+          if @proxy[:user]
+            proxy_opts[:authorization] = [@proxy[:user], @proxy[:password]]
+          end
+          connection_opts[:proxy] = proxy_opts
+        end
+
+        EventMachine::HttpRequest.new(uri, connection_opts)
+      end
     end
 
     private
