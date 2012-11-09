@@ -26,7 +26,7 @@ module Pusher
     private
 
     def create_request(verb, params, body = nil)
-      Request.new(verb, url, params, body, nil, @client)
+      Request.new(@client, verb, url, params, body)
     end
 
     def url

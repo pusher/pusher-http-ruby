@@ -8,7 +8,7 @@ module Pusher
 
     attr_reader :body, :params
 
-    def initialize(verb, uri, params, body = nil, token = nil, client = Pusher)
+    def initialize(client, verb, uri, params, body = nil)
       @verb = verb
       @uri = uri
 
@@ -18,7 +18,7 @@ module Pusher
       end
 
       request = Signature::Request.new(verb.to_s.upcase, uri.path, params)
-      request.sign(token || client.authentication_token)
+      request.sign(client.authentication_token)
       @params = request.signed_params
       @proxy = client.proxy
     end
