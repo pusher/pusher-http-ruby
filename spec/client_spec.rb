@@ -213,7 +213,7 @@ describe Pusher do
             should == {}
         end
 
-        it "should pass any options in the body of the request" do
+        it "should pass any parameters in the body of the request" do
           @client.trigger('mychannel', 'event', {'some' => 'data'}, {
             :socket_id => "1234"
           })

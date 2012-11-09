@@ -124,13 +124,13 @@ module Pusher
     #
     # GET /apps/[id]/channels
     #
-    # @param options [Hash] Hash of options for the API - see Pusher API docs
+    # @param params [Hash] Hash of parameters for the API - see REST API docs
     # @return [Hash] See Pusher API docs
     # @raise [Pusher::Error] on invalid Pusher response - see the error message for more details
     # @raise [Pusher::HTTPError] on any error raised inside Net::HTTP - the original error is available in the original_error attribute
     #
-    def channels(options = {})
-      get('/channels', options)
+    def channels(params = {})
+      get('/channels', params)
     end
 
     # Request info for a specific channel
@@ -138,13 +138,13 @@ module Pusher
     # GET /apps/[id]/channels/[channel_name]
     #
     # @param channel_name [String] Channel name
-    # @param options [Hash] Hash of options for the API - see Pusher API docs
+    # @param params [Hash] Hash of parameters for the API - see REST API docs
     # @return [Hash] See Pusher API docs
     # @raise [Pusher::Error] on invalid Pusher response - see the error message for more details
     # @raise [Pusher::HTTPError] on any error raised inside Net::HTTP - the original error is available in the original_error attribute
     #
-    def channel_info(channel_name, options = {})
-      get("/channels/#{channel_name}", options)
+    def channel_info(channel_name, params = {})
+      get("/channels/#{channel_name}", params)
     end
 
     # Trigger an event on one or more channels
@@ -155,20 +155,20 @@ module Pusher
     # @param event_name [String]
     # @param data [Object] Event data to be triggered in javascript.
     #   Objects other than strings will be converted to JSON
-    # @param options [Hash] Additional options to send to api, e.g socket_id
+    # @param params [Hash] Additional parameters to send to api, e.g socket_id
     # @return [Hash] See Pusher API docs
     # @raise [Pusher::Error] on invalid Pusher response - see the error message for more details
     # @raise [Pusher::HTTPError] on any error raised inside Net::HTTP - the original error is available in the original_error attribute
     #
-    def trigger(channels, event_name, data, options = {})
-      post('/events', trigger_params(channels, event_name, data, options))
+    def trigger(channels, event_name, data, params = {})
+      post('/events', trigger_params(channels, event_name, data, params))
     end
 
     # Trigger an event on one or more channels asynchronously.
     # For parameters see #trigger
     #
-    def trigger_async(channels, event_name, data, options = {})
-      post_async('/events', trigger_params(channels, event_name, data, options))
+    def trigger_async(channels, event_name, data, params = {})
+      post_async('/events', trigger_params(channels, event_name, data, params))
     end
 
     # @private Construct a net/http http client
