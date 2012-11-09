@@ -6,21 +6,31 @@ module Pusher
     end
 
     def get(params)
-      Request.new(:get, @client.url(@path), params, nil, nil, @client).send_sync
+      create_request(:get, params).send_sync
     end
 
     def get_async(params)
-      Request.new(:get, @client.url(@path), params, nil, nil, @client).send_async
+      create_request(:get, params).send_async
     end
 
     def post(params)
       body = MultiJson.encode(params)
-      Request.new(:post, @client.url(@path), {}, body, nil, @client).send_sync
+      create_request(:post, {}, body).send_sync
     end
 
     def post_async(params)
       body = MultiJson.encode(params)
-      Request.new(:post, @client.url(@path), {}, body, nil, @client).send_async
+      create_request(:post, {}, body).send_async
+    end
+
+    private
+
+    def create_request(verb, params, body = nil)
+      Request.new(verb, url, params, body, nil, @client)
+    end
+
+    def url
+      @_url ||= @client.url(@path)
     end
   end
 end
