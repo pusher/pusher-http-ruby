@@ -31,24 +31,9 @@ module Pusher
 
     def_delegators :default_client, :get, :get_async, :post, :post_async
     def_delegators :default_client, :channels, :channel_info, :trigger, :trigger_async
-    def_delegators :default_client, :webhook, :channel
+    def_delegators :default_client, :webhook, :channel, :[]
 
     attr_writer :logger
-
-    # Return a channel by name
-    #
-    # @example
-    #   Pusher['my-channel']
-    # @return [Channel]
-    # @raise [ConfigurationError] unless key, secret and app_id have been
-    #   configured
-    def [](channel_name)
-      begin
-        default_client[channel_name]
-      rescue ConfigurationError
-        raise ConfigurationError, 'Missing configuration: please check that Pusher.key, Pusher.secret and Pusher.app_id are configured.'
-      end
-    end
 
     def logger
       @logger ||= begin
