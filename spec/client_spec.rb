@@ -233,44 +233,90 @@ describe Pusher do
       [:get, :post].each do |verb|
         describe "##{verb}" do
           before :each do
-            WebMock.stub_request(verb, %r{api.pusherapp.com}).
+            @url_regexp = %r{api.pusherapp.com}
+            stub_request(verb, @url_regexp).
               to_return(:status => 200, :body => "{}")
           end
 
+          let(:call_api) { @client.send(verb, '/path') }
+
           it "should use http by default" do
-            @client.send(verb, '/path')
+            call_api
             WebMock.should have_requested(verb, %r{http://api.pusherapp.com/apps/20/path})
           end
 
           it "should use https if configured" do
             @client.encrypted = true
-            @client.send(verb, '/path')
+            call_api
             WebMock.should have_requested(verb, %r{https://api.pusherapp.com})
           end
 
           it "should format the respose hash with symbols at first level" do
-            WebMock.stub_request(verb, %r{api.pusherapp.com}).to_return({
+            stub_request(verb, @url_regexp).to_return({
               :status => 200,
               :body => MultiJson.encode({'something' => {'a' => 'hash'}})
             })
-            response = @client.send(verb, '/path')
-            response.should == {
+            call_api.should == {
               :something => {'a' => 'hash'}
             }
+          end
+
+          it "should catch all Net::HTTP exceptions and raise a Pusher::HTTPError wrapping the original error" do
+            stub_request(verb, @url_regexp).to_raise(Timeout::Error)
+
+            error = nil
+            begin
+              call_api
+            rescue => e
+              error = e
+            end
+
+            error.class.should == Pusher::HTTPError
+            error.should be_kind_of(Pusher::Error)
+            error.message.should == 'Exception from WebMock (Timeout::Error)'
+            error.original_error.class.should == Timeout::Error
+          end
+
+          it "should raise Pusher::Error if call returns 400" do
+            stub_request(verb, @url_regexp).to_return({:status => 400})
+            lambda { call_api }.should raise_error(Pusher::Error)
+          end
+
+          it "should raise AuthenticationError if pusher returns 401" do
+            stub_request(verb, @url_regexp).to_return({:status => 401})
+            lambda { call_api }.should raise_error(Pusher::AuthenticationError)
+          end
+
+          it "should raise Pusher::Error if pusher returns 404" do
+            stub_request(verb, @url_regexp).to_return({:status => 404})
+            lambda { call_api }.should raise_error(Pusher::Error, 'Resource not found: app_id is probably invalid')
+          end
+
+          it "should raise Pusher::Error if pusher returns 407" do
+            stub_request(verb, @url_regexp).to_return({:status => 407})
+            lambda { call_api }.should raise_error(Pusher::Error, 'Proxy Authentication Required')
+          end
+
+          it "should raise Pusher::Error if pusher returns 500" do
+            stub_request(verb, @url_regexp).to_return({:status => 500, :body => "some error"})
+            lambda { call_api }.should raise_error(Pusher::Error, 'Unknown error (status code 500): some error')
           end
         end
       end
 
-      [[:get, :get_async]].each do |verb, method|
+      [[:get, :get_async], [:post, :post_async]].each do |verb, method|
         describe "##{method}" do
           before :each do
-            WebMock.stub_request(verb, %r{api.pusherapp.com}).
+            @url_regexp = %r{api.pusherapp.com}
+            stub_request(verb, @url_regexp).
               to_return(:status => 200, :body => "{}")
           end
 
+          let(:call_api) { @client.send(method, '/path') }
+
           it "should use http by default" do
             EM.run {
-              @client.send(method, '/path').callback {
+              call_api.callback {
                 WebMock.should have_requested(verb, %r{http://api.pusherapp.com/apps/20/path})
                 EM.stop
               }
@@ -280,7 +326,7 @@ describe Pusher do
           it "should use https if configured" do
             EM.run {
               @client.encrypted = true
-              @client.send(method, '/path').callback {
+              call_api.callback {
                 WebMock.should have_requested(verb, %r{https://api.pusherapp.com})
                 EM.stop
               }
@@ -289,15 +335,28 @@ describe Pusher do
 
           it "should format the respose hash with symbols at first level" do
             EM.run {
-              WebMock.stub_request(verb, %r{api.pusherapp.com}).to_return({
+              stub_request(verb, @url_regexp).to_return({
                 :status => 200,
                 :body => MultiJson.encode({'something' => {'a' => 'hash'}})
               })
-              @client.send(method, '/path').callback { |response|
+              call_api.callback { |response|
                 response.should == {
                   :something => {'a' => 'hash'}
                 }
                 EM.stop
+              }
+            }
+          end
+
+          it "should errback with Pusher::Error on unsuccessful response" do
+            EM.run {
+              stub_request(verb, @url_regexp).to_return({:status => 400})
+
+              call_api.errback { |e|
+                e.class.should == Pusher::Error
+                EM.stop
+              }.callback {
+                fail
               }
             }
           end

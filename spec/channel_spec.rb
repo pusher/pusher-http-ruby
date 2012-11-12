@@ -70,55 +70,6 @@ describe Pusher::Channel do
         end
       end
     end
-
-    def trigger
-      lambda { @channel.trigger!('new_event', 'Some data') }
-    end
-
-    it "should catch all Net::HTTP exceptions and raise a Pusher::HTTPError, exposing the original error if required" do
-      stub_post_to_raise Timeout::Error
-      error_raised = nil
-
-      begin
-        trigger.call
-      rescue => e
-        error_raised = e
-      end
-
-      error_raised.class.should == Pusher::HTTPError
-      error_raised.message.should == 'Exception from WebMock (Timeout::Error)'
-      error_raised.original_error.class.should == Timeout::Error
-    end
-
-
-    it "should raise Pusher::Error if pusher returns 400" do
-      stub_post 400
-      trigger.should raise_error(Pusher::Error)
-    end
-
-    it "should raise AuthenticationError if pusher returns 401" do
-      stub_post 401
-      trigger.should raise_error(Pusher::AuthenticationError)
-    end
-
-    it "should raise Pusher::Error if pusher returns 404" do
-      stub_post 404
-      trigger.should raise_error(Pusher::Error, 'Resource not found: app_id is probably invalid')
-    end
-
-    it "should raise Pusher::Error if pusher returns 407" do
-      WebMock.stub_request(
-        :post, %r{/apps/20/events}
-      ).to_return(:status => 407)
-      lambda {
-        @client['test_channel'].trigger!('new_event', 'Some data')
-      }.should raise_error(Pusher::Error, 'Proxy Authentication Required')
-    end
-
-    it "should raise Pusher::Error if pusher returns 500" do
-      stub_post 500, "some error"
-      trigger.should raise_error(Pusher::Error, 'Unknown error (status code 500): some error')
-    end
   end
 
   describe '#trigger' do
@@ -169,22 +120,6 @@ describe Pusher::Channel do
         }
         d.errback {
           fail
-          EM.stop
-        }
-      }
-    end
-
-    it "should return a deferrable which fails (with exception) in fail case" do
-      stub_post 401
-
-      EM.run {
-        d = @channel.trigger_async('new_event', 'Some data')
-        d.callback {
-          fail
-        }
-        d.errback { |error|
-          WebMock.should have_requested(:post, pusher_url_regexp)
-          error.should be_kind_of(Pusher::AuthenticationError)
           EM.stop
         }
       }
