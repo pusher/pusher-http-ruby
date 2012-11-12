@@ -229,6 +229,54 @@ describe Pusher do
           }
         end
       end
+
+      [:get, :post].each do |verb|
+        describe "##{verb}" do
+          before :each do
+            WebMock.stub_request(verb, %r{api.pusherapp.com}).
+              to_return(:status => 200, :body => "{}")
+          end
+
+          it "should use http by default" do
+            @client.send(verb, '/path')
+            WebMock.should have_requested(verb, %r{http://api.pusherapp.com/apps/20/path})
+          end
+
+          it "should use https if configured" do
+            @client.encrypted = true
+            @client.send(verb, '/path')
+            WebMock.should have_requested(verb, %r{https://api.pusherapp.com})
+          end
+        end
+      end
+
+      [[:get, :get_async]].each do |verb, method|
+        describe "##{method}" do
+          before :each do
+            WebMock.stub_request(verb, %r{api.pusherapp.com}).
+              to_return(:status => 200, :body => "{}")
+          end
+
+          it "should use http by default" do
+            EM.run {
+              @client.send(method, '/path').callback {
+                WebMock.should have_requested(verb, %r{http://api.pusherapp.com/apps/20/path})
+                EM.stop
+              }
+            }
+          end
+
+          it "should use https if configured" do
+            EM.run {
+              @client.encrypted = true
+              @client.send(method, '/path').callback {
+                WebMock.should have_requested(verb, %r{https://api.pusherapp.com})
+                EM.stop
+              }
+            }
+          end
+        end
+      end
     end
   end
 end

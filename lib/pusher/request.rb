@@ -35,7 +35,7 @@ module Pusher
             'Content-Type'=> 'application/json'
           })
         else
-          raise "Unknown verb"
+          raise "Unsuported verb"
         end
       rescue Errno::EINVAL, Errno::ECONNRESET, Errno::ECONNREFUSED,
              Errno::ETIMEDOUT, Errno::EHOSTUNREACH,
@@ -55,10 +55,21 @@ module Pusher
     def send_async
       df = EM::DefaultDeferrable.new
 
-      http = @client.em_http_client(@uri).post({
-        :query => @params, :timeout => 5, :body => @body,
-        :head => {'Content-Type'=> 'application/json'}
-      })
+      http_client = @client.em_http_client(@uri)
+      http = case @verb
+      when :post
+        http_client.post({
+          :query => @params, :timeout => 5, :body => @body,
+          :head => {'Content-Type'=> 'application/json'}
+        })
+      when :get
+        http_client.get({
+          :query => @params, :timeout => 5,
+          :head => {'Content-Type'=> 'application/json'}
+        })
+      else
+        raise "Unsuported verb"
+      end
       http.callback {
         begin
           handle_response(http.response_header.status, http.response.chomp)

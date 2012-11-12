@@ -9,7 +9,6 @@ describe Pusher::Channel do
       :host => 'api.pusherapp.com',
       :port => 80,
     })
-    @client.encrypted = false
     @channel = @client['test_channel']
 
     WebMock.reset!
@@ -32,18 +31,6 @@ describe Pusher::Channel do
   describe 'trigger!' do
     before :each do
       stub_post 202
-    end
-
-    it 'should configure HTTP library to talk to pusher API' do
-      @channel.trigger!('new_event', 'Some data')
-      WebMock.should have_requested(:post, %r{http://api.pusherapp.com})
-    end
-
-    it "should POST to https api if ssl enabled" do
-      @client.encrypted = true
-      encrypted_channel = Pusher::Channel.new(@client.url, 'test_channel', @client)
-      encrypted_channel.trigger('new_event', 'Some data')
-      WebMock.should have_requested(:post, %r{https://api.pusherapp.com})
     end
 
     it 'should POST hashes by encoding as JSON in the request body' do
@@ -169,18 +156,6 @@ describe Pusher::Channel do
           }
         end
       end
-    end
-
-    it "should POST to https api if ssl enabled" do
-      @client.encrypted = true
-      EM.run {
-        stub_post 202
-        channel = Pusher::Channel.new(@client.url, 'test_channel', @client)
-        channel.trigger_async('new_event', 'Some data').callback {
-          WebMock.should have_requested(:post, %r{https://api.pusherapp.com})
-          EM.stop
-        }
-      }
     end
 
     it "should return a deferrable which succeeds in success case" do
