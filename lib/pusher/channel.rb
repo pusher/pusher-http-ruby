@@ -15,6 +15,9 @@ module Pusher
 
     # Trigger event asynchronously using EventMachine::HttpRequest
     #
+    # [Deprecated] This method will be removed in a future gem version. Please
+    # switch to Pusher.trigger_async or Pusher::Client#trigger_async instead
+    #
     # @param (see #trigger!)
     # @return [EM::DefaultDeferrable]
     #   Attach a callback to be notified of success (with no parameters).
@@ -31,6 +34,9 @@ module Pusher
     end
 
     # Trigger event
+    #
+    # [Deprecated] This method will be removed in a future gem version. Please
+    # switch to Pusher.trigger or Pusher::Client#trigger instead
     #
     # @example
     #   begin
@@ -54,6 +60,9 @@ module Pusher
     end
 
     # Trigger event, catching and logging any errors.
+    #
+    # [Deprecated] This method will be removed in a future gem version. Please
+    # switch to Pusher.trigger or Pusher::Client#trigger instead
     #
     # @note CAUTION! No exceptions will be raised on failure
     # @param (see #trigger!)

@@ -7,12 +7,11 @@ require 'pusher/client'
 # Used for configuring API credentials and creating Channel objects
 #
 module Pusher
-  # All Pusher errors descend from this class so you can easily rescue Pusher
-  # errors
+  # All errors descend from this class so they can be easily rescued
   #
   # @example
   #   begin
-  #     Pusher['a_channel'].trigger!('an_event', {:some => 'data'})
+  #     Pusher.trigger('channel_name', 'event_name, {:some => 'data'})
   #   rescue Pusher::Error => e
   #     # Do something on error
   #   end
