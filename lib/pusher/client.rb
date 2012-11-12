@@ -16,7 +16,7 @@ module Pusher
       @scheme, @host, @port, @app_id, @key, @secret = options.values_at(
         :scheme, :host, :port, :app_id, :key, :secret
       )
-      http_proxy = options.values_at(:http_proxy) if options.key?(:http_proxy)
+      self.http_proxy = options[:http_proxy] if options[:http_proxy]
     end
 
     # @private Returns the authentication token for the client
@@ -50,7 +50,7 @@ module Pusher
       @port   = uri.port
     end
 
-    def http_proxy= http_proxy
+    def http_proxy=(http_proxy)
       @http_proxy = http_proxy
       uri = URI.parse(http_proxy)
       @proxy = {

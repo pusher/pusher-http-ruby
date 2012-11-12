@@ -131,7 +131,7 @@ describe Pusher do
       end
     end
 
-    describe 'configuration using http_proxy' do
+    describe 'configuring a http proxy' do
       it "should be possible to configure everything by setting the http_proxy" do
         @client.http_proxy = 'http://someuser:somepassword@proxy.host.com:8080'
 
