@@ -209,23 +209,33 @@ describe Pusher do
         end
 
         it "should call correct URL" do
-          @client.trigger('mychannel', 'event', {'some' => 'data'}).
+          @client.trigger(['mychannel'], 'event', {'some' => 'data'}).
             should == {}
         end
 
         it "should pass any parameters in the body of the request" do
-          @client.trigger('mychannel', 'event', {'some' => 'data'}, {
+          @client.trigger(['mychannel', 'c2'], 'event', {'some' => 'data'}, {
             :socket_id => "1234"
           })
           WebMock.should have_requested(:post, @api_path).with { |req|
-            MultiJson.decode(req.body)["socket_id"].should == '1234'
+            parsed = MultiJson.decode(req.body)
+            parsed["name"].should == 'event'
+            parsed["channels"].should == ["mychannel", "c2"]
+            parsed["socket_id"].should == '1234'
           }
         end
 
         it "should convert non string data to JSON before posting" do
-          @client.trigger('mychannel', 'event', {'some' => 'data'})
+          @client.trigger(['mychannel'], 'event', {'some' => 'data'})
           WebMock.should have_requested(:post, @api_path).with { |req|
             MultiJson.decode(req.body)["data"].should == '{"some":"data"}'
+          }
+        end
+
+        it "should accept a single channel as well as an array" do
+          @client.trigger('mychannel', 'event', {'some' => 'data'})
+          WebMock.should have_requested(:post, @api_path).with { |req|
+            MultiJson.decode(req.body)["channels"].should == ['mychannel']
           }
         end
       end

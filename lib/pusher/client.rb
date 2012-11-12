@@ -201,7 +201,7 @@ module Pusher
     #
     # POST /apps/[app_id]/events
     #
-    # @param channels [Array] One of more channel names
+    # @param channels [String or Array] One of more channel names
     # @param event_name [String]
     # @param data [Object] Event data to be triggered in javascript.
     #   Objects other than strings will be converted to JSON
@@ -277,6 +277,8 @@ module Pusher
     private
 
     def trigger_params(channels, event_name, data, params)
+      channels = [channels] if channels.kind_of?(String)
+
       encoded_data = case data
       when String
         data

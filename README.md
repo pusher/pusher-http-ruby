@@ -44,7 +44,7 @@ The Pusher gem contains a number of helpers for interacting with the service. As
 Handle errors by rescuing `Pusher::Error` (all errors are descendants of this error)
 
     begin
-      Pusher.trigger(['a_channel'], 'an_event', {:some => 'data'})
+      Pusher.trigger('a_channel', 'an_event', {:some => 'data'})
     rescue Pusher::Error => e
       # (Pusher::AuthenticationError, Pusher::HTTPError, or Pusher::Error)
     end
@@ -60,7 +60,8 @@ Errors are logged to `Pusher.logger`. It will by default use `Logger` from the s
 An event can be sent to Pusher in in the following ways:
 
     # on the Pusher class
-    Pusher.trigger(['your_channels'], 'your_event_name', {some: 'data'})
+    Pusher.trigger('channel_name', 'event_name', {some: 'data'})
+    Pusher.trigger(['channel_1', 'channel_2'], 'event_name', {some: 'data'})
     
     # or on a pusher_client
     pusher_client.trigger(['your_channels'], 'your_event_name', {some: 'data'})
