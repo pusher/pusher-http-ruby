@@ -98,7 +98,7 @@ module Pusher
       when 401
         raise AuthenticationError, body
       when 404
-        raise Error, "Resource not found: app_id is probably invalid"
+        raise Error, "404 Not found (#{@uri.path})"
       when 407
         raise Error, "Proxy Authentication Required"
       else

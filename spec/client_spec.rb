@@ -289,7 +289,7 @@ describe Pusher do
 
           it "should raise Pusher::Error if pusher returns 404" do
             stub_request(verb, @url_regexp).to_return({:status => 404})
-            lambda { call_api }.should raise_error(Pusher::Error, 'Resource not found: app_id is probably invalid')
+            lambda { call_api }.should raise_error(Pusher::Error, '404 Not found (/apps/20/path)')
           end
 
           it "should raise Pusher::Error if pusher returns 407" do
