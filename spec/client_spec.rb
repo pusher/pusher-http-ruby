@@ -247,6 +247,17 @@ describe Pusher do
             @client.send(verb, '/path')
             WebMock.should have_requested(verb, %r{https://api.pusherapp.com})
           end
+
+          it "should format the respose hash with symbols at first level" do
+            WebMock.stub_request(verb, %r{api.pusherapp.com}).to_return({
+              :status => 200,
+              :body => MultiJson.encode({'something' => {'a' => 'hash'}})
+            })
+            response = @client.send(verb, '/path')
+            response.should == {
+              :something => {'a' => 'hash'}
+            }
+          end
         end
       end
 
@@ -271,6 +282,21 @@ describe Pusher do
               @client.encrypted = true
               @client.send(method, '/path').callback {
                 WebMock.should have_requested(verb, %r{https://api.pusherapp.com})
+                EM.stop
+              }
+            }
+          end
+
+          it "should format the respose hash with symbols at first level" do
+            EM.run {
+              WebMock.stub_request(verb, %r{api.pusherapp.com}).to_return({
+                :status => 200,
+                :body => MultiJson.encode({'something' => {'a' => 'hash'}})
+              })
+              @client.send(method, '/path').callback { |response|
+                response.should == {
+                  :something => {'a' => 'hash'}
+                }
                 EM.stop
               }
             }

@@ -72,8 +72,7 @@ module Pusher
       end
       http.callback {
         begin
-          handle_response(http.response_header.status, http.response.chomp)
-          df.succeed
+          df.succeed(handle_response(http.response_header.status, http.response.chomp))
         rescue => e
           df.fail(e)
         end
