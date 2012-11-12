@@ -230,6 +230,49 @@ describe Pusher do
         end
       end
 
+      describe '#trigger_async' do
+        before :each do
+          @api_path = %r{/apps/20/events}
+          stub_request(:post, @api_path).to_return({
+            :status => 200,
+            :body => MultiJson.encode({})
+          })
+        end
+
+        it "should call correct URL" do
+          EM.run {
+            @client.trigger_async('mychannel', 'event', {'some' => 'data'}).callback { |r|
+              r.should == {}
+              EM.stop
+            }
+          }
+        end
+
+        it "should pass any parameters in the body of the request" do
+          EM.run {
+            @client.trigger_async('mychannel', 'event', {'some' => 'data'}, {
+              :socket_id => "1234"
+            }).callback {
+              WebMock.should have_requested(:post, @api_path).with { |req|
+                MultiJson.decode(req.body)["socket_id"].should == '1234'
+              }
+              EM.stop
+            }
+          }
+        end
+
+        it "should convert non string data to JSON before posting" do
+          EM.run {
+            @client.trigger_async('mychannel', 'event', {'some' => 'data'}).callback {
+              WebMock.should have_requested(:post, @api_path).with { |req|
+                MultiJson.decode(req.body)["data"].should == '{"some":"data"}'
+              }
+              EM.stop
+            }
+          }
+        end
+      end
+
       [:get, :post].each do |verb|
         describe "##{verb}" do
           before :each do
