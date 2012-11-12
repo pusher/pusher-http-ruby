@@ -25,47 +25,10 @@ describe Pusher::Channel do
     stub_request(:post, pusher_url_regexp).to_raise(e)
   end
 
-  describe 'trigger!' do
-    before :each do
-      stub_post 202
-    end
-
-    it 'should POST hashes by encoding as JSON in the request body' do
-      @channel.trigger!('new_event', {
-        :name => 'Pusher',
-        :last_name => 'App'
-      })
-      WebMock.should have_requested(:post, pusher_url_regexp).with { |req|
-        query_hash = req.uri.query_values
-
-        query_hash["auth_key"].should == @client.key
-        query_hash["auth_timestamp"].should_not be_nil
-
-        parsed = MultiJson.decode(req.body)
-        parsed["name"].should == 'new_event'
-        MultiJson.decode(parsed["data"]).should == {
-          "name" => 'Pusher',
-          "last_name" => 'App'
-        }
-
-        req.headers['Content-Type'].should == 'application/json'
-      }
-    end
-
-    [{:proxy => true}, {:proxy => false}].each do |c|
-      context "#{c[:proxy] ? 'with' : 'without'} http proxy" do
-        before do
-          @client.http_proxy = 'http://someuser:somepassword@proxy.host.com:8080' if c[:proxy]
-        end
-        it "should POST string data unmodified in request body" do
-          string = "foo\nbar\""
-          @channel.trigger!('new_event', string)
-          WebMock.should have_requested(:post, pusher_url_regexp).with { |req|
-            parsed = MultiJson.decode(req.body)
-            parsed['data'].should == "foo\nbar\""
-          }
-        end
-      end
+  describe '#trigger!' do
+    it "should use @client.trigger internally" do
+      @client.should_receive(:trigger)
+      @channel.trigger('new_event', 'Some data')
     end
   end
 
@@ -88,38 +51,10 @@ describe Pusher::Channel do
     end
   end
 
-  describe "trigger_async" do
-    [{:proxy => true}, {:proxy => false}].each do |c|
-      context "#{c[:proxy] ? 'with' : 'without'} http proxy" do
-        before do
-          @client.http_proxy = 'http://someuser:somepassword@proxy.host.com:8080' if c[:proxy]
-        end
-        it "should by default POST to http api" do
-          EM.run {
-            stub_post 202
-            @channel.trigger_async('new_event', 'Some data').callback {
-              WebMock.should have_requested(:post, %r{http://api.pusherapp.com})
-              EM.stop
-            }
-          }
-        end
-      end
-    end
-
-    it "should return a deferrable which succeeds in success case" do
-      stub_post 202
-
-      EM.run {
-        d = @channel.trigger_async('new_event', 'Some data')
-        d.callback {
-          WebMock.should have_requested(:post, pusher_url_regexp)
-          EM.stop
-        }
-        d.errback {
-          fail
-          EM.stop
-        }
-      }
+  describe "#trigger_async" do
+    it "should use @client.trigger_async internally" do
+      @client.should_receive(:trigger_async)
+      @channel.trigger_async('new_event', 'Some data')
     end
   end
 
