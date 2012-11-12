@@ -5,7 +5,8 @@ module Pusher
     attr_accessor :scheme, :host, :port, :app_id, :key, :secret, :http_proxy
     attr_reader :proxy
 
-    # Initializes the client object.
+    ## CONFIGURATION ##
+
     def initialize(options = {})
       options = {
         :scheme => 'http',
@@ -84,24 +85,69 @@ module Pusher
       Resource.new(self, path)
     end
 
+    # GET arbitrary REST API resource using a synchronous http client.
+    # All request signing is handled automatically.
+    #
+    # @example
+    #   begin
+    #     Pusher.get('/channels', filter_by_prefix: 'private-')
+    #   rescue Pusher::Error => e
+    #     # Handle error
+    #   end
+    #
+    # @param path [String] Path excluding /apps/APP_ID
+    # @param params [Hash] API params (see http://pusher.com/docs/rest_api)
+    #
+    # @return [Hash] See Pusher API docs
+    #
+    # @raise [Pusher::Error] Unsuccessful response - see the error message
+    # @raise [Pusher::HTTPError] Error raised inside Net::HTTP. The original error is wrapped in error.original_error
+    #
     def get(path, params = {})
       Resource.new(self, path).get(params)
     end
 
+    # GET arbitrary REST API resource using an asynchronous http client.
+    # All request signing is handled automatically.
+    #
+    # @example
+    #   Pusher.get_async('/channels', {
+    #     filter_by_prefix: 'private-'
+    #   }).callback { |response_hash|
+    #     # ...
+    #   }.errback { |error|
+    #     # error is a instance of Pusher::Error
+    #   }
+    #
+    # @param path [String] Path excluding /apps/APP_ID
+    # @param params [Hash] API params (see http://pusher.com/docs/rest_api)
+    #
+    # @return [EM::DefaultDeferrable]
+    #
     def get_async(path, params = {})
       Resource.new(self, path).get_async(params)
     end
 
+    # POST arbitrary REST API resource using a synchronous http client.
+    # Works identially to get method, but posts params as JSON in post body.
     def post(path, params = {})
       Resource.new(self, path).post(params)
     end
 
+    # POST arbitrary REST API resource using an asynchronous http client.
+    # Works identially to get_async method, but posts params as JSON in post
+    # body.
     def post_async(path, params = {})
       Resource.new(self, path).post_async(params)
     end
 
-    ## HELPER FUNCTIONS
+    ## HELPER METHODS ##
 
+    # Convenience method for creating a new WebHook instance for validating
+    # and extracting info from a received WebHook
+    #
+    # @param request [Rack::Request] Either a Rack::Request or a Hash containing :key, :signature, :body, and optionally :content_type.
+    #
     def webhook(request)
       WebHook.new(request, self)
     end
@@ -125,9 +171,11 @@ module Pusher
     # GET /apps/[id]/channels
     #
     # @param params [Hash] Hash of parameters for the API - see REST API docs
+    #
     # @return [Hash] See Pusher API docs
-    # @raise [Pusher::Error] on invalid Pusher response - see the error message for more details
-    # @raise [Pusher::HTTPError] on any error raised inside Net::HTTP - the original error is available in the original_error attribute
+    #
+    # @raise [Pusher::Error] Unsuccessful response - see the error message
+    # @raise [Pusher::HTTPError] Error raised inside Net::HTTP. The original error is wrapped in error.original_error
     #
     def channels(params = {})
       get('/channels', params)
@@ -139,9 +187,11 @@ module Pusher
     #
     # @param channel_name [String] Channel name
     # @param params [Hash] Hash of parameters for the API - see REST API docs
+    #
     # @return [Hash] See Pusher API docs
-    # @raise [Pusher::Error] on invalid Pusher response - see the error message for more details
-    # @raise [Pusher::HTTPError] on any error raised inside Net::HTTP - the original error is available in the original_error attribute
+    #
+    # @raise [Pusher::Error] Unsuccessful response - see the error message
+    # @raise [Pusher::HTTPError] Error raised inside Net::HTTP. The original error is wrapped in error.original_error
     #
     def channel_info(channel_name, params = {})
       get("/channels/#{channel_name}", params)
@@ -156,9 +206,11 @@ module Pusher
     # @param data [Object] Event data to be triggered in javascript.
     #   Objects other than strings will be converted to JSON
     # @param params [Hash] Additional parameters to send to api, e.g socket_id
+    #
     # @return [Hash] See Pusher API docs
-    # @raise [Pusher::Error] on invalid Pusher response - see the error message for more details
-    # @raise [Pusher::HTTPError] on any error raised inside Net::HTTP - the original error is available in the original_error attribute
+    #
+    # @raise [Pusher::Error] Unsuccessful response - see the error message
+    # @raise [Pusher::HTTPError] Error raised inside Net::HTTP. The original error is wrapped in error.original_error
     #
     def trigger(channels, event_name, data, params = {})
       post('/events', trigger_params(channels, event_name, data, params))
