@@ -168,7 +168,7 @@ describe Pusher do
       describe '#channels' do
         it "should call the correct URL and symbolise response correctly" do
           api_path = %r{/apps/20/channels}
-          WebMock.stub_request(:get, api_path).to_return({
+          stub_request(:get, api_path).to_return({
             :status => 200,
             :body => MultiJson.encode('channels' => {
               "channel1" => {},
@@ -187,7 +187,7 @@ describe Pusher do
       describe '#channel_info' do
         it "should call correct URL and symbolise response" do
           api_path = %r{/apps/20/channels/mychannel}
-          WebMock.stub_request(:get, api_path).to_return({
+          stub_request(:get, api_path).to_return({
             :status => 200,
             :body => MultiJson.encode({
               'occupied' => false,
@@ -202,7 +202,7 @@ describe Pusher do
       describe '#trigger' do
         before :each do
           @api_path = %r{/apps/20/events}
-          WebMock.stub_request(:post, @api_path).to_return({
+          stub_request(:post, @api_path).to_return({
             :status => 200,
             :body => MultiJson.encode({})
           })

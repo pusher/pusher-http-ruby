@@ -10,9 +10,6 @@ describe Pusher::Channel do
       :port => 80,
     })
     @channel = @client['test_channel']
-
-    WebMock.reset!
-    WebMock.disable_net_connect!
   end
 
   let(:pusher_url_regexp) { %r{/apps/20/events} }
@@ -21,11 +18,11 @@ describe Pusher::Channel do
     options = {:status => status}
     options.merge!({:body => body}) if body
 
-    WebMock.stub_request(:post, pusher_url_regexp).to_return(options)
+    stub_request(:post, pusher_url_regexp).to_return(options)
   end
 
   def stub_post_to_raise(e)
-    WebMock.stub_request(:post, pusher_url_regexp).to_raise(e)
+    stub_request(:post, pusher_url_regexp).to_raise(e)
   end
 
   describe 'trigger!' do
