@@ -21,6 +21,10 @@ If you need to make requests via a HTTP proxy then it can be configured
 
     Pusher.http_proxy = 'http://(user):(password)@(host):(port)'
 
+By default API requests are made over HTTP. HTTPS can be used by setting
+
+    Pusher.encrypted = true
+
 ### Instantiating a Pusher client
 
 Sometimes you may have multiple sets of API keys, or want different configuration in different parts of your application. In these scenarios, a pusher `client` may be configured:
@@ -51,7 +55,7 @@ Handle errors by rescuing `Pusher::Error` (all errors are descendants of this er
 
 ### Logging
 
-Errors are logged to `Pusher.logger`. It will by default use `Logger` from the standard library, however you can assign any logger:
+Errors are logged to `Pusher.logger`. It will by default log at info level to STDOUT using `Logger` from the standard library, however you can assign any logger:
 
     Pusher.logger = Rails.logger
 
