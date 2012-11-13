@@ -7,12 +7,11 @@ require 'pusher/client'
 # Used for configuring API credentials and creating Channel objects
 #
 module Pusher
-  # All Pusher errors descend from this class so you can easily rescue Pusher
-  # errors
+  # All errors descend from this class so they can be easily rescued
   #
   # @example
   #   begin
-  #     Pusher['a_channel'].trigger!('an_event', {:some => 'data'})
+  #     Pusher.trigger('channel_name', 'event_name, {:some => 'data'})
   #   rescue Pusher::Error => e
   #     # Do something on error
   #   end
@@ -30,24 +29,11 @@ module Pusher
     def_delegators :default_client, :authentication_token, :url
     def_delegators :default_client, :encrypted=, :url=
 
-    def_delegators :default_client, :channels, :channel_info, :trigger
+    def_delegators :default_client, :get, :get_async, :post, :post_async
+    def_delegators :default_client, :channels, :channel_info, :trigger, :trigger_async
+    def_delegators :default_client, :webhook, :channel, :[]
 
     attr_writer :logger
-
-    # Return a channel by name
-    #
-    # @example
-    #   Pusher['my-channel']
-    # @return [Channel]
-    # @raise [ConfigurationError] unless key, secret and app_id have been
-    #   configured
-    def [](channel_name)
-      begin
-        default_client[channel_name]
-      rescue ConfigurationError
-        raise ConfigurationError, 'Missing configuration: please check that Pusher.key, Pusher.secret and Pusher.app_id are configured.'
-      end
-    end
 
     def logger
       @logger ||= begin
@@ -70,5 +56,7 @@ module Pusher
 end
 
 require 'pusher/channel'
+require 'pusher/query_encoder'
 require 'pusher/request'
+require 'pusher/resource'
 require 'pusher/webhook'

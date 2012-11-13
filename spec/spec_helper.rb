@@ -12,6 +12,13 @@ require 'webmock/rspec'
 require 'pusher'
 require 'eventmachine'
 
+RSpec.configure do |config|
+  config.before(:each) do
+    WebMock.reset!
+    WebMock.disable_net_connect!
+  end
+end
+
 def hmac(key, data)
   digest = OpenSSL::Digest::SHA256.new
   expected = OpenSSL::HMAC.hexdigest(digest, key, data)

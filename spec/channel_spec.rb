@@ -9,124 +9,26 @@ describe Pusher::Channel do
       :host => 'api.pusherapp.com',
       :port => 80,
     })
-    @client.encrypted = false
     @channel = @client['test_channel']
-
-    WebMock.reset!
-    WebMock.disable_net_connect!
   end
 
-  let(:pusher_url_regexp) { %r{/apps/20/channels/test_channel/events} }
+  let(:pusher_url_regexp) { %r{/apps/20/events} }
 
   def stub_post(status, body = nil)
     options = {:status => status}
     options.merge!({:body => body}) if body
 
-    WebMock.stub_request(:post, pusher_url_regexp).to_return(options)
+    stub_request(:post, pusher_url_regexp).to_return(options)
   end
 
   def stub_post_to_raise(e)
-    WebMock.stub_request(:post, pusher_url_regexp).to_raise(e)
+    stub_request(:post, pusher_url_regexp).to_raise(e)
   end
 
-  describe 'trigger!' do
-    before :each do
-      stub_post 202
-    end
-
-    it 'should configure HTTP library to talk to pusher API' do
-      @channel.trigger!('new_event', 'Some data')
-      WebMock.should have_requested(:post, %r{http://api.pusherapp.com})
-    end
-
-    it "should POST to https api if ssl enabled" do
-      @client.encrypted = true
-      encrypted_channel = Pusher::Channel.new(@client.url, 'test_channel', @client)
-      encrypted_channel.trigger('new_event', 'Some data')
-      WebMock.should have_requested(:post, %r{https://api.pusherapp.com})
-    end
-
-    it 'should POST hashes by encoding as JSON in the request body' do
-      @channel.trigger!('new_event', {
-        :name => 'Pusher',
-        :last_name => 'App'
-      })
-      WebMock.should have_requested(:post, pusher_url_regexp).with { |req|
-        query_hash = req.uri.query_values
-        query_hash["name"].should == 'new_event'
-        query_hash["auth_key"].should == @client.key
-        query_hash["auth_timestamp"].should_not be_nil
-
-        parsed = MultiJson.decode(req.body)
-        parsed.should == {
-          "name" => 'Pusher',
-          "last_name" => 'App'
-        }
-
-        req.headers['Content-Type'].should == 'application/json'
-      }
-    end
-
-    [{:proxy => true}, {:proxy => false}].each do |c|
-      context "#{c[:proxy] ? 'with' : 'without'} http proxy" do
-        before do
-          @client.http_proxy = 'http://someuser:somepassword@proxy.host.com:8080' if c[:proxy]
-        end
-        it "should POST string data unmodified in request body" do
-          string = "foo\nbar\""
-          @channel.trigger!('new_event', string)
-          WebMock.should have_requested(:post, pusher_url_regexp).with { |req| req.body.should == "foo\nbar\"" }
-        end
-      end
-    end
-
-    def trigger
-      lambda { @channel.trigger!('new_event', 'Some data') }
-    end
-
-    it "should catch all Net::HTTP exceptions and raise a Pusher::HTTPError, exposing the original error if required" do
-      stub_post_to_raise Timeout::Error
-      error_raised = nil
-
-      begin
-        trigger.call
-      rescue => e
-        error_raised = e
-      end
-
-      error_raised.class.should == Pusher::HTTPError
-      error_raised.message.should == 'Exception from WebMock (Timeout::Error)'
-      error_raised.original_error.class.should == Timeout::Error
-    end
-
-
-    it "should raise Pusher::Error if pusher returns 400" do
-      stub_post 400
-      trigger.should raise_error(Pusher::Error)
-    end
-
-    it "should raise AuthenticationError if pusher returns 401" do
-      stub_post 401
-      trigger.should raise_error(Pusher::AuthenticationError)
-    end
-
-    it "should raise Pusher::Error if pusher returns 404" do
-      stub_post 404
-      trigger.should raise_error(Pusher::Error, 'Resource not found: app_id is probably invalid')
-    end
-
-    it "should raise Pusher::Error if pusher returns 407" do
-      WebMock.stub_request(
-        :post, %r{/apps/20/channels/test_channel/events}
-      ).to_return(:status => 407)
-      lambda {
-        @client['test_channel'].trigger!('new_event', 'Some data')
-      }.should raise_error(Pusher::Error, 'Proxy Authentication Required')
-    end
-
-    it "should raise Pusher::Error if pusher returns 500" do
-      stub_post 500, "some error"
-      trigger.should raise_error(Pusher::Error, 'Unknown error (status code 500): some error')
+  describe '#trigger!' do
+    it "should use @client.trigger internally" do
+      @client.should_receive(:trigger)
+      @channel.trigger('new_event', 'Some data')
     end
   end
 
@@ -149,78 +51,22 @@ describe Pusher::Channel do
     end
   end
 
-  describe "trigger_async" do
-    [{:proxy => true}, {:proxy => false}].each do |c|
-      context "#{c[:proxy] ? 'with' : 'without'} http proxy" do
-        before do
-          @client.http_proxy = 'http://someuser:somepassword@proxy.host.com:8080' if c[:proxy]
-        end
-        it "should by default POST to http api" do
-          EM.run {
-            stub_post 202
-            @channel.trigger_async('new_event', 'Some data').callback {
-              WebMock.should have_requested(:post, %r{http://api.pusherapp.com})
-              EM.stop
-            }
-          }
-        end
-      end
-    end
-
-    it "should POST to https api if ssl enabled" do
-      @client.encrypted = true
-      EM.run {
-        stub_post 202
-        channel = Pusher::Channel.new(@client.url, 'test_channel', @client)
-        channel.trigger_async('new_event', 'Some data').callback {
-          WebMock.should have_requested(:post, %r{https://api.pusherapp.com})
-          EM.stop
-        }
-      }
-    end
-
-    it "should return a deferrable which succeeds in success case" do
-      stub_post 202
-
-      EM.run {
-        d = @channel.trigger_async('new_event', 'Some data')
-        d.callback {
-          WebMock.should have_requested(:post, pusher_url_regexp)
-          EM.stop
-        }
-        d.errback {
-          fail
-          EM.stop
-        }
-      }
-    end
-
-    it "should return a deferrable which fails (with exception) in fail case" do
-      stub_post 401
-
-      EM.run {
-        d = @channel.trigger_async('new_event', 'Some data')
-        d.callback {
-          fail
-        }
-        d.errback { |error|
-          WebMock.should have_requested(:post, pusher_url_regexp)
-          error.should be_kind_of(Pusher::AuthenticationError)
-          EM.stop
-        }
-      }
+  describe "#trigger_async" do
+    it "should use @client.trigger_async internally" do
+      @client.should_receive(:trigger_async)
+      @channel.trigger_async('new_event', 'Some data')
     end
   end
 
   describe '#info' do
     it "should call the Client#channel_info" do
-      @client.should_receive(:channel_info).with('mychannel', anything)
+      @client.should_receive(:get).with("/channels/mychannel", anything)
       @channel = @client['mychannel']
       @channel.info
     end
 
     it "should assemble the requested attribes into the info option" do
-      @client.should_receive(:channel_info).with(anything, {
+      @client.should_receive(:get).with(anything, {
         :info => "user_count,connection_count"
       })
       @channel = @client['presence-foo']

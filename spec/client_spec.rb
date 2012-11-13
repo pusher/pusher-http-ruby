@@ -131,7 +131,7 @@ describe Pusher do
       end
     end
 
-    describe 'configuration using http_proxy' do
+    describe 'configuring a http proxy' do
       it "should be possible to configure everything by setting the http_proxy" do
         @client.http_proxy = 'http://someuser:somepassword@proxy.host.com:8080'
 
@@ -155,12 +155,6 @@ describe Pusher do
           @channel.should be_kind_of(Pusher::Channel)
         end
 
-        it "should reuse the same channel objects" do
-          channel1, channel2 = @client['test_channel'], @client['test_channel']
-
-          channel1.object_id.should == channel2.object_id
-        end
-
         %w{app_id key secret}.each do |config|
           it "should raise exception if #{config} not configured" do
             @client.send("#{config}=", nil)
@@ -174,7 +168,7 @@ describe Pusher do
       describe '#channels' do
         it "should call the correct URL and symbolise response correctly" do
           api_path = %r{/apps/20/channels}
-          WebMock.stub_request(:get, api_path).to_return({
+          stub_request(:get, api_path).to_return({
             :status => 200,
             :body => MultiJson.encode('channels' => {
               "channel1" => {},
@@ -193,7 +187,7 @@ describe Pusher do
       describe '#channel_info' do
         it "should call correct URL and symbolise response" do
           api_path = %r{/apps/20/channels/mychannel}
-          WebMock.stub_request(:get, api_path).to_return({
+          stub_request(:get, api_path).to_return({
             :status => 200,
             :body => MultiJson.encode({
               'occupied' => false,
@@ -208,31 +202,217 @@ describe Pusher do
       describe '#trigger' do
         before :each do
           @api_path = %r{/apps/20/events}
-          WebMock.stub_request(:post, @api_path).to_return({
+          stub_request(:post, @api_path).to_return({
             :status => 200,
             :body => MultiJson.encode({})
           })
         end
 
         it "should call correct URL" do
-          @client.trigger('mychannel', 'event', {'some' => 'data'}).
+          @client.trigger(['mychannel'], 'event', {'some' => 'data'}).
             should == {}
         end
 
-        it "should pass any options in the body of the request" do
-          @client.trigger('mychannel', 'event', {'some' => 'data'}, {
+        it "should pass any parameters in the body of the request" do
+          @client.trigger(['mychannel', 'c2'], 'event', {'some' => 'data'}, {
             :socket_id => "1234"
           })
           WebMock.should have_requested(:post, @api_path).with { |req|
-            MultiJson.decode(req.body)["socket_id"].should == '1234'
+            parsed = MultiJson.decode(req.body)
+            parsed["name"].should == 'event'
+            parsed["channels"].should == ["mychannel", "c2"]
+            parsed["socket_id"].should == '1234'
           }
         end
 
         it "should convert non string data to JSON before posting" do
-          @client.trigger('mychannel', 'event', {'some' => 'data'})
+          @client.trigger(['mychannel'], 'event', {'some' => 'data'})
           WebMock.should have_requested(:post, @api_path).with { |req|
             MultiJson.decode(req.body)["data"].should == '{"some":"data"}'
           }
+        end
+
+        it "should accept a single channel as well as an array" do
+          @client.trigger('mychannel', 'event', {'some' => 'data'})
+          WebMock.should have_requested(:post, @api_path).with { |req|
+            MultiJson.decode(req.body)["channels"].should == ['mychannel']
+          }
+        end
+      end
+
+      describe '#trigger_async' do
+        before :each do
+          @api_path = %r{/apps/20/events}
+          stub_request(:post, @api_path).to_return({
+            :status => 200,
+            :body => MultiJson.encode({})
+          })
+        end
+
+        it "should call correct URL" do
+          EM.run {
+            @client.trigger_async('mychannel', 'event', {'some' => 'data'}).callback { |r|
+              r.should == {}
+              EM.stop
+            }
+          }
+        end
+
+        it "should pass any parameters in the body of the request" do
+          EM.run {
+            @client.trigger_async('mychannel', 'event', {'some' => 'data'}, {
+              :socket_id => "1234"
+            }).callback {
+              WebMock.should have_requested(:post, @api_path).with { |req|
+                MultiJson.decode(req.body)["socket_id"].should == '1234'
+              }
+              EM.stop
+            }
+          }
+        end
+
+        it "should convert non string data to JSON before posting" do
+          EM.run {
+            @client.trigger_async('mychannel', 'event', {'some' => 'data'}).callback {
+              WebMock.should have_requested(:post, @api_path).with { |req|
+                MultiJson.decode(req.body)["data"].should == '{"some":"data"}'
+              }
+              EM.stop
+            }
+          }
+        end
+      end
+
+      [:get, :post].each do |verb|
+        describe "##{verb}" do
+          before :each do
+            @url_regexp = %r{api.pusherapp.com}
+            stub_request(verb, @url_regexp).
+              to_return(:status => 200, :body => "{}")
+          end
+
+          let(:call_api) { @client.send(verb, '/path') }
+
+          it "should use http by default" do
+            call_api
+            WebMock.should have_requested(verb, %r{http://api.pusherapp.com/apps/20/path})
+          end
+
+          it "should use https if configured" do
+            @client.encrypted = true
+            call_api
+            WebMock.should have_requested(verb, %r{https://api.pusherapp.com})
+          end
+
+          it "should format the respose hash with symbols at first level" do
+            stub_request(verb, @url_regexp).to_return({
+              :status => 200,
+              :body => MultiJson.encode({'something' => {'a' => 'hash'}})
+            })
+            call_api.should == {
+              :something => {'a' => 'hash'}
+            }
+          end
+
+          it "should catch all Net::HTTP exceptions and raise a Pusher::HTTPError wrapping the original error" do
+            stub_request(verb, @url_regexp).to_raise(Timeout::Error)
+
+            error = nil
+            begin
+              call_api
+            rescue => e
+              error = e
+            end
+
+            error.class.should == Pusher::HTTPError
+            error.should be_kind_of(Pusher::Error)
+            error.message.should == 'Exception from WebMock (Timeout::Error)'
+            error.original_error.class.should == Timeout::Error
+          end
+
+          it "should raise Pusher::Error if call returns 400" do
+            stub_request(verb, @url_regexp).to_return({:status => 400})
+            lambda { call_api }.should raise_error(Pusher::Error)
+          end
+
+          it "should raise AuthenticationError if pusher returns 401" do
+            stub_request(verb, @url_regexp).to_return({:status => 401})
+            lambda { call_api }.should raise_error(Pusher::AuthenticationError)
+          end
+
+          it "should raise Pusher::Error if pusher returns 404" do
+            stub_request(verb, @url_regexp).to_return({:status => 404})
+            lambda { call_api }.should raise_error(Pusher::Error, '404 Not found (/apps/20/path)')
+          end
+
+          it "should raise Pusher::Error if pusher returns 407" do
+            stub_request(verb, @url_regexp).to_return({:status => 407})
+            lambda { call_api }.should raise_error(Pusher::Error, 'Proxy Authentication Required')
+          end
+
+          it "should raise Pusher::Error if pusher returns 500" do
+            stub_request(verb, @url_regexp).to_return({:status => 500, :body => "some error"})
+            lambda { call_api }.should raise_error(Pusher::Error, 'Unknown error (status code 500): some error')
+          end
+        end
+      end
+
+      [[:get, :get_async], [:post, :post_async]].each do |verb, method|
+        describe "##{method}" do
+          before :each do
+            @url_regexp = %r{api.pusherapp.com}
+            stub_request(verb, @url_regexp).
+              to_return(:status => 200, :body => "{}")
+          end
+
+          let(:call_api) { @client.send(method, '/path') }
+
+          it "should use http by default" do
+            EM.run {
+              call_api.callback {
+                WebMock.should have_requested(verb, %r{http://api.pusherapp.com/apps/20/path})
+                EM.stop
+              }
+            }
+          end
+
+          it "should use https if configured" do
+            EM.run {
+              @client.encrypted = true
+              call_api.callback {
+                WebMock.should have_requested(verb, %r{https://api.pusherapp.com})
+                EM.stop
+              }
+            }
+          end
+
+          it "should format the respose hash with symbols at first level" do
+            EM.run {
+              stub_request(verb, @url_regexp).to_return({
+                :status => 200,
+                :body => MultiJson.encode({'something' => {'a' => 'hash'}})
+              })
+              call_api.callback { |response|
+                response.should == {
+                  :something => {'a' => 'hash'}
+                }
+                EM.stop
+              }
+            }
+          end
+
+          it "should errback with Pusher::Error on unsuccessful response" do
+            EM.run {
+              stub_request(verb, @url_regexp).to_return({:status => 400})
+
+              call_api.errback { |e|
+                e.class.should == Pusher::Error
+                EM.stop
+              }.callback {
+                fail
+              }
+            }
+          end
         end
       end
     end
