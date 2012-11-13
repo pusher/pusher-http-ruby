@@ -30,7 +30,7 @@ module Pusher
     def trigger_async(event_name, data, socket_id = nil)
       params = {}
       params[:socket_id] = socket_id if socket_id
-      @client.trigger_async([name], event_name, data, params)
+      @client.trigger_async(name, event_name, data, params)
     end
 
     # Trigger event
@@ -56,7 +56,7 @@ module Pusher
     def trigger!(event_name, data, socket_id = nil)
       params = {}
       params[:socket_id] = socket_id if socket_id
-      @client.trigger([name], event_name, data, params)
+      @client.trigger(name, event_name, data, params)
     end
 
     # Trigger event, catching and logging any errors.
