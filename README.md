@@ -29,7 +29,7 @@ By default API requests are made over HTTP. HTTPS can be used by setting
 
 Sometimes you may have multiple sets of API keys, or want different configuration in different parts of your application. In these scenarios, a pusher `client` may be configured:
 
-    pusher_client = Pusher.new({
+    pusher_client = Pusher::Client.new({
       app_id: 'your-pusher-app-id',
       key: 'your-pusher-key',
       secret: 'your-pusher-secret'
