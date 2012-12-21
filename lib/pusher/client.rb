@@ -225,7 +225,7 @@ module Pusher
 
     # @private Construct a net/http http client
     def net_http_client
-      @_http_sync ||= begin
+      begin
         if encrypted?
           require 'net/https' unless defined?(Net::HTTPS)
         else
