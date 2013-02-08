@@ -35,7 +35,7 @@ module Pusher
             'Content-Type'=> 'application/json'
           })
         else
-          raise Pusher::Error, "Unsuported verb"
+          raise Pusher::Error, "Unsupported verb"
         end
       rescue Errno::EINVAL, Errno::ECONNRESET, Errno::ECONNREFUSED,
              Errno::ETIMEDOUT, Errno::EHOSTUNREACH,
