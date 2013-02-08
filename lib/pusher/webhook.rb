@@ -84,9 +84,9 @@ module Pusher
       @data ||= begin
         case @content_type
         when 'application/json'
-          MultiJson.decode(@body)
+          Pusher.decode_json(@body)
         else
-          raise "Unknown Content-Type (#{@content_type})"
+          raise Pusher::Error, "Unknown Content-Type (#{@content_type})"
         end
       end
     end
