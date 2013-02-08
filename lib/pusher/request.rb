@@ -68,7 +68,7 @@ module Pusher
           :head => {'Content-Type'=> 'application/json'}
         })
       else
-        raise Pusher::Error, "Unsuported verb"
+        raise Pusher::Error, "Unsupported verb"
       end
       http.callback {
         begin
