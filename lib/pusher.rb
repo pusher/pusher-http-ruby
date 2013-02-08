@@ -56,9 +56,7 @@ module Pusher
     def process_json meth, data
       MultiJson.send meth, data
     rescue
-      message = "Could not #{meth} JSON: #{data.inspect}"
-      Pusher.logger.error(message)
-      raise Pusher::Error, message
+      raise Pusher::Error, "Could not #{meth} JSON: #{data.inspect}"
     end
 
     def default_client
