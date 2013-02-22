@@ -53,9 +53,9 @@ module Pusher
     end
 
     def send_async
+      http_client = @client.em_http_client(@uri)
       df = EM::DefaultDeferrable.new
 
-      http_client = @client.em_http_client(@uri)
       http = case @verb
       when :post
         http_client.post({
