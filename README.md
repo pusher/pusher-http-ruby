@@ -3,7 +3,15 @@ Pusher gem
 
 [![Build Status](https://secure.travis-ci.org/pusher/pusher-gem.png?branch=master)](http://travis-ci.org/pusher/pusher-gem)
 
-## Configuration
+## Installation & Configuration
+
+Add pusher to your Gemfile, and then run `bundle install`
+
+    gem 'pusher'
+    
+or install via gem
+
+    gem install pusher
 
 After registering at <http://pusher.com> configure your app with the security credentials.
 
