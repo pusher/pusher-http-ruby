@@ -283,12 +283,7 @@ module Pusher
       when String
         data
       else
-        begin
-          MultiJson.encode(data)
-        rescue MultiJson::DecodeError => e
-          Pusher.logger.error("Could not convert #{data.inspect} into JSON")
-          raise e
-        end
+        Pusher.encode_json data
       end
 
       return params.merge({

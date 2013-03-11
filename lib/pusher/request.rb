@@ -35,7 +35,7 @@ module Pusher
             'Content-Type'=> 'application/json'
           })
         else
-          raise "Unsuported verb"
+          raise Pusher::Error, "Unsupported verb"
         end
       rescue Errno::EINVAL, Errno::ECONNRESET, Errno::ECONNREFUSED,
              Errno::ETIMEDOUT, Errno::EHOSTUNREACH,
@@ -68,7 +68,7 @@ module Pusher
           :head => {'Content-Type'=> 'application/json'}
         })
       else
-        raise "Unsuported verb"
+        raise Pusher::Error, "Unsupported verb"
       end
       http.callback {
         begin
@@ -90,11 +90,11 @@ module Pusher
     def handle_response(status_code, body)
       case status_code
       when 200
-        return symbolize_first_level(MultiJson.decode(body))
+        symbolize_first_level(Pusher.decode_json(body))
       when 202
         return true
       when 400
-        raise Error, "Bad request: #{body}"
+        raise Pusher::Error, "Bad request: #{body}"
       when 401
         raise AuthenticationError, body
       when 404

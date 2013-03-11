@@ -14,12 +14,12 @@ module Pusher
     end
 
     def post(params)
-      body = MultiJson.encode(params)
+      body = Pusher.encode_json(params)
       create_request(:post, {}, body).send_sync
     end
 
     def post_async(params)
-      body = MultiJson.encode(params)
+      body = Pusher.encode_json(params)
       create_request(:post, {}, body).send_async
     end
 

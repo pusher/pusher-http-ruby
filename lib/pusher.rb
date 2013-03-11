@@ -43,7 +43,21 @@ module Pusher
       end
     end
 
+    def encode_json data
+      process_json :encode, data
+    end
+
+    def decode_json body
+      process_json :decode, body
+    end
+
     private
+
+    def process_json meth, data
+      MultiJson.send meth, data
+    rescue
+      raise Pusher::Error, "Could not #{meth} JSON: #{data.inspect}"
+    end
 
     def default_client
       @default_client ||= Pusher::Client.new
