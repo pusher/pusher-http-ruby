@@ -6,7 +6,7 @@ PATH
       signature (~> 0.1.6)
 
 GEM
-  remote: http://rubygems.org/
+  remote: https://rubygems.org/
   specs:
     addressable (2.3.2)
     cookiejar (0.3.0)
