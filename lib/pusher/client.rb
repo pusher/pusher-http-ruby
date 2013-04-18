@@ -277,7 +277,7 @@ module Pusher
     private
 
     def trigger_params(channels, event_name, data, params)
-      channels = [channels] if channels.kind_of?(String)
+      channels = Array(channels).map(&:to_s)
 
       encoded_data = case data
       when String
