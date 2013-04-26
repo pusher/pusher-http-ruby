@@ -51,6 +51,16 @@ describe Pusher::Channel do
     end
   end
 
+  describe "#initialization" do
+    it "should not be too long" do
+      lambda { @client['b'*201] }.should raise_error(Pusher::Error)
+    end
+
+    it "should not use bad characters" do
+      lambda { @client['*^!±`/""'] }.should raise_error(Pusher::Error)
+    end
+  end
+
   describe "#trigger_async" do
     it "should use @client.trigger_async internally" do
       @client.should_receive(:trigger_async)
