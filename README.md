@@ -114,7 +114,9 @@ When using an asynchronous version of a method, it will return a deferrable.
 
     Pusher.trigger_async(['a_channel'], 'an_event', {
       :some => 'data'
-    }, socket_id).callback {
+    }, { 
+      :socket_id => socket_id
+    }).callback {
       # Do something on success
     }.errback { |error|
       # error is a instance of Pusher::Error
