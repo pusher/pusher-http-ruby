@@ -43,8 +43,6 @@ module Pusher
       end
     end
 
-    private
-
     def default_client
       @default_client ||= Pusher::Client.new
     end

@@ -33,6 +33,10 @@ By default API requests are made over HTTP. HTTPS can be used by setting
 
     Pusher.encrypted = true
 
+As of version 0.12, SSL certificates are verified when using the synchronous http client. If you need to disable this behaviour for any reason use:
+
+    Pusher.default_client.sync_http_client.ssl_config.verify_mode = OpenSSL::SSL::VERIFY_NONE
+
 ### Instantiating a Pusher client
 
 Sometimes you may have multiple sets of API keys, or want different configuration in different parts of your application. In these scenarios, a pusher `client` may be configured:
