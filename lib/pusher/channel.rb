@@ -51,7 +51,7 @@ module Pusher
     #   event - see http://pusher.com/docs/publisher_api_guide/publisher_excluding_recipients for more info
     #
     # @raise [Pusher::Error] on invalid Pusher response - see the error message for more details
-    # @raise [Pusher::HTTPError] on any error raised inside Net::HTTP - the original error is available in the original_error attribute
+    # @raise [Pusher::HTTPError] on any error raised inside http client - the original error is available in the original_error attribute
     #
     def trigger!(event_name, data, socket_id = nil)
       params = {}
@@ -79,7 +79,7 @@ module Pusher
     # @param info [Array] Array of attributes required (as lowercase strings)
     # @return [Hash] Hash of requested attributes for this channel
     # @raise [Pusher::Error] on invalid Pusher response - see the error message for more details
-    # @raise [Pusher::HTTPError] on any error raised inside Net::HTTP - the original error is available in the original_error attribute
+    # @raise [Pusher::HTTPError] on any error raised inside http client - the original error is available in the original_error attribute
     #
     def info(attributes = [])
       @client.get("/channels/#{name}", :info => attributes.join(','))

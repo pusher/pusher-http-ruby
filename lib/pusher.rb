@@ -56,7 +56,6 @@ module Pusher
 end
 
 require 'pusher/channel'
-require 'pusher/query_encoder'
 require 'pusher/request'
 require 'pusher/resource'
 require 'pusher/webhook'

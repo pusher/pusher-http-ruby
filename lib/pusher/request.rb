@@ -4,8 +4,6 @@ require 'multi_json'
 
 module Pusher
   class Request
-    include QueryEncoder
-
     attr_reader :body, :params
 
     def initialize(client, verb, uri, params, body = nil)
@@ -22,26 +20,27 @@ module Pusher
     end
 
     def send_sync
-      http = @client.net_http_client
+      http = @client.sync_http_client
 
       begin
         case @verb
         when :post
-          response = http.post(encode_query(@uri, @params), @body, {
-            'Content-Type'=> 'application/json'
+          response = http.post(@uri, {
+            :query => @params,
+            :body => @body,
+            :header => {
+              'Content-Type' => 'application/json'
+            },
           })
         when :get
-          response = http.get(encode_query(@uri, @params), {
-            'Content-Type'=> 'application/json'
+          response = http.get(@uri, {
+            :query => @params,
           })
         else
           raise "Unsuported verb"
         end
-      rescue Errno::EINVAL, Errno::ECONNRESET, Errno::ECONNREFUSED,
-             Errno::ETIMEDOUT, Errno::EHOSTUNREACH,
-             Timeout::Error, EOFError,
-             Net::HTTPBadResponse, Net::HTTPHeaderSyntaxError,
-             Net::ProtocolError => e
+      rescue HTTPClient::BadResponseError, HTTPClient::TimeoutError,
+             SocketError => e
         error = Pusher::HTTPError.new("#{e.message} (#{e.class})")
         error.original_error = e
         raise error

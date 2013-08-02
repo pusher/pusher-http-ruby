@@ -101,7 +101,7 @@ module Pusher
     # @return [Hash] See Pusher API docs
     #
     # @raise [Pusher::Error] Unsuccessful response - see the error message
-    # @raise [Pusher::HTTPError] Error raised inside Net::HTTP. The original error is wrapped in error.original_error
+    # @raise [Pusher::HTTPError] Error raised inside http client. The original error is wrapped in error.original_error
     #
     def get(path, params = {})
       Resource.new(self, path).get(params)
@@ -175,7 +175,7 @@ module Pusher
     # @return [Hash] See Pusher API docs
     #
     # @raise [Pusher::Error] Unsuccessful response - see the error message
-    # @raise [Pusher::HTTPError] Error raised inside Net::HTTP. The original error is wrapped in error.original_error
+    # @raise [Pusher::HTTPError] Error raised inside http client. The original error is wrapped in error.original_error
     #
     def channels(params = {})
       get('/channels', params)
@@ -191,7 +191,7 @@ module Pusher
     # @return [Hash] See Pusher API docs
     #
     # @raise [Pusher::Error] Unsuccessful response - see the error message
-    # @raise [Pusher::HTTPError] Error raised inside Net::HTTP. The original error is wrapped in error.original_error
+    # @raise [Pusher::HTTPError] Error raised inside http client. The original error is wrapped in error.original_error
     #
     def channel_info(channel_name, params = {})
       get("/channels/#{channel_name}", params)
@@ -210,7 +210,7 @@ module Pusher
     # @return [Hash] See Pusher API docs
     #
     # @raise [Pusher::Error] Unsuccessful response - see the error message
-    # @raise [Pusher::HTTPError] Error raised inside Net::HTTP. The original error is wrapped in error.original_error
+    # @raise [Pusher::HTTPError] Error raised inside http client. The original error is wrapped in error.original_error
     #
     def trigger(channels, event_name, data, params = {})
       post('/events', trigger_params(channels, event_name, data, params))
@@ -224,28 +224,11 @@ module Pusher
     end
 
     # @private Construct a net/http http client
-    def net_http_client
-      begin
-        if encrypted?
-          require 'net/https' unless defined?(Net::HTTPS)
-        else
-          require 'net/http' unless defined?(Net::HTTP)
-        end
+    def sync_http_client
+      @client ||= begin
+        require 'httpclient'
 
-        http_klass = if (p = @proxy)
-          Net::HTTP.Proxy(p[:host], p[:port], p[:user], p[:password])
-        else
-          Net::HTTP
-        end
-
-        http = http_klass.new(@host, @port)
-
-        if encrypted?
-          http.use_ssl = true
-          http.verify_mode = OpenSSL::SSL::VERIFY_NONE
-        end
-
-        http
+        HTTPClient.new(@http_proxy)
       end
     end
 

@@ -314,8 +314,8 @@ describe Pusher do
             }
           end
 
-          it "should catch all Net::HTTP exceptions and raise a Pusher::HTTPError wrapping the original error" do
-            stub_request(verb, @url_regexp).to_raise(Timeout::Error)
+          it "should catch all http exceptions and raise a Pusher::HTTPError wrapping the original error" do
+            stub_request(verb, @url_regexp).to_raise(HTTPClient::TimeoutError)
 
             error = nil
             begin
@@ -326,8 +326,8 @@ describe Pusher do
 
             error.class.should == Pusher::HTTPError
             error.should be_kind_of(Pusher::Error)
-            error.message.should == 'Exception from WebMock (Timeout::Error)'
-            error.original_error.class.should == Timeout::Error
+            error.message.should == 'Exception from WebMock (HTTPClient::TimeoutError)'
+            error.original_error.class.should == HTTPClient::TimeoutError
           end
 
           it "should raise Pusher::Error if call returns 400" do

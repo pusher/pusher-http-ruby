@@ -33,18 +33,18 @@ describe Pusher::Channel do
   end
 
   describe '#trigger' do
-    it "should log failure if error raised in Net::HTTP call" do
-      stub_post_to_raise(Net::HTTPBadResponse)
+    it "should log failure if error raised in http call" do
+      stub_post_to_raise(HTTPClient::BadResponseError)
 
-      Pusher.logger.should_receive(:error).with("Exception from WebMock (Net::HTTPBadResponse) (Pusher::HTTPError)")
+      Pusher.logger.should_receive(:error).with("Exception from WebMock (HTTPClient::BadResponseError) (Pusher::HTTPError)")
       Pusher.logger.should_receive(:debug) #backtrace
       channel = Pusher::Channel.new(@client.url, 'test_channel', @client)
       channel.trigger('new_event', 'Some data')
     end
 
     it "should log failure if Pusher returns an error response" do
-      stub_post 401
-      Pusher.logger.should_receive(:error).with("Pusher::AuthenticationError (Pusher::AuthenticationError)")
+      stub_post 401, "some signature info"
+      Pusher.logger.should_receive(:error).with("some signature info (Pusher::AuthenticationError)")
       Pusher.logger.should_receive(:debug) #backtrace
       channel = Pusher::Channel.new(@client.url, 'test_channel', @client)
       channel.trigger('new_event', 'Some data')
