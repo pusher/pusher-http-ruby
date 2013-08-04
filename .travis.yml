@@ -13,5 +13,3 @@ matrix:
   allow_failures:
     - rvm: jruby-18mode
     - rvm: jruby-19mode
-
-script: "rspec spec/*_spec.rb"
