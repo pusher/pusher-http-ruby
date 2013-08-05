@@ -314,8 +314,8 @@ describe Pusher do
             }
           end
 
-          it "should catch all Net::HTTP exceptions and raise a Pusher::HTTPError wrapping the original error" do
-            stub_request(verb, @url_regexp).to_raise(Timeout::Error)
+          it "should catch all http exceptions and raise a Pusher::HTTPError wrapping the original error" do
+            stub_request(verb, @url_regexp).to_raise(HTTPClient::TimeoutError)
 
             error = nil
             begin
@@ -326,8 +326,8 @@ describe Pusher do
 
             error.class.should == Pusher::HTTPError
             error.should be_kind_of(Pusher::Error)
-            error.message.should == 'Exception from WebMock (Timeout::Error)'
-            error.original_error.class.should == Timeout::Error
+            error.message.should == 'Exception from WebMock (HTTPClient::TimeoutError)'
+            error.original_error.class.should == HTTPClient::TimeoutError
           end
 
           it "should raise Pusher::Error if call returns 400" do
@@ -357,61 +357,105 @@ describe Pusher do
         end
       end
 
-      [[:get, :get_async], [:post, :post_async]].each do |verb, method|
-        describe "##{method}" do
-          before :each do
-            @url_regexp = %r{api.pusherapp.com}
-            stub_request(verb, @url_regexp).
-              to_return(:status => 200, :body => "{}")
-          end
+      describe "async calling without eventmachine" do
+        [[:get, :get_async], [:post, :post_async]].each do |verb, method|
+          describe "##{method}" do
+            before :each do
+              @url_regexp = %r{api.pusherapp.com}
+              stub_request(verb, @url_regexp).
+                to_return(:status => 200, :body => "{}")
+            end
 
-          let(:call_api) { @client.send(method, '/path') }
-
-          it "should use http by default" do
-            EM.run {
-              call_api.callback {
-                WebMock.should have_requested(verb, %r{http://api.pusherapp.com/apps/20/path})
-                EM.stop
+            let(:call_api) {
+              @client.send(method, '/path').tap { |c|
+                # Allow the async thread (inside httpclient) to run
+                while !c.finished?
+                  sleep 0.01
+                end
               }
             }
-          end
 
-          it "should use https if configured" do
-            EM.run {
+            it "should use http by default" do
+              call_api
+              WebMock.should have_requested(verb, %r{http://api.pusherapp.com/apps/20/path})
+            end
+
+            it "should use https if configured" do
               @client.encrypted = true
-              call_api.callback {
-                WebMock.should have_requested(verb, %r{https://api.pusherapp.com})
-                EM.stop
-              }
-            }
-          end
+              call_api
+              WebMock.should have_requested(verb, %r{https://api.pusherapp.com})
+            end
 
-          it "should format the respose hash with symbols at first level" do
-            EM.run {
-              stub_request(verb, @url_regexp).to_return({
-                :status => 200,
-                :body => MultiJson.encode({'something' => {'a' => 'hash'}})
-              })
-              call_api.callback { |response|
-                response.should == {
-                  :something => {'a' => 'hash'}
+            # Note that the raw httpclient connection object is returned and
+            # the response isn't handled (by handle_response) in the normal way.
+            it "should return a httpclient connection object" do
+              connection = call_api
+              connection.finished?.should be_true
+              response = connection.pop
+              response.status.should == 200
+              response.body.read.should == "{}"
+            end
+          end
+        end
+      end
+
+      describe "async calling with eventmachine" do
+        [[:get, :get_async], [:post, :post_async]].each do |verb, method|
+          describe "##{method}" do
+            before :each do
+              @url_regexp = %r{api.pusherapp.com}
+              stub_request(verb, @url_regexp).
+                to_return(:status => 200, :body => "{}")
+            end
+
+            let(:call_api) { @client.send(method, '/path') }
+
+            it "should use http by default" do
+              EM.run {
+                call_api.callback {
+                  WebMock.should have_requested(verb, %r{http://api.pusherapp.com/apps/20/path})
+                  EM.stop
                 }
-                EM.stop
               }
-            }
-          end
+            end
 
-          it "should errback with Pusher::Error on unsuccessful response" do
-            EM.run {
-              stub_request(verb, @url_regexp).to_return({:status => 400})
-
-              call_api.errback { |e|
-                e.class.should == Pusher::Error
-                EM.stop
-              }.callback {
-                fail
+            it "should use https if configured" do
+              EM.run {
+                @client.encrypted = true
+                call_api.callback {
+                  WebMock.should have_requested(verb, %r{https://api.pusherapp.com})
+                  EM.stop
+                }
               }
-            }
+            end
+
+            it "should format the respose hash with symbols at first level" do
+              EM.run {
+                stub_request(verb, @url_regexp).to_return({
+                  :status => 200,
+                  :body => MultiJson.encode({'something' => {'a' => 'hash'}})
+                })
+                call_api.callback { |response|
+                  response.should == {
+                    :something => {'a' => 'hash'}
+                  }
+                  EM.stop
+                }
+              }
+            end
+
+            it "should errback with Pusher::Error on unsuccessful response" do
+              EM.run {
+                stub_request(verb, @url_regexp).to_return({:status => 400})
+
+                call_api.errback { |e|
+                  e.class.should == Pusher::Error
+                  EM.stop
+                }.callback {
+                  fail
+                }
+              }
+            end
           end
         end
       end

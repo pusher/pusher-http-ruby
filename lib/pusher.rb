@@ -28,6 +28,7 @@ module Pusher
 
     def_delegators :default_client, :authentication_token, :url
     def_delegators :default_client, :encrypted=, :url=
+    def_delegators :default_client, :timeout=, :connect_timeout=, :send_timeout=, :receive_timeout=, :keep_alive_timeout=
 
     def_delegators :default_client, :get, :get_async, :post, :post_async
     def_delegators :default_client, :channels, :channel_info, :trigger, :trigger_async
@@ -43,8 +44,6 @@ module Pusher
       end
     end
 
-    private
-
     def default_client
       @default_client ||= Pusher::Client.new
     end
@@ -56,7 +55,6 @@ module Pusher
 end
 
 require 'pusher/channel'
-require 'pusher/query_encoder'
 require 'pusher/request'
 require 'pusher/resource'
 require 'pusher/webhook'

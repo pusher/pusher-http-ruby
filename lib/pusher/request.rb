@@ -4,16 +4,16 @@ require 'multi_json'
 
 module Pusher
   class Request
-    include QueryEncoder
-
     attr_reader :body, :params
 
     def initialize(client, verb, uri, params, body = nil)
       @client, @verb, @uri = client, verb, uri
+      @head = {}
 
+      @body = body
       if body
-        @body = body
         params[:body_md5] = Digest::MD5.hexdigest(body)
+        @head['Content-Type'] = 'application/json'
       end
 
       request = Signature::Request.new(verb.to_s.upcase, uri.path, params)
@@ -22,26 +22,12 @@ module Pusher
     end
 
     def send_sync
-      http = @client.net_http_client
+      http = @client.sync_http_client
 
       begin
-        case @verb
-        when :post
-          response = http.post(encode_query(@uri, @params), @body, {
-            'Content-Type'=> 'application/json'
-          })
-        when :get
-          response = http.get(encode_query(@uri, @params), {
-            'Content-Type'=> 'application/json'
-          })
-        else
-          raise "Unsuported verb"
-        end
-      rescue Errno::EINVAL, Errno::ECONNRESET, Errno::ECONNREFUSED,
-             Errno::ETIMEDOUT, Errno::EHOSTUNREACH,
-             Timeout::Error, EOFError,
-             Net::HTTPBadResponse, Net::HTTPHeaderSyntaxError,
-             Net::ProtocolError => e
+        response = http.request(@verb, @uri, @params, @body, @head)
+      rescue HTTPClient::BadResponseError, HTTPClient::TimeoutError,
+             SocketError, Errno::ECONNREFUSED => e
         error = Pusher::HTTPError.new("#{e.message} (#{e.class})")
         error.original_error = e
         raise error
@@ -53,36 +39,41 @@ module Pusher
     end
 
     def send_async
-      http_client = @client.em_http_client(@uri)
-      df = EM::DefaultDeferrable.new
+      if defined?(EventMachine) && EventMachine.reactor_running?
+        http_client = @client.em_http_client(@uri)
+        df = EM::DefaultDeferrable.new
 
-      http = case @verb
-      when :post
-        http_client.post({
-          :query => @params, :timeout => 5, :body => @body,
-          :head => {'Content-Type'=> 'application/json'}
-        })
-      when :get
-        http_client.get({
-          :query => @params, :timeout => 5,
-          :head => {'Content-Type'=> 'application/json'}
-        })
-      else
-        raise "Unsuported verb"
-      end
-      http.callback {
-        begin
-          df.succeed(handle_response(http.response_header.status, http.response.chomp))
-        rescue => e
-          df.fail(e)
+        http = case @verb
+        when :post
+          http_client.post({
+            :query => @params, :body => @body, :head => @head
+          })
+        when :get
+          http_client.get({
+            :query => @params, :head => @head
+          })
+        else
+          raise "Unsuported verb"
         end
-      }
-      http.errback {
-        Pusher.logger.debug("Network error connecting to pusher: #{http.inspect}")
-        df.fail(Error.new("Network error connecting to pusher"))
-      }
+        http.callback {
+          begin
+            df.succeed(handle_response(http.response_header.status, http.response.chomp))
+          rescue => e
+            df.fail(e)
+          end
+        }
+        http.errback { |e|
+          message = "Network error connecting to pusher (#{http.error})"
+          Pusher.logger.debug(message)
+          df.fail(Error.new(message))
+        }
 
-      df
+        return df
+      else
+        http = @client.sync_http_client
+
+        return http.request_async(@verb, @uri, @params, @body, @head)
+      end
     end
 
     private

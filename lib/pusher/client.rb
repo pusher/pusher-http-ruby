@@ -2,8 +2,10 @@ require 'signature'
 
 module Pusher
   class Client
-    attr_accessor :scheme, :host, :port, :app_id, :key, :secret, :http_proxy
-    attr_reader :proxy
+    attr_accessor :scheme, :host, :port, :app_id, :key, :secret
+    attr_reader :http_proxy, :proxy
+    attr_writer :connect_timeout, :send_timeout, :receive_timeout,
+                :keep_alive_timeout
 
     ## CONFIGURATION ##
 
@@ -16,7 +18,14 @@ module Pusher
       @scheme, @host, @port, @app_id, @key, @secret = options.values_at(
         :scheme, :host, :port, :app_id, :key, :secret
       )
+      @http_proxy = nil
       self.http_proxy = options[:http_proxy] if options[:http_proxy]
+
+      # Default timeouts
+      @connect_timeout = 5
+      @send_timeout = 5
+      @receive_timeout = 5
+      @keep_alive_timeout = 30
     end
 
     # @private Returns the authentication token for the client
@@ -79,6 +88,12 @@ module Pusher
       @scheme == 'https'
     end
 
+    # Convenience method to set all timeouts to the same value (in seconds).
+    # For more control, use the individual writers.
+    def timeout=(value)
+      @connect_timeout, @send_timeout, @receive_timeout = value, value, value
+    end
+
     ## INTERACE WITH THE API ##
 
     def resource(path)
@@ -101,7 +116,7 @@ module Pusher
     # @return [Hash] See Pusher API docs
     #
     # @raise [Pusher::Error] Unsuccessful response - see the error message
-    # @raise [Pusher::HTTPError] Error raised inside Net::HTTP. The original error is wrapped in error.original_error
+    # @raise [Pusher::HTTPError] Error raised inside http client. The original error is wrapped in error.original_error
     #
     def get(path, params = {})
       Resource.new(self, path).get(params)
@@ -110,19 +125,14 @@ module Pusher
     # GET arbitrary REST API resource using an asynchronous http client.
     # All request signing is handled automatically.
     #
-    # @example
-    #   Pusher.get_async('/channels', {
-    #     filter_by_prefix: 'private-'
-    #   }).callback { |response_hash|
-    #     # ...
-    #   }.errback { |error|
-    #     # error is a instance of Pusher::Error
-    #   }
+    # When the eventmachine reactor is running, the em-http-request gem is used;
+    # otherwise an async request is made using httpclient. See README for
+    # details and examples.
     #
     # @param path [String] Path excluding /apps/APP_ID
     # @param params [Hash] API params (see http://pusher.com/docs/rest_api)
     #
-    # @return [EM::DefaultDeferrable]
+    # @return Either an EM::DefaultDeferrable or a HTTPClient::Connection
     #
     def get_async(path, params = {})
       Resource.new(self, path).get_async(params)
@@ -175,7 +185,7 @@ module Pusher
     # @return [Hash] See Pusher API docs
     #
     # @raise [Pusher::Error] Unsuccessful response - see the error message
-    # @raise [Pusher::HTTPError] Error raised inside Net::HTTP. The original error is wrapped in error.original_error
+    # @raise [Pusher::HTTPError] Error raised inside http client. The original error is wrapped in error.original_error
     #
     def channels(params = {})
       get('/channels', params)
@@ -191,7 +201,7 @@ module Pusher
     # @return [Hash] See Pusher API docs
     #
     # @raise [Pusher::Error] Unsuccessful response - see the error message
-    # @raise [Pusher::HTTPError] Error raised inside Net::HTTP. The original error is wrapped in error.original_error
+    # @raise [Pusher::HTTPError] Error raised inside http client. The original error is wrapped in error.original_error
     #
     def channel_info(channel_name, params = {})
       get("/channels/#{channel_name}", params)
@@ -210,7 +220,7 @@ module Pusher
     # @return [Hash] See Pusher API docs
     #
     # @raise [Pusher::Error] Unsuccessful response - see the error message
-    # @raise [Pusher::HTTPError] Error raised inside Net::HTTP. The original error is wrapped in error.original_error
+    # @raise [Pusher::HTTPError] Error raised inside http client. The original error is wrapped in error.original_error
     #
     def trigger(channels, event_name, data, params = {})
       post('/events', trigger_params(channels, event_name, data, params))
@@ -224,28 +234,16 @@ module Pusher
     end
 
     # @private Construct a net/http http client
-    def net_http_client
-      begin
-        if encrypted?
-          require 'net/https' unless defined?(Net::HTTPS)
-        else
-          require 'net/http' unless defined?(Net::HTTP)
+    def sync_http_client
+      @client ||= begin
+        require 'httpclient'
+
+        HTTPClient.new(@http_proxy).tap do |c|
+          c.connect_timeout = @connect_timeout
+          c.send_timeout = @send_timeout
+          c.receive_timeout = @receive_timeout
+          c.keep_alive_timeout = @keep_alive_timeout
         end
-
-        http_klass = if (p = @proxy)
-          Net::HTTP.Proxy(p[:host], p[:port], p[:user], p[:password])
-        else
-          Net::HTTP
-        end
-
-        http = http_klass.new(@host, @port)
-
-        if encrypted?
-          http.use_ssl = true
-          http.verify_mode = OpenSSL::SSL::VERIFY_NONE
-        end
-
-        http
       end
     end
 
@@ -257,9 +255,12 @@ module Pusher
         end
         require 'em-http' unless defined?(EventMachine::HttpRequest)
 
-        connection_opts = {}
+        connection_opts = {
+          :connect_timeout => @connect_timeout,
+          :inactivity_timeout => @receive_timeout,
+        }
 
-        if @proxy
+        if defined?(@proxy)
           proxy_opts = {
             :host => @proxy[:host],
             :port => @proxy[:port]
