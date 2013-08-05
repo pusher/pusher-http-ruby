@@ -62,9 +62,10 @@ module Pusher
             df.fail(e)
           end
         }
-        http.errback {
-          Pusher.logger.debug("Network error connecting to pusher: #{http.inspect}")
-          df.fail(Error.new("Network error connecting to pusher"))
+        http.errback { |e|
+          message = "Network error connecting to pusher (#{http.error})"
+          Pusher.logger.debug(message)
+          df.fail(Error.new(message))
         }
 
         return df
