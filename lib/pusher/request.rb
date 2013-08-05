@@ -10,8 +10,8 @@ module Pusher
       @client, @verb, @uri = client, verb, uri
       @head = {}
 
+      @body = body
       if body
-        @body = body
         params[:body_md5] = Digest::MD5.hexdigest(body)
         @head['Content-Type'] = 'application/json'
       end

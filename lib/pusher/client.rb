@@ -2,8 +2,8 @@ require 'signature'
 
 module Pusher
   class Client
-    attr_accessor :scheme, :host, :port, :app_id, :key, :secret, :http_proxy
-    attr_reader :proxy
+    attr_accessor :scheme, :host, :port, :app_id, :key, :secret
+    attr_reader :http_proxy, :proxy
 
     ## CONFIGURATION ##
 
@@ -16,6 +16,7 @@ module Pusher
       @scheme, @host, @port, @app_id, @key, @secret = options.values_at(
         :scheme, :host, :port, :app_id, :key, :secret
       )
+      @http_proxy = nil
       self.http_proxy = options[:http_proxy] if options[:http_proxy]
     end
 
@@ -242,7 +243,7 @@ module Pusher
 
         connection_opts = {}
 
-        if @proxy
+        if defined?(@proxy)
           proxy_opts = {
             :host => @proxy[:host],
             :port => @proxy[:port]

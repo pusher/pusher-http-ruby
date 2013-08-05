@@ -21,5 +21,5 @@ end
 
 def hmac(key, data)
   digest = OpenSSL::Digest::SHA256.new
-  expected = OpenSSL::HMAC.hexdigest(digest, key, data)
+  OpenSSL::HMAC.hexdigest(digest, key, data)
 end
