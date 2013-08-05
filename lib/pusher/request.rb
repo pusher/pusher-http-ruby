@@ -39,34 +39,40 @@ module Pusher
     end
 
     def send_async
-      http_client = @client.em_http_client(@uri)
-      df = EM::DefaultDeferrable.new
+      if defined?(EventMachine) && EventMachine.reactor_running?
+        http_client = @client.em_http_client(@uri)
+        df = EM::DefaultDeferrable.new
 
-      http = case @verb
-      when :post
-        http_client.post({
-          :query => @params, :timeout => 5, :body => @body, :head => @head
-        })
-      when :get
-        http_client.get({
-          :query => @params, :timeout => 5, :head => @head
-        })
-      else
-        raise "Unsuported verb"
-      end
-      http.callback {
-        begin
-          df.succeed(handle_response(http.response_header.status, http.response.chomp))
-        rescue => e
-          df.fail(e)
+        http = case @verb
+        when :post
+          http_client.post({
+            :query => @params, :timeout => 5, :body => @body, :head => @head
+          })
+        when :get
+          http_client.get({
+            :query => @params, :timeout => 5, :head => @head
+          })
+        else
+          raise "Unsuported verb"
         end
-      }
-      http.errback {
-        Pusher.logger.debug("Network error connecting to pusher: #{http.inspect}")
-        df.fail(Error.new("Network error connecting to pusher"))
-      }
+        http.callback {
+          begin
+            df.succeed(handle_response(http.response_header.status, http.response.chomp))
+          rescue => e
+            df.fail(e)
+          end
+        }
+        http.errback {
+          Pusher.logger.debug("Network error connecting to pusher: #{http.inspect}")
+          df.fail(Error.new("Network error connecting to pusher"))
+        }
 
-      df
+        return df
+      else
+        http = @client.sync_http_client
+
+        return http.request_async(@verb, @uri, @params, @body, @head)
+      end
     end
 
     private

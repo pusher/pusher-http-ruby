@@ -106,24 +106,45 @@ All requests must be signed by using your secret key, which is handled automatic
     # using a client
     pusher_client.post('url_without_app_id', params)
 
-Note that you don't need to specify your app_id in the URL, as this is inferred from your credentials. As with the trigger method above, `_async` can be suffixed to the method name to return a deferrable.
+Note that you don't need to specify your app_id in the URL, as this is inferred from your credentials.
 
 ### Asynchronous requests
 
-If you are running your application in an evented environment, you may want to use the asynchronous versions of the Pusher API methods to avoid blocking. The convention for this is to add the suffix `_async` to the method, e.g. `trigger_async` or `post_async`.
+There are two main reasons for using the `_async` methods:
 
-You need to be running eventmachine to make use of this functionality. This is already the case if, for example, you're deploying to Heroku or using the Thin web server. You will also need to add `em-http-request` to your Gemfile.
+* In a web application where the response from Pusher is not used, but you'd like to avoid a blocking call in the request-response cycle
+* Your application is running in an event loop and you need to avoid blocking the reactor
 
-When using an asynchronous version of a method, it will return a deferrable.
+Asynchronous calls are supported either by using an event loop (eventmachine, preferred), or via a thread.
 
-    Pusher.trigger_async(['a_channel'], 'an_event', {
-      :some => 'data'
-    }, socket_id).callback {
-      # Do something on success
+The following methods are available (in each case the calling iterface matches the non-async version):
+
+* `Pusher.get_async`
+* `Pusher.post_async`
+* `Pusher.trigger_async`
+
+It is of course also possible to make calls to pusher via a job queue. This approach is recommended if you're sending a large number of events to pusher.
+
+#### With eventmachine
+
+* Add the `em-http-request` gem to your Gemfile (it's not a gem dependency).
+* Run the eventmachine reactor (either using `EM.run` or by running inside an evented server such as Thin).
+
+The `_async` methods return an `EM::Deferrable` which you can bind callbacks to:
+
+    Pusher.get_async("/channels").callback { |response|
+      # use reponse[:channels]
     }.errback { |error|
-      # error is a instance of Pusher::Error
+      # error is an instance of Pusher::Error
     }
 
+A HTTP error or an error response from pusher will cause the errback to be called with an appropriate error object.
+
+#### Without eventmachine
+
+If the eventmachine reactor is not running, async requests will be make using threads (managed by the httpclient gem).
+
+An `HTTPClient::Connection` object is returned immediately which can be [interrogated](http://rubydoc.info/gems/httpclient/HTTPClient/Connection) to discover the status of the request. The usual response checking and processing is not done when the request completes, and frankly this method is most useful when you're not interested in waiting for the response.
 
 
 ## Authenticating subscription requests

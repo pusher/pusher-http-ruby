@@ -111,19 +111,14 @@ module Pusher
     # GET arbitrary REST API resource using an asynchronous http client.
     # All request signing is handled automatically.
     #
-    # @example
-    #   Pusher.get_async('/channels', {
-    #     filter_by_prefix: 'private-'
-    #   }).callback { |response_hash|
-    #     # ...
-    #   }.errback { |error|
-    #     # error is a instance of Pusher::Error
-    #   }
+    # When the eventmachine reactor is running, the em-http-request gem is used;
+    # otherwise an async request is made using httpclient. See README for
+    # details and examples.
     #
     # @param path [String] Path excluding /apps/APP_ID
     # @param params [Hash] API params (see http://pusher.com/docs/rest_api)
     #
-    # @return [EM::DefaultDeferrable]
+    # @return Either an EM::DefaultDeferrable or a HTTPClient::Connection
     #
     def get_async(path, params = {})
       Resource.new(self, path).get_async(params)
