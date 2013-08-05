@@ -27,7 +27,7 @@ module Pusher
       begin
         response = http.request(@verb, @uri, @params, @body, @head)
       rescue HTTPClient::BadResponseError, HTTPClient::TimeoutError,
-             SocketError => e
+             SocketError, Errno::ECONNREFUSED => e
         error = Pusher::HTTPError.new("#{e.message} (#{e.class})")
         error.original_error = e
         raise error
