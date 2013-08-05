@@ -4,6 +4,8 @@ module Pusher
   class Client
     attr_accessor :scheme, :host, :port, :app_id, :key, :secret
     attr_reader :http_proxy, :proxy
+    attr_writer :connect_timeout, :send_timeout, :receive_timeout,
+                :keep_alive_timeout
 
     ## CONFIGURATION ##
 
@@ -18,6 +20,12 @@ module Pusher
       )
       @http_proxy = nil
       self.http_proxy = options[:http_proxy] if options[:http_proxy]
+
+      # Default timeouts
+      @connect_timeout = 5
+      @send_timeout = 5
+      @receive_timeout = 5
+      @keep_alive_timeout = 30
     end
 
     # @private Returns the authentication token for the client
@@ -78,6 +86,12 @@ module Pusher
 
     def encrypted?
       @scheme == 'https'
+    end
+
+    # Convenience method to set all timeouts to the same value (in seconds).
+    # For more control, use the individual writers.
+    def timeout=(value)
+      @connect_timeout, @send_timeout, @receive_timeout = value, value, value
     end
 
     ## INTERACE WITH THE API ##
@@ -224,7 +238,12 @@ module Pusher
       @client ||= begin
         require 'httpclient'
 
-        HTTPClient.new(@http_proxy)
+        HTTPClient.new(@http_proxy).tap do |c|
+          c.connect_timeout = @connect_timeout
+          c.send_timeout = @send_timeout
+          c.receive_timeout = @receive_timeout
+          c.keep_alive_timeout = @keep_alive_timeout
+        end
       end
     end
 
@@ -236,7 +255,10 @@ module Pusher
         end
         require 'em-http' unless defined?(EventMachine::HttpRequest)
 
-        connection_opts = {}
+        connection_opts = {
+          :connect_timeout => @connect_timeout,
+          :inactivity_timeout => @receive_timeout,
+        }
 
         if defined?(@proxy)
           proxy_opts = {

@@ -46,11 +46,11 @@ module Pusher
         http = case @verb
         when :post
           http_client.post({
-            :query => @params, :timeout => 5, :body => @body, :head => @head
+            :query => @params, :body => @body, :head => @head
           })
         when :get
           http_client.get({
-            :query => @params, :timeout => 5, :head => @head
+            :query => @params, :head => @head
           })
         else
           raise "Unsuported verb"
