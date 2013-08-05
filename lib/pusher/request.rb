@@ -8,10 +8,12 @@ module Pusher
 
     def initialize(client, verb, uri, params, body = nil)
       @client, @verb, @uri = client, verb, uri
+      @head = {}
 
       if body
         @body = body
         params[:body_md5] = Digest::MD5.hexdigest(body)
+        @head['Content-Type'] = 'application/json'
       end
 
       request = Signature::Request.new(verb.to_s.upcase, uri.path, params)
@@ -23,22 +25,7 @@ module Pusher
       http = @client.sync_http_client
 
       begin
-        case @verb
-        when :post
-          response = http.post(@uri, {
-            :query => @params,
-            :body => @body,
-            :header => {
-              'Content-Type' => 'application/json'
-            },
-          })
-        when :get
-          response = http.get(@uri, {
-            :query => @params,
-          })
-        else
-          raise "Unsuported verb"
-        end
+        response = http.request(@verb, @uri, @params, @body, @head)
       rescue HTTPClient::BadResponseError, HTTPClient::TimeoutError,
              SocketError => e
         error = Pusher::HTTPError.new("#{e.message} (#{e.class})")
@@ -58,13 +45,11 @@ module Pusher
       http = case @verb
       when :post
         http_client.post({
-          :query => @params, :timeout => 5, :body => @body,
-          :head => {'Content-Type'=> 'application/json'}
+          :query => @params, :timeout => 5, :body => @body, :head => @head
         })
       when :get
         http_client.get({
-          :query => @params, :timeout => 5,
-          :head => {'Content-Type'=> 'application/json'}
+          :query => @params, :timeout => 5, :head => @head
         })
       else
         raise "Unsuported verb"
