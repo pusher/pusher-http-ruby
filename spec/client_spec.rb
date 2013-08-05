@@ -367,9 +367,11 @@ describe Pusher do
             end
 
             let(:call_api) {
-              @client.send(method, '/path').tap {
+              @client.send(method, '/path').tap { |c|
                 # Allow the async thread (inside httpclient) to run
-                sleep 0.01
+                while !c.finished?
+                  sleep 0.01
+                end
               }
             }
 
