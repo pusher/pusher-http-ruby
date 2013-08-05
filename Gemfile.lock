@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    pusher (0.11.3)
+    pusher (0.12.0)
       httpclient (~> 2.3.0)
       multi_json (~> 1.0)
       signature (~> 0.1.6)
