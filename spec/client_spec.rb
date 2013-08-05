@@ -102,7 +102,7 @@ describe Pusher do
 
     describe 'logging configuration' do
       it "can be configured to use any logger" do
-        logger = mock("ALogger")
+        logger = double("ALogger")
         logger.should_receive(:debug).with('foo')
         Pusher.logger = logger
         Pusher.logger.debug('foo')

@@ -114,7 +114,7 @@ describe Pusher::Channel do
     end
 
     it 'should return a hash with signature including custom data and data as json string' do
-      MultiJson.stub!(:encode).with(@custom_data).and_return 'a json string'
+      MultiJson.stub(:encode).with(@custom_data).and_return 'a json string'
 
       response = @channel.authenticate('socketid', @custom_data)
 
