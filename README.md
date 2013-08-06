@@ -73,26 +73,22 @@ Errors are logged to `Pusher.logger`. It will by default log at info level to ST
 
 ### Publishing events
 
-An event can be sent to Pusher in in the following ways:
+An event can be published to one or more channels (limited to 100) in one API call:
 
-    # on the Pusher class
-    Pusher.trigger('channel_name', 'event_name', {some: 'data'})
-    Pusher.trigger(['channel_1', 'channel_2'], 'event_name', {some: 'data'})
-    
-    # or on a pusher_client
-    pusher_client.trigger(['your_channels'], 'your_event_name', {some: 'data'})
+    Pusher.trigger('channel', 'event', {foo: 'bar'})
+    Pusher.trigger(['channel_1', 'channel_2'], 'event_name', {foo: 'bar'})
 
-Note: the first `channels` argument can contain multiple channels you'd like your event and data payload to go to. There is a limit of 100 on the number of channels this can contain.
+An optional fourth argument may be used to send additional parameters to the API, for example to [exclude a single connection from receiving the event](http://pusher.com/docs/publisher_api_guide/publisher_excluding_recipients).
 
-An optional fourth argument of this method can specify a `socket_id` that will be excluded from receiving the event (generally the user where the event originated -- see <http://pusher.com/docs/publisher_api_guide/publisher_excluding_recipients> for more info).
+    Pusher.trigger('channel', 'event', {foo: 'bar'}, {socket_id: '123.456'})
 
-#### Original publisher API
+#### Deprecated publisher API
 
 Most examples and documentation will refer to the following syntax for triggering an event:
 
     Pusher['a_channel'].trigger('an_event', {:some => 'data'})
 
-This will continue to work, but will be replaced as the canonical version by `Pusher.trigger` which supports multiple channels.
+This will continue to work, but has been replaced by `Pusher.trigger` which supports one or multiple channels.
 
 ### Generic requests to the Pusher REST API
 
