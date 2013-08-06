@@ -10,6 +10,7 @@ Gem::Specification.new do |s|
   s.homepage    = "http://github.com/pusher/pusher-gem"
   s.summary     = %q{Pusher API client}
   s.description = %q{Wrapper for pusher.com REST api}
+  s.license     = "MIT"
 
   s.add_dependency "multi_json", "~> 1.0"
   s.add_dependency 'signature', "~> 0.1.6"
