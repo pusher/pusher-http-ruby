@@ -53,7 +53,7 @@ module Pusher
             :query => @params, :head => @head
           })
         else
-          raise "Unsuported verb"
+          raise "Unsupported verb"
         end
         http.callback {
           begin
