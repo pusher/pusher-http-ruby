@@ -138,7 +138,7 @@ A HTTP error or an error response from pusher will cause the errback to be calle
 
 #### Without eventmachine
 
-If the eventmachine reactor is not running, async requests will be make using threads (managed by the httpclient gem).
+If the eventmachine reactor is not running, async requests will be made using threads (managed by the httpclient gem).
 
 An `HTTPClient::Connection` object is returned immediately which can be [interrogated](http://rubydoc.info/gems/httpclient/HTTPClient/Connection) to discover the status of the request. The usual response checking and processing is not done when the request completes, and frankly this method is most useful when you're not interested in waiting for the response.
 
