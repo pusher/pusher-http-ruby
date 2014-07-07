@@ -1,7 +1,7 @@
 Pusher gem
 ==========
 
-[![Build Status](https://secure.travis-ci.org/pusher/pusher-gem.png?branch=master)](http://travis-ci.org/pusher/pusher-gem)
+[![Build Status](https://secure.travis-ci.org/pusher/pusher-gem.svg?branch=master)](http://travis-ci.org/pusher/pusher-gem)
 
 ## Installation & Configuration
 
