@@ -2,7 +2,7 @@ PATH
   remote: .
   specs:
     pusher (0.12.0)
-      httpclient (~> 2.3.0)
+      httpclient (~> 2.4.0)
       multi_json (~> 1.0)
       signature (~> 0.1.6)
 
@@ -24,8 +24,8 @@ GEM
       eventmachine (>= 1.0.0.beta.4)
     eventmachine (1.0.3)
     http_parser.rb (0.6.0.beta.2)
-    httpclient (2.3.4.1)
-    multi_json (1.7.8)
+    httpclient (2.4.0)
+    multi_json (1.10.1)
     rack (1.5.2)
     rake (10.1.0)
     rspec (2.14.1)
