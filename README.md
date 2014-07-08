@@ -1,14 +1,14 @@
 Pusher gem
 ==========
 
-[![Build Status](https://secure.travis-ci.org/pusher/pusher-gem.png?branch=master)](http://travis-ci.org/pusher/pusher-gem)
+[![Build Status](https://secure.travis-ci.org/pusher/pusher-gem.svg?branch=master)](http://travis-ci.org/pusher/pusher-gem)
 
 ## Installation & Configuration
 
 Add pusher to your Gemfile, and then run `bundle install`
 
     gem 'pusher'
-    
+
 or install via gem
 
     gem install pusher
@@ -17,7 +17,7 @@ After registering at <http://pusher.com> configure your app with the security cr
 
 ### Global
 
-The most standard way of configuring Pusher is to do it globally on the Pusher class. 
+The most standard way of configuring Pusher is to do it globally on the Pusher class.
 
     Pusher.app_id = 'your-pusher-app-id'
     Pusher.key = 'your-pusher-key'
@@ -98,7 +98,7 @@ All requests must be signed by using your secret key, which is handled automatic
 
     # using the Pusher class
     Pusher.get('url_without_app_id', params)
-    
+
     # using a client
     pusher_client.post('url_without_app_id', params)
 
