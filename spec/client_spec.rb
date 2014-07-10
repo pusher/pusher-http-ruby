@@ -213,6 +213,14 @@ describe Pusher do
             should == {}
         end
 
+        it "should not allow too many channels" do
+          lambda {
+            @client.trigger((0..11).map{|i| 'mychannel#{i}'},
+              'event', {'some' => 'data'}, {
+                :socket_id => "1234"
+              })}.should raise_error(Pusher::Error)
+        end
+
         it "should pass any parameters in the body of the request" do
           @client.trigger(['mychannel', 'c2'], 'event', {'some' => 'data'}, {
             :socket_id => "1234"
