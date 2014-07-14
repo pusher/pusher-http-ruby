@@ -22,6 +22,10 @@ describe Pusher do
       @client2.secret = 'bbbbbbbb'
     end
 
+    it "default should be already configured" do
+      Pusher.default_client.url.host.should == "api.secret.pusherapp.com"
+    end
+
     it "should send scheme messages to different objects" do
       @client1.scheme.should_not == @client2.scheme
     end
@@ -128,6 +132,10 @@ describe Pusher do
 
         @client.scheme.should == 'https'
         @client.port.should == 443
+      end
+
+      it "should fail on bad urls" do
+        expect { @client.url = "gopher/somekey:somesecret@://api.staging.pusherapp.co://m:8080\apps\87" }.to raise_error
       end
     end
 

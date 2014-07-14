@@ -4,6 +4,8 @@ rescue LoadError
   puts 'although not required, it is recommended that you use bundler when running the tests'
 end
 
+ENV['PUSHER_URL']= 'http://some:secret@api.secret.pusherapp.com:441/apps/54'
+
 require 'rspec'
 require 'rspec/autorun'
 require 'em-http' # As of webmock 1.4.0, em-http must be loaded first
