@@ -281,7 +281,7 @@ module Pusher
 
     def trigger_params(channels, event_name, data, params)
       channels = Array(channels).map(&:to_s)
-      raise Pusher::Error, "Too many channels '#{[channels].flatten.join(?,)}'" if channels.length > 10
+      raise Pusher::Error, "Too many channels (#{channels.length}), max 10" if channels.length > 10
 
       encoded_data = case data
       when String
