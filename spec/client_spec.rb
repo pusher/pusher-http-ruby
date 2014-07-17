@@ -22,7 +22,7 @@ describe Pusher do
       @client2.secret = 'bbbbbbbb'
     end
 
-    it "default should be already configured" do
+    it "default should be configured automatically from environment variable" do
       Pusher.default_client.url.host.should == "api.secret.pusherapp.com"
     end
 
