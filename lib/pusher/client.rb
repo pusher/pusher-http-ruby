@@ -225,9 +225,6 @@ module Pusher
     # @raise [Pusher::HTTPError] Error raised inside http client. The original error is wrapped in error.original_error
     #
     def trigger(channels, event_name, data, params = {})
-      if channels.respond_to?(:to_a) && channels.length > 10
-        raise Pusher::Error,"Too many channels '#{[channels].flatten.join(?,)}'"
-      end
       post('/events', trigger_params(channels, event_name, data, params))
     end
 
@@ -284,6 +281,7 @@ module Pusher
 
     def trigger_params(channels, event_name, data, params)
       channels = Array(channels).map(&:to_s)
+      raise Pusher::Error, "Too many channels '#{[channels].flatten.join(?,)}'" if channels.length > 10
 
       encoded_data = case data
       when String
