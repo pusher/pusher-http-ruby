@@ -5,10 +5,10 @@ module Pusher
   # Trigger events on Channels
   class Channel
     attr_reader :name
-    Regex = /[^A-Za-z0-9_\-=@,.;]/
+    INVALID_CHANNEL_REGEX = /[^A-Za-z0-9_\-=@,.;]/
     def initialize(base_url, name, client = Pusher)
       @uri = base_url.dup
-      if Pusher::Channel::Regex.match(name)
+      if Pusher::Channel::INVALID_CHANNEL_REGEX.match(name)
         raise Pusher::Error, "Illegal channel name '#{name}'"
       elsif name.length > 200
         raise Pusher::Error, "Channel name too long (limit 100 characters) '#{name}'"
