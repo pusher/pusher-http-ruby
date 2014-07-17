@@ -168,7 +168,9 @@ module Pusher
     #   Pusher['my-channel']
     # @return [Channel]
     # @raise [ConfigurationError] unless key, secret and app_id have been
-    #   configured
+    #   configured. Channel names should be less than 200 characters, and
+    #   should not contain anything other than letters, numbers, or the
+    #   characters "_\-=@,.;"
     def channel(channel_name)
       raise ConfigurationError, 'Missing client configuration: please check that key, secret and app_id are configured.' unless configured?
       Channel.new(url, channel_name, self)
@@ -195,7 +197,7 @@ module Pusher
     #
     # GET /apps/[id]/channels/[channel_name]
     #
-    # @param channel_name [String] Channel name
+    # @param channel_name [String] Channel name (max 200 characters)
     # @param params [Hash] Hash of parameters for the API - see REST API docs
     #
     # @return [Hash] See Pusher API docs
@@ -211,7 +213,7 @@ module Pusher
     #
     # POST /apps/[app_id]/events
     #
-    # @param channels [String or Array] One of more channel names
+    # @param channels [String or Array] 1-10 channel names
     # @param event_name [String]
     # @param data [Object] Event data to be triggered in javascript.
     #   Objects other than strings will be converted to JSON
@@ -279,6 +281,7 @@ module Pusher
 
     def trigger_params(channels, event_name, data, params)
       channels = Array(channels).map(&:to_s)
+      raise Pusher::Error, "Too many channels (#{channels.length}), max 10" if channels.length > 10
 
       encoded_data = case data
       when String

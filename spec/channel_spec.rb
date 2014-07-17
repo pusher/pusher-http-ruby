@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 require 'spec_helper'
 
 describe Pusher::Channel do
@@ -48,6 +49,16 @@ describe Pusher::Channel do
       Pusher.logger.should_receive(:debug) #backtrace
       channel = Pusher::Channel.new(@client.url, 'test_channel', @client)
       channel.trigger('new_event', 'Some data')
+    end
+  end
+
+  describe "#initialization" do
+    it "should not be too long" do
+      lambda { @client['b'*201] }.should raise_error(Pusher::Error)
+    end
+
+    it "should not use bad characters" do
+      lambda { @client['*^!±`/""'] }.should raise_error(Pusher::Error)
     end
   end
 
