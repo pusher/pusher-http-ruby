@@ -73,7 +73,7 @@ Errors are logged to `Pusher.logger`. It will by default log at info level to ST
 
 ### Publishing events
 
-An event can be published to one or more channels (limited to 100) in one API call:
+An event can be published to one or more channels (limited to 10) in one API call:
 
     Pusher.trigger('channel', 'event', {foo: 'bar'})
     Pusher.trigger(['channel_1', 'channel_2'], 'event_name', {foo: 'bar'})
