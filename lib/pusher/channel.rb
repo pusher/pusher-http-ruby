@@ -10,8 +10,8 @@ module Pusher
       @uri = base_url.dup
       if Pusher::Channel::INVALID_CHANNEL_REGEX.match(name)
         raise Pusher::Error, "Illegal channel name '#{name}'"
-      elsif name.length > 200
-        raise Pusher::Error, "Channel name too long (limit 100 characters) '#{name}'"
+      elsif name.length > 164
+        raise Pusher::Error, "Channel name too long (limit 164 characters) '#{name}'"
       end
       @uri.path = @uri.path + "/channels/#{name}/"
       @name = name
