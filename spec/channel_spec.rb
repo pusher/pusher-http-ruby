@@ -76,12 +76,20 @@ describe Pusher::Channel do
       @channel.info
     end
 
-    it "should assemble the requested attribes into the info option" do
+    it "should assemble the requested attributes into the info option" do
       @client.should_receive(:get).with(anything, {
         :info => "user_count,connection_count"
       })
       @channel = @client['presence-foo']
       @channel.info(%w{user_count connection_count})
+    end
+  end
+
+  describe '#users' do
+    it "should call the Client#channel_users" do
+      @client.should_receive(:get).with("/channels/presence-mychannel/users").and_return({:users => {'id' => '4'}})
+      @channel = @client['presence-mychannel']
+      @channel.users
     end
   end
 

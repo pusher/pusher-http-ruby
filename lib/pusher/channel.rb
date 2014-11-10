@@ -90,6 +90,20 @@ module Pusher
       @client.get("/channels/#{name}", :info => attributes.join(','))
     end
 
+    # Request users for a presence channel
+    # Only works on presence channels (see: http://pusher.com/docs/client_api_guide/client_presence_channels and https://pusher.com/docs/rest_api)
+    #
+    # @example Response
+    #   [{"id"=>"4"}]
+    #
+    # @return [Hash] Array of user hashes for this channel
+    # @raise [Pusher::Error] on invalid Pusher response - see the error message for more details
+    # @raise [Pusher::HTTPError] on any error raised inside Net::HTTP - the original error is available in the original_error attribute
+    #
+    def users
+      @client.get("/channels/#{name}/users")[:users]
+    end
+
     # Compute authentication string required as part of the authentication
     # endpoint response. Generally the authenticate method should be used in
     # preference to this one
