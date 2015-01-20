@@ -1,4 +1,17 @@
 
+0.14.4 / 2015-01-20
+==================
+
+  * SECURITY: Prevent timing attack, update signature to v0.1.8
+  * SECURITY: Prevent POODLE. Disable SSLv3, update httpclient to v2.5
+  * Fix channel name character limit.
+  * Adds support for listing users on a presence channel
+
+0.14.3 / 2015-01-20
+==================
+
+Yanked, bad release
+
 0.14.2 / 2014-10-16
 ==================
 
