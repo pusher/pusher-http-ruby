@@ -7,7 +7,7 @@ Gem::Specification.new do |s|
   s.platform    = Gem::Platform::RUBY
   s.authors     = ["Pusher"]
   s.email       = ["support@pusher.com"]
-  s.homepage    = "http://github.com/pusher/pusher-gem"
+  s.homepage    = "http://github.com/pusher/pusher-http-ruby"
   s.summary     = %q{Pusher API client}
   s.description = %q{Wrapper for pusher.com REST api}
   s.license     = "MIT"
