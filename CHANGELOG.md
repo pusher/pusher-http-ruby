@@ -1,3 +1,8 @@
+1.0.0 / 2015-03-20
+==================
+
+  * Updated README to explain new values returned by Event Buffer cluster
+
 
 0.14.4 / 2015-01-20
 ==================
