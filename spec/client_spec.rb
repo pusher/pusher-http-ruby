@@ -225,19 +225,19 @@ describe Pusher do
           lambda {
             @client.trigger((0..11).map{|i| 'mychannel#{i}'},
               'event', {'some' => 'data'}, {
-                :socket_id => "1234"
+                :socket_id => "12.34"
               })}.should raise_error(Pusher::Error)
         end
 
         it "should pass any parameters in the body of the request" do
           @client.trigger(['mychannel', 'c2'], 'event', {'some' => 'data'}, {
-            :socket_id => "1234"
+            :socket_id => "12.34"
           })
           WebMock.should have_requested(:post, @api_path).with { |req|
             parsed = MultiJson.decode(req.body)
             parsed["name"].should == 'event'
             parsed["channels"].should == ["mychannel", "c2"]
-            parsed["socket_id"].should == '1234'
+            parsed["socket_id"].should == '12.34'
           }
         end
 
@@ -277,10 +277,10 @@ describe Pusher do
         it "should pass any parameters in the body of the request" do
           EM.run {
             @client.trigger_async('mychannel', 'event', {'some' => 'data'}, {
-              :socket_id => "1234"
+              :socket_id => "12.34"
             }).callback {
               WebMock.should have_requested(:post, @api_path).with { |req|
-                MultiJson.decode(req.body)["socket_id"].should == '1234'
+                MultiJson.decode(req.body)["socket_id"].should == '12.34'
               }
               EM.stop
             }

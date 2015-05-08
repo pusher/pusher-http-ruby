@@ -99,9 +99,9 @@ describe Pusher::Channel do
     end
 
     it "should return an authentication string given a socket id" do
-      auth = @channel.authentication_string('socketid')
+      auth = @channel.authentication_string('1.1')
 
-      auth.should == '12345678900000001:827076f551e22451357939e4c7bb1200de29f921d5bf80b40d71668f9cd61c40'
+      auth.should == '12345678900000001:02259dff9a2a3f71ea8ab29ac0c0c0ef7996c8f3fd3702be5533f30da7d7fed4'
     end
 
     it "should raise error if authentication is invalid" do
@@ -112,17 +112,17 @@ describe Pusher::Channel do
 
     describe 'with extra string argument' do
       it 'should be a string or nil' do
-        authentication_string('socketid', 123).should raise_error Pusher::Error
-        authentication_string('socketid', {}).should raise_error Pusher::Error
+        authentication_string('1.1', 123).should raise_error Pusher::Error
+        authentication_string('1.1', {}).should raise_error Pusher::Error
 
-        authentication_string('socketid', 'boom').should_not raise_error
-        authentication_string('socketid', nil).should_not raise_error
+        authentication_string('1.1', 'boom').should_not raise_error
+        authentication_string('1.1', nil).should_not raise_error
       end
 
       it "should return an authentication string given a socket id and custom args" do
-        auth = @channel.authentication_string('socketid', 'foobar')
+        auth = @channel.authentication_string('1.1', 'foobar')
 
-        auth.should == "12345678900000001:#{hmac(@client.secret, "socketid:test_channel:foobar")}"
+        auth.should == "12345678900000001:#{hmac(@client.secret, "1.1:test_channel:foobar")}"
       end
     end
   end
@@ -135,12 +135,26 @@ describe Pusher::Channel do
     it 'should return a hash with signature including custom data and data as json string' do
       MultiJson.stub(:encode).with(@custom_data).and_return 'a json string'
 
-      response = @channel.authenticate('socketid', @custom_data)
+      response = @channel.authenticate('1.1', @custom_data)
 
       response.should == {
-        :auth => "12345678900000001:#{hmac(@client.secret, "socketid:test_channel:a json string")}",
+        :auth => "12345678900000001:#{hmac(@client.secret, "1.1:test_channel:a json string")}",
         :channel_data => 'a json string'
       }
+    end
+
+    it 'should fail on invalid socket_ids' do
+      lambda {
+        @channel.authenticate('1.1:')
+      }.should raise_error Pusher::Error
+
+      lambda {
+        @channel.authenticate('1.1foo', 'channel')
+      }.should raise_error Pusher::Error
+
+      lambda {
+        @channel.authenticate('foo', 'channel')
+      }.should raise_error Pusher::Error
     end
   end
 end
