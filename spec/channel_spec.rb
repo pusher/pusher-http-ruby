@@ -153,6 +153,14 @@ describe Pusher::Channel do
       }.should raise_error Pusher::Error
 
       lambda {
+        @channel.authenticate(':1.1')
+      }.should raise_error Pusher::Error
+
+      lambda {
+        @channel.authenticate('foo1.1', 'channel')
+      }.should raise_error Pusher::Error
+
+      lambda {
         @channel.authenticate('foo', 'channel')
       }.should raise_error Pusher::Error
     end
