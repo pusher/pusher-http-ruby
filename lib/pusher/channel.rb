@@ -171,7 +171,7 @@ module Pusher
 
     def validate_socket_id(socket_id)
       unless socket_id && /\d+\.\d+$/.match(socket_id)
-        raise Pusher::Error, "Invalid socket ID #{socket_id}"
+        raise Pusher::Error, "Invalid socket ID #{socket_id.inspect}"
       end
     end
   end
