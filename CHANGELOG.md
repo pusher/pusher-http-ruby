@@ -1,4 +1,9 @@
 
+0.14.5 / 2015-05-11
+==================
+
+  * SECURITY: Prevent auth delegation trough crafted socket IDs
+
 0.14.4 / 2015-01-20
 ==================
 
