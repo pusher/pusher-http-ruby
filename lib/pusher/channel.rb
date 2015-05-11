@@ -34,7 +34,10 @@ module Pusher
     #
     def trigger_async(event_name, data, socket_id = nil)
       params = {}
-      params[:socket_id] = socket_id if socket_id
+      if socket_id
+        validate_socket_id(socket_id)
+        params[:socket_id] = socket_id
+      end
       @client.trigger_async(name, event_name, data, params)
     end
 
@@ -60,7 +63,10 @@ module Pusher
     #
     def trigger!(event_name, data, socket_id = nil)
       params = {}
-      params[:socket_id] = socket_id if socket_id
+      if socket_id
+        validate_socket_id(socket_id)
+        params[:socket_id] = socket_id
+      end
       @client.trigger(name, event_name, data, params)
     end
 
@@ -115,9 +121,7 @@ module Pusher
     # @return [String]
     #
     def authentication_string(socket_id, custom_string = nil)
-      if socket_id.nil? || socket_id.empty?
-        raise Error, "Invalid socket_id #{socket_id}"
-      end
+      validate_socket_id(socket_id)
 
       unless custom_string.nil? || custom_string.kind_of?(String)
         raise Error, 'Custom argument must be a string'
@@ -161,6 +165,14 @@ module Pusher
       r = {:auth => auth}
       r[:channel_data] = custom_data if custom_data
       r
+    end
+
+    private
+
+    def validate_socket_id(socket_id)
+      unless socket_id && /\A\d+\.\d+\z/.match(socket_id)
+        raise Pusher::Error, "Invalid socket ID #{socket_id.inspect}"
+      end
     end
   end
 end
