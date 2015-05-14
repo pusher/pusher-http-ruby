@@ -23,62 +23,62 @@ describe Pusher do
     end
 
     it "default should be configured automatically from environment variable" do
-      Pusher.default_client.url.host.should == "api.secret.pusherapp.com"
+      expect(Pusher.default_client.url.host).to eq("api.secret.pusherapp.com")
     end
 
     it "should send scheme messages to different objects" do
-      @client1.scheme.should_not == @client2.scheme
+      expect(@client1.scheme).not_to eq(@client2.scheme)
     end
 
     it "should send host messages to different objects" do
-      @client1.host.should_not == @client2.host
+      expect(@client1.host).not_to eq(@client2.host)
     end
 
     it "should send port messages to different objects" do
-      @client1.port.should_not == @client2.port
+      expect(@client1.port).not_to eq(@client2.port)
     end
 
     it "should send app_id messages to different objects" do
-      @client1.app_id.should_not == @client2.app_id
+      expect(@client1.app_id).not_to eq(@client2.app_id)
     end
 
     it "should send app_id messages to different objects" do
-      @client1.key.should_not == @client2.key
+      expect(@client1.key).not_to eq(@client2.key)
     end
 
     it "should send app_id messages to different objects" do
-      @client1.secret.should_not == @client2.secret
+      expect(@client1.secret).not_to eq(@client2.secret)
     end
 
     it "should send app_id messages to different objects" do
-      @client1.authentication_token.key.should_not == @client2.authentication_token.key
-      @client1.authentication_token.secret.should_not == @client2.authentication_token.secret
+      expect(@client1.authentication_token.key).not_to eq(@client2.authentication_token.key)
+      expect(@client1.authentication_token.secret).not_to eq(@client2.authentication_token.secret)
     end
 
     it "should send url messages to different objects" do
-      @client1.url.to_s.should_not == @client2.url.to_s
+      expect(@client1.url.to_s).not_to eq(@client2.url.to_s)
       @client1.url = 'ws://one/apps/111'
       @client2.url = 'wss://two/apps/222'
-      @client1.scheme.should_not == @client2.scheme
-      @client1.host.should_not == @client2.host
-      @client1.app_id.should_not == @client2.app_id
+      expect(@client1.scheme).not_to eq(@client2.scheme)
+      expect(@client1.host).not_to eq(@client2.host)
+      expect(@client1.app_id).not_to eq(@client2.app_id)
     end
 
     it "should send encrypted messages to different objects" do
       @client1.encrypted = false
       @client2.encrypted = true
-      @client1.scheme.should_not == @client2.scheme
-      @client1.port.should_not == @client2.port
+      expect(@client1.scheme).not_to eq(@client2.scheme)
+      expect(@client1.port).not_to eq(@client2.port)
     end
 
     it "should send [] messages to different objects" do
-      @client1['test'].should_not == @client2['test']
+      expect(@client1['test']).not_to eq(@client2['test'])
     end
 
     it "should send http_proxy messages to different objects" do
       @client1.http_proxy = 'http://oneuser:onepassword@onehost:8080'
       @client2.http_proxy = 'http://twouser:twopassword@twohost:8880'
-      @client1.http_proxy.should_not == @client2.http_proxy
+      expect(@client1.http_proxy).not_to eq(@client2.http_proxy)
     end
   end
 
@@ -91,23 +91,23 @@ describe Pusher do
 
     describe 'default configuration' do
       it 'should be preconfigured for api host' do
-        @client.host.should == 'api.pusherapp.com'
+        expect(@client.host).to eq('api.pusherapp.com')
       end
 
       it 'should be preconfigured for port 80' do
-        @client.port.should == 80
+        expect(@client.port).to eq(80)
       end
 
       it 'should use standard logger if no other logger if defined' do
         Pusher.logger.debug('foo')
-        Pusher.logger.should be_kind_of(Logger)
+        expect(Pusher.logger).to be_kind_of(Logger)
       end
     end
 
     describe 'logging configuration' do
       it "can be configured to use any logger" do
         logger = double("ALogger")
-        logger.should_receive(:debug).with('foo')
+        expect(logger).to receive(:debug).with('foo')
         Pusher.logger = logger
         Pusher.logger.debug('foo')
         Pusher.logger = nil
@@ -118,20 +118,20 @@ describe Pusher do
       it "should be possible to configure everything by setting the url" do
         @client.url = "test://somekey:somesecret@api.staging.pusherapp.com:8080/apps/87"
 
-        @client.scheme.should == 'test'
-        @client.host.should == 'api.staging.pusherapp.com'
-        @client.port.should == 8080
-        @client.key.should == 'somekey'
-        @client.secret.should == 'somesecret'
-        @client.app_id.should == '87'
+        expect(@client.scheme).to eq('test')
+        expect(@client.host).to eq('api.staging.pusherapp.com')
+        expect(@client.port).to eq(8080)
+        expect(@client.key).to eq('somekey')
+        expect(@client.secret).to eq('somesecret')
+        expect(@client.app_id).to eq('87')
       end
 
       it "should override scheme and port when setting encrypted=true after url" do
         @client.url = "http://somekey:somesecret@api.staging.pusherapp.com:8080/apps/87"
         @client.encrypted = true
 
-        @client.scheme.should == 'https'
-        @client.port.should == 443
+        expect(@client.scheme).to eq('https')
+        expect(@client.port).to eq(443)
       end
 
       it "should fail on bad urls" do
@@ -143,7 +143,7 @@ describe Pusher do
       it "should be possible to configure everything by setting the http_proxy" do
         @client.http_proxy = 'http://someuser:somepassword@proxy.host.com:8080'
 
-        @client.proxy.should == {:scheme => 'http', :host => 'proxy.host.com', :port => 8080, :user => 'someuser', :password => 'somepassword'}
+        expect(@client.proxy).to eq({:scheme => 'http', :host => 'proxy.host.com', :port => 8080, :user => 'someuser', :password => 'somepassword'})
       end
     end
 
@@ -160,15 +160,15 @@ describe Pusher do
         end
 
         it 'should return a channel' do
-          @channel.should be_kind_of(Pusher::Channel)
+          expect(@channel).to be_kind_of(Pusher::Channel)
         end
 
         %w{app_id key secret}.each do |config|
           it "should raise exception if #{config} not configured" do
             @client.send("#{config}=", nil)
-            lambda {
+            expect {
               @client['test_channel']
-            }.should raise_error(Pusher::ConfigurationError)
+            }.to raise_error(Pusher::ConfigurationError)
           end
         end
       end
@@ -183,12 +183,12 @@ describe Pusher do
               "channel2" => {}
             })
           })
-          @client.channels.should == {
+          expect(@client.channels).to eq({
             :channels => {
               "channel1" => {},
               "channel2" => {}
             }
-          }
+          })
         end
       end
 
@@ -201,9 +201,9 @@ describe Pusher do
               'occupied' => false,
             })
           })
-          @client.channel_info('mychannel').should == {
+          expect(@client.channel_info('mychannel')).to eq({
             :occupied => false,
-          }
+          })
         end
       end
 
@@ -217,41 +217,41 @@ describe Pusher do
         end
 
         it "should call correct URL" do
-          @client.trigger(['mychannel'], 'event', {'some' => 'data'}).
-            should == {}
+          expect(@client.trigger(['mychannel'], 'event', {'some' => 'data'})).
+            to eq({})
         end
 
         it "should not allow too many channels" do
-          lambda {
+          expect {
             @client.trigger((0..11).map{|i| 'mychannel#{i}'},
               'event', {'some' => 'data'}, {
                 :socket_id => "12.34"
-              })}.should raise_error(Pusher::Error)
+              })}.to raise_error(Pusher::Error)
         end
 
         it "should pass any parameters in the body of the request" do
           @client.trigger(['mychannel', 'c2'], 'event', {'some' => 'data'}, {
             :socket_id => "12.34"
           })
-          WebMock.should have_requested(:post, @api_path).with { |req|
+          expect(WebMock).to have_requested(:post, @api_path).with { |req|
             parsed = MultiJson.decode(req.body)
-            parsed["name"].should == 'event'
-            parsed["channels"].should == ["mychannel", "c2"]
-            parsed["socket_id"].should == '12.34'
+            expect(parsed["name"]).to eq('event')
+            expect(parsed["channels"]).to eq(["mychannel", "c2"])
+            expect(parsed["socket_id"]).to eq('12.34')
           }
         end
 
         it "should convert non string data to JSON before posting" do
           @client.trigger(['mychannel'], 'event', {'some' => 'data'})
-          WebMock.should have_requested(:post, @api_path).with { |req|
-            MultiJson.decode(req.body)["data"].should == '{"some":"data"}'
+          expect(WebMock).to have_requested(:post, @api_path).with { |req|
+            expect(MultiJson.decode(req.body)["data"]).to eq('{"some":"data"}')
           }
         end
 
         it "should accept a single channel as well as an array" do
           @client.trigger('mychannel', 'event', {'some' => 'data'})
-          WebMock.should have_requested(:post, @api_path).with { |req|
-            MultiJson.decode(req.body)["channels"].should == ['mychannel']
+          expect(WebMock).to have_requested(:post, @api_path).with { |req|
+            expect(MultiJson.decode(req.body)["channels"]).to eq(['mychannel'])
           }
         end
       end
@@ -268,7 +268,7 @@ describe Pusher do
         it "should call correct URL" do
           EM.run {
             @client.trigger_async('mychannel', 'event', {'some' => 'data'}).callback { |r|
-              r.should == {}
+              expect(r).to eq({})
               EM.stop
             }
           }
@@ -279,8 +279,8 @@ describe Pusher do
             @client.trigger_async('mychannel', 'event', {'some' => 'data'}, {
               :socket_id => "12.34"
             }).callback {
-              WebMock.should have_requested(:post, @api_path).with { |req|
-                MultiJson.decode(req.body)["socket_id"].should == '12.34'
+              expect(WebMock).to have_requested(:post, @api_path).with { |req|
+                expect(MultiJson.decode(req.body)["socket_id"]).to eq('12.34')
               }
               EM.stop
             }
@@ -290,8 +290,8 @@ describe Pusher do
         it "should convert non string data to JSON before posting" do
           EM.run {
             @client.trigger_async('mychannel', 'event', {'some' => 'data'}).callback {
-              WebMock.should have_requested(:post, @api_path).with { |req|
-                MultiJson.decode(req.body)["data"].should == '{"some":"data"}'
+              expect(WebMock).to have_requested(:post, @api_path).with { |req|
+                expect(MultiJson.decode(req.body)["data"]).to eq('{"some":"data"}')
               }
               EM.stop
             }
@@ -311,13 +311,13 @@ describe Pusher do
 
           it "should use http by default" do
             call_api
-            WebMock.should have_requested(verb, %r{http://api.pusherapp.com/apps/20/path})
+            expect(WebMock).to have_requested(verb, %r{http://api.pusherapp.com/apps/20/path})
           end
 
           it "should use https if configured" do
             @client.encrypted = true
             call_api
-            WebMock.should have_requested(verb, %r{https://api.pusherapp.com})
+            expect(WebMock).to have_requested(verb, %r{https://api.pusherapp.com})
           end
 
           it "should format the respose hash with symbols at first level" do
@@ -325,9 +325,9 @@ describe Pusher do
               :status => 200,
               :body => MultiJson.encode({'something' => {'a' => 'hash'}})
             })
-            call_api.should == {
+            expect(call_api).to eq({
               :something => {'a' => 'hash'}
-            }
+            })
           end
 
           it "should catch all http exceptions and raise a Pusher::HTTPError wrapping the original error" do
@@ -340,35 +340,35 @@ describe Pusher do
               error = e
             end
 
-            error.class.should == Pusher::HTTPError
-            error.should be_kind_of(Pusher::Error)
-            error.message.should == 'Exception from WebMock (HTTPClient::TimeoutError)'
-            error.original_error.class.should == HTTPClient::TimeoutError
+            expect(error.class).to eq(Pusher::HTTPError)
+            expect(error).to be_kind_of(Pusher::Error)
+            expect(error.message).to eq('Exception from WebMock (HTTPClient::TimeoutError)')
+            expect(error.original_error.class).to eq(HTTPClient::TimeoutError)
           end
 
           it "should raise Pusher::Error if call returns 400" do
             stub_request(verb, @url_regexp).to_return({:status => 400})
-            lambda { call_api }.should raise_error(Pusher::Error)
+            expect { call_api }.to raise_error(Pusher::Error)
           end
 
           it "should raise AuthenticationError if pusher returns 401" do
             stub_request(verb, @url_regexp).to_return({:status => 401})
-            lambda { call_api }.should raise_error(Pusher::AuthenticationError)
+            expect { call_api }.to raise_error(Pusher::AuthenticationError)
           end
 
           it "should raise Pusher::Error if pusher returns 404" do
             stub_request(verb, @url_regexp).to_return({:status => 404})
-            lambda { call_api }.should raise_error(Pusher::Error, '404 Not found (/apps/20/path)')
+            expect { call_api }.to raise_error(Pusher::Error, '404 Not found (/apps/20/path)')
           end
 
           it "should raise Pusher::Error if pusher returns 407" do
             stub_request(verb, @url_regexp).to_return({:status => 407})
-            lambda { call_api }.should raise_error(Pusher::Error, 'Proxy Authentication Required')
+            expect { call_api }.to raise_error(Pusher::Error, 'Proxy Authentication Required')
           end
 
           it "should raise Pusher::Error if pusher returns 500" do
             stub_request(verb, @url_regexp).to_return({:status => 500, :body => "some error"})
-            lambda { call_api }.should raise_error(Pusher::Error, 'Unknown error (status code 500): some error')
+            expect { call_api }.to raise_error(Pusher::Error, 'Unknown error (status code 500): some error')
           end
         end
       end
@@ -393,23 +393,23 @@ describe Pusher do
 
             it "should use http by default" do
               call_api
-              WebMock.should have_requested(verb, %r{http://api.pusherapp.com/apps/20/path})
+              expect(WebMock).to have_requested(verb, %r{http://api.pusherapp.com/apps/20/path})
             end
 
             it "should use https if configured" do
               @client.encrypted = true
               call_api
-              WebMock.should have_requested(verb, %r{https://api.pusherapp.com})
+              expect(WebMock).to have_requested(verb, %r{https://api.pusherapp.com})
             end
 
             # Note that the raw httpclient connection object is returned and
             # the response isn't handled (by handle_response) in the normal way.
             it "should return a httpclient connection object" do
               connection = call_api
-              connection.finished?.should be_true
+              expect(connection.finished?).to be_truthy
               response = connection.pop
-              response.status.should == 200
-              response.body.read.should == "{}"
+              expect(response.status).to eq(200)
+              expect(response.body.read).to eq("{}")
             end
           end
         end
@@ -429,7 +429,7 @@ describe Pusher do
             it "should use http by default" do
               EM.run {
                 call_api.callback {
-                  WebMock.should have_requested(verb, %r{http://api.pusherapp.com/apps/20/path})
+                  expect(WebMock).to have_requested(verb, %r{http://api.pusherapp.com/apps/20/path})
                   EM.stop
                 }
               }
@@ -439,7 +439,7 @@ describe Pusher do
               EM.run {
                 @client.encrypted = true
                 call_api.callback {
-                  WebMock.should have_requested(verb, %r{https://api.pusherapp.com})
+                  expect(WebMock).to have_requested(verb, %r{https://api.pusherapp.com})
                   EM.stop
                 }
               }
@@ -452,9 +452,9 @@ describe Pusher do
                   :body => MultiJson.encode({'something' => {'a' => 'hash'}})
                 })
                 call_api.callback { |response|
-                  response.should == {
+                  expect(response).to eq({
                     :something => {'a' => 'hash'}
-                  }
+                  })
                   EM.stop
                 }
               }
@@ -465,7 +465,7 @@ describe Pusher do
                 stub_request(verb, @url_regexp).to_return({:status => 400})
 
                 call_api.errback { |e|
-                  e.class.should == Pusher::Error
+                  expect(e.class).to eq(Pusher::Error)
                   EM.stop
                 }.callback {
                   fail

@@ -22,9 +22,9 @@ describe Pusher::WebHook do
         'rack.input' => StringIO.new(MultiJson.encode(@hook_data))
       })
       wh = Pusher::WebHook.new(request)
-      wh.key.should == '1234'
-      wh.signature.should == 'asdf'
-      wh.data.should == @hook_data
+      expect(wh.key).to eq('1234')
+      expect(wh.signature).to eq('asdf')
+      expect(wh.data).to eq(@hook_data)
     end
 
     it "can be initialized with a hash" do
@@ -35,9 +35,9 @@ describe Pusher::WebHook do
         :body => MultiJson.encode(@hook_data),
       }
       wh = Pusher::WebHook.new(request)
-      wh.key.should == '1234'
-      wh.signature.should == 'asdf'
-      wh.data.should == @hook_data
+      expect(wh.key).to eq('1234')
+      expect(wh.signature).to eq('asdf')
+      expect(wh.data).to eq(@hook_data)
     end
   end
 
@@ -58,14 +58,14 @@ describe Pusher::WebHook do
     it "should validate" do
       @client.key = '1234'
       @client.secret = 'asdf'
-      @wh.should be_valid
+      expect(@wh).to be_valid
     end
 
     it "should not validate if key is wrong" do
       @client.key = '12345'
       @client.secret = 'asdf'
-      Pusher.logger.should_receive(:warn).with("Received webhook with unknown key: 1234")
-      @wh.should_not be_valid
+      expect(Pusher.logger).to receive(:warn).with("Received webhook with unknown key: 1234")
+      expect(@wh).not_to be_valid
     end
 
     it "should not validate if secret is wrong" do
@@ -73,45 +73,45 @@ describe Pusher::WebHook do
       @client.secret = 'asdfxxx'
       digest = OpenSSL::Digest::SHA256.new
       expected = OpenSSL::HMAC.hexdigest(digest, @client.secret, @body)
-      Pusher.logger.should_receive(:warn).with("Received WebHook with invalid signature: got #{@wh.signature}, expected #{expected}")
-      @wh.should_not be_valid
+      expect(Pusher.logger).to receive(:warn).with("Received WebHook with invalid signature: got #{@wh.signature}, expected #{expected}")
+      expect(@wh).not_to be_valid
     end
 
     it "should validate with an extra token" do
       @client.key = '12345'
       @client.secret = 'xxx'
-      @wh.valid?({:key => '1234', :secret => 'asdf'}).should be_true
+      expect(@wh.valid?({:key => '1234', :secret => 'asdf'})).to be_truthy
     end
 
     it "should validate with an array of extra tokens" do
       @client.key = '123456'
       @client.secret = 'xxx'
-      @wh.valid?([
+      expect(@wh.valid?([
         {:key => '12345', :secret => 'wtf'},
         {:key => '1234', :secret => 'asdf'}
-      ]).should be_true
+      ])).to be_truthy
     end
 
     it "should not validate if all keys are wrong with extra tokens" do
       @client.key = '123456'
       @client.secret = 'asdf'
-      Pusher.logger.should_receive(:warn).with("Received webhook with unknown key: 1234")
-      @wh.valid?({:key => '12345', :secret => 'asdf'}).should be_false
+      expect(Pusher.logger).to receive(:warn).with("Received webhook with unknown key: 1234")
+      expect(@wh.valid?({:key => '12345', :secret => 'asdf'})).to be_falsey
     end
 
     it "should not validate if secret is wrong with extra tokens" do
       @client.key = '123456'
       @client.secret = 'asdfxxx'
-      Pusher.logger.should_receive(:warn).with(/Received WebHook with invalid signature/)
-      @wh.valid?({:key => '1234', :secret => 'wtf'}).should be_false
+      expect(Pusher.logger).to receive(:warn).with(/Received WebHook with invalid signature/)
+      expect(@wh.valid?({:key => '1234', :secret => 'wtf'})).to be_falsey
     end
 
     it "should expose events" do
-      @wh.events.should == @hook_data["events"]
+      expect(@wh.events).to eq(@hook_data["events"])
     end
 
     it "should expose time" do
-      @wh.time.should == Time.at(123.456)
+      expect(@wh.time).to eq(Time.at(123.456))
     end
   end
 end
