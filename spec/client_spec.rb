@@ -135,7 +135,7 @@ describe Pusher do
       end
 
       it "should fail on bad urls" do
-        expect { @client.url = "gopher/somekey:somesecret@://api.staging.pusherapp.co://m:8080\apps\87" }.to raise_error
+        expect { @client.url = "gopher/somekey:somesecret@://api.staging.pusherapp.co://m:8080\apps\87" }.to raise_error(URI::InvalidURIError)
       end
     end
 
