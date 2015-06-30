@@ -309,6 +309,11 @@ describe Pusher do
 
           let(:call_api) { @client.send(verb, '/path') }
 
+          it "raises an exception if not configured properly" do
+            @client.secret = nil
+            expect { call_api }.to raise_error(Pusher::ConfigurationError)
+          end
+
           it "should use http by default" do
             call_api
             expect(WebMock).to have_requested(verb, %r{http://api.pusherapp.com/apps/20/path})
@@ -391,6 +396,11 @@ describe Pusher do
               }
             }
 
+            it "raises an exception if not configured properly" do
+              @client.secret = nil
+              expect { call_api }.to raise_error(Pusher::ConfigurationError)
+            end
+
             it "should use http by default" do
               call_api
               expect(WebMock).to have_requested(verb, %r{http://api.pusherapp.com/apps/20/path})
@@ -425,6 +435,11 @@ describe Pusher do
             end
 
             let(:call_api) { @client.send(method, '/path') }
+
+            it "raises an exception if not configured properly" do
+              @client.secret = nil
+              expect { call_api }.to raise_error(Pusher::ConfigurationError)
+            end
 
             it "should use http by default" do
               EM.run {
