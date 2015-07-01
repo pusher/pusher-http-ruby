@@ -139,7 +139,7 @@ There are two main reasons for using the `_async` methods:
 
 Asynchronous calls are supported either by using an event loop (eventmachine, preferred), or via a thread.
 
-The following methods are available (in each case the calling iterface matches the non-async version):
+The following methods are available (in each case the calling interface matches the non-async version):
 
 * `Pusher.get_async`
 * `Pusher.post_async`
