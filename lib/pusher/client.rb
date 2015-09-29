@@ -1,4 +1,4 @@
-require 'signature'
+require 'pusher-signature'
 
 module Pusher
   class Client
@@ -30,7 +30,7 @@ module Pusher
 
     # @private Returns the authentication token for the client
     def authentication_token
-      Signature::Token.new(@key, @secret)
+      Pusher::Signature::Token.new(@key, @secret)
     end
 
     # @private Builds a url for this app, optionally appending a path

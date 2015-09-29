@@ -1,3 +1,7 @@
+0.14.6 / 2015-09-29
+==================
+  * Updated to use the `pusher-signature` gem instead of `signature`.
+    This resolves namespace related issues.
 
 0.14.5 / 2015-05-11
 ==================
