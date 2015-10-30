@@ -235,6 +235,33 @@ module Pusher
       post_async('/events', trigger_params(channels, event_name, data, params))
     end
 
+    # Generate the expected response for an authentication endpoint.
+    # See http://pusher.com/docs/authenticating_users for details.
+    #
+    # @example Private channels
+    #   render :json => Pusher.authenticate('private-my_channel', params[:socket_id])
+    #
+    # @example Presence channels
+    #   render :json => Pusher.authenticate('presence-my_channel', params[:socket_id], {
+    #     :user_id => current_user.id, # => required
+    #     :user_info => { # => optional - for example
+    #       :name => current_user.name,
+    #       :email => current_user.email
+    #     }
+    #   })
+    #
+    # @param socket_id [String]
+    # @param custom_data [Hash] used for example by private channels
+    #
+    # @return [Hash]
+    #
+    # @private Custom data is sent to server as JSON-encoded string
+    #
+    def authenticate(channel_name, socket_id, custom_data = nil)
+      channel_instance = channel(channel_name)
+      channel_instance.authenticate(socket_id, custom_data)
+    end
+
     # @private Construct a net/http http client
     def sync_http_client
       @client ||= begin
