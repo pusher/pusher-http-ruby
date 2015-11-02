@@ -1,3 +1,9 @@
+0.15.0 / 2015-11-02
+==================
+
+  * Added `Pusher.authenticate` method for authenticating private and presence channels.
+    This is prefered over the older `Pusher['a_channel'].authenticate(...)` style.
+
 0.14.6 / 2015-09-29
 ==================
   * Updated to use the `pusher-signature` gem instead of `signature`.
