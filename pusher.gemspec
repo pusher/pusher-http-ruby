@@ -22,6 +22,7 @@ Gem::Specification.new do |s|
   s.add_development_dependency "em-http-request", "~> 1.1.0"
   s.add_development_dependency "rake"
   s.add_development_dependency "rack"
+  s.add_development_dependency "json"
 
   s.files         = `git ls-files`.split("\n")
   s.test_files    = `git ls-files -- {test,spec,features}/*`.split("\n")
