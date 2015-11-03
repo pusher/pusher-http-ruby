@@ -1,3 +1,8 @@
+0.15.1 / 2015-11-03
+==================
+
+  * Fixed a bug where the `authenticate` method added in 0.15.0 wasn't exposed on the Pusher class.
+
 0.15.0 / 2015-11-02
 ==================
 
