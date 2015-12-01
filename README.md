@@ -63,7 +63,18 @@ pusher_client = Pusher::Client.new({
 
 This `client` will have all the functionality listed on the main Pusher class (which proxies to a client internally).
 
+If you want to set the `host` value for your client then you can do so when instantiating a Pusher client like so:
 
+``` ruby
+pusher_client = Pusher::Client.new({
+  app_id: 'your-pusher-app-id',
+  key: 'your-pusher-key',
+  secret: 'your-pusher-secret',
+  host: 'your-pusher-host'
+})
+```
+
+This is useful if, for example, you've created an app on the EU cluster and wish to set the host to be `api-eu.pusher.com`.
 
 ## Interacting with the Pusher service
 
