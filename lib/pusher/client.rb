@@ -209,6 +209,22 @@ module Pusher
       get("/channels/#{channel_name}", params)
     end
 
+    # Request info for users of a channel
+    #
+    # GET /apps/[id]/channels/[channel_name]/users
+    #
+    # @param channel_name [String] Channel name (max 200 characters)
+    # @param params [Hash] Hash of parameters for the API - see REST API docs
+    #
+    # @return [Hash] See Pusher API docs
+    #
+    # @raise [Pusher::Error] Unsuccessful response - see the error message
+    # @raise [Pusher::HTTPError] Error raised inside http client. The original error is wrapped in error.original_error
+    #
+    def channel_users(channel_name, params = {})
+      get("/channels/#{channel_name}/users", params)
+    end
+
     # Trigger an event on one or more channels
     #
     # POST /apps/[app_id]/events

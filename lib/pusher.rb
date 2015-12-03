@@ -31,7 +31,7 @@ module Pusher
     def_delegators :default_client, :timeout=, :connect_timeout=, :send_timeout=, :receive_timeout=, :keep_alive_timeout=
 
     def_delegators :default_client, :get, :get_async, :post, :post_async
-    def_delegators :default_client, :channels, :channel_info, :trigger, :trigger_async
+    def_delegators :default_client, :channels, :channel_info, :channel_users, :trigger, :trigger_async
     def_delegators :default_client, :authenticate, :webhook, :channel, :[]
 
     attr_writer :logger

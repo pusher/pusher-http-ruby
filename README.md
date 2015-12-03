@@ -125,21 +125,17 @@ Pusher['a_channel'].trigger('an_event', {:some => 'data'})
 
 This will continue to work, but has been replaced by `Pusher.trigger` which supports one or multiple channels.
 
-### Generic requests to the Pusher REST API
+### Using the Pusher REST API
 
-Aside from triggering events, the REST API also supports a number of operations for querying the state of the system. A reference of the available methods is available at <http://pusher.com/docs/rest_api>.
+This gem provides methods for accessing information from the [Pusher REST API](https://pusher.com/docs/rest_api). The documentation also shows an example of the responses from each of the API endpionts.
 
-All requests must be signed by using your secret key, which is handled automatically using these methods:
+The following methods are provided by the gem.
 
-``` ruby
-# using the Pusher class
-Pusher.get('url_without_app_id', params)
+- `Pusher.channel_info('channel_name')` returns information about that channel.
 
-# using a client
-pusher_client.post('url_without_app_id', params)
-```
+- `Pusher.channel_users('channel_name')` returns a list of all the users subscribed to the channel.
 
-Note that you don't need to specify your app_id in the URL, as this is inferred from your credentials.
+- `Pusher.channels` returns information about all the channels in your Pusher application.
 
 ### Asynchronous requests
 

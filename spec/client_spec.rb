@@ -128,6 +128,21 @@ describe Pusher do
         end
       end
 
+      describe '#channel_users' do
+        it "should call correct URL and symbolise response" do
+          api_path = %r{/apps/20/channels/mychannel/users}
+          stub_request(:get, api_path).to_return({
+            :status => 200,
+            :body => MultiJson.encode({
+              'users' => [{ 'id' => 1 }]
+            })
+          })
+          expect(@client.channel_users('mychannel')).to eq({
+            :users => [{ 'id' => 1}]
+          })
+        end
+      end
+
       describe '#authenticate' do
         before :each do
           @custom_data = {:uid => 123, :info => {:name => 'Foo'}}
