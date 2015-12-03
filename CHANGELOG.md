@@ -1,3 +1,9 @@
+0.15.2 / 2015-12-03
+==================
+
+  * Documented `Pusher.channel_info`, `Pusher.channels`
+  * Added `Pusher.channel_users`
+
 0.15.1 / 2015-11-03
 ==================
 
