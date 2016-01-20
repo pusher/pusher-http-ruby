@@ -14,7 +14,7 @@ Gem::Specification.new do |s|
 
   s.add_dependency "multi_json", "~> 1.0"
   s.add_dependency 'pusher-signature', "~> 0.1.8"
-  s.add_dependency "httpclient", "~> 2.5"
+  s.add_dependency "httpclient", "~> 2.7"
   s.add_dependency "jruby-openssl" if defined?(JRUBY_VERSION)
 
   s.add_development_dependency "rspec", "~> 3.0"
