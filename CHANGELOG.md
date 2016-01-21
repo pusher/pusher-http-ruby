@@ -1,3 +1,10 @@
+
+0.16.0 / 2016-01-21
+==================
+
+  * Bump httpclient version to 2.7
+  * Ruby 1.8.7 is not supported anymore.
+
 0.15.2 / 2015-12-03
 ==================
 
