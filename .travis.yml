@@ -1,18 +1,19 @@
 language: ruby
 sudo: false
 rvm:
-  - 1.8.7
   - 1.9.2
   - 1.9.3
   - 2.0.0
   - 2.1
   - 2.2
+  - 2.3.0
   - jruby-18mode
   - jruby-19mode
   - rbx-2
 
 matrix:
   allow_failures:
+    - rmv: 1.9.2
     - rvm: jruby-18mode
     - rvm: jruby-19mode
     - rvm: rbx-2
