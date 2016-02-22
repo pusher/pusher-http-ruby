@@ -60,6 +60,38 @@ describe Pusher do
       end
     end
 
+    describe 'configuring the cluster' do
+      it 'should set a new default host' do
+        @client.cluster = 'eu'
+        expect(@client.host).to eq('api-eu.pusher.com')
+      end
+
+      it 'should be overridden by host if it comes after' do
+        @client.cluster = 'eu'
+        @client.host = 'api.staging.pusher.com'
+        expect(@client.host).to eq('api.staging.pusher.com')
+      end
+
+      it 'should be overridden by url if it comes after' do
+        @client.cluster = 'eu'
+        @client.url = "http://somekey:somesecret@api.staging.pusherapp.com:8080/apps/87"
+
+        expect(@client.host).to eq('api.staging.pusherapp.com')
+      end
+
+      it 'should get override the url configuration if it comes after' do
+        @client.url = "http://somekey:somesecret@api.staging.pusherapp.com:8080/apps/87"
+        @client.cluster = 'eu'
+        expect(@client.host).to eq('api-eu.pusher.com')
+      end
+
+      it 'should overrie by the host configuration if it comes after' do
+        @client.host = 'api.staging.pusher.com'
+        @client.cluster = 'eu'
+        expect(@client.host).to eq('api-eu.pusher.com')
+      end
+    end
+
     describe 'configuring a http proxy' do
       it "should be possible to configure everything by setting the http_proxy" do
         @client.http_proxy = 'http://someuser:somepassword@proxy.host.com:8080'
@@ -431,4 +463,26 @@ describe Pusher do
       end
     end
   end
+
+  describe 'configuring cluster' do
+    it 'should allow clients to specify the cluster only with the default host' do
+      client = Pusher::Client.new({
+        :scheme => 'http',
+        :cluster => 'eu',
+        :port => 80
+      })
+      expect(client.host).to eq('api-eu.pusher.com')
+    end
+
+    it 'should always have host override any supplied cluster value' do
+      client = Pusher::Client.new({
+        :scheme => 'http',
+        :host => 'api.staging.pusherapp.com',
+        :cluster => 'eu',
+        :port => 80
+      })
+      expect(client.host).to eq('api.staging.pusherapp.com')
+    end
+  end
 end
+

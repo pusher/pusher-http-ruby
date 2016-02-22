@@ -10,14 +10,24 @@ module Pusher
     ## CONFIGURATION ##
 
     def initialize(options = {})
-      options = {
+      default_options = {
         :scheme => 'http',
-        :host => 'api.pusherapp.com',
         :port => 80,
-      }.merge(options)
-      @scheme, @host, @port, @app_id, @key, @secret = options.values_at(
+      }
+      merged_options = default_options.merge(options)
+
+      if options.has_key?(:host)
+        merged_options[:host] = options[:host]
+      elsif options.has_key?(:cluster)
+        merged_options[:host] = "api-#{options[:cluster]}.pusher.com"
+      else
+        merged_options[:host] = "api.pusherapp.com"
+      end
+
+      @scheme, @host, @port, @app_id, @key, @secret = merged_options.values_at(
         :scheme, :host, :port, :app_id, :key, :secret
       )
+
       @http_proxy = nil
       self.http_proxy = options[:http_proxy] if options[:http_proxy]
 
@@ -86,6 +96,10 @@ module Pusher
 
     def encrypted?
       @scheme == 'https'
+    end
+
+    def cluster=(cluster)
+      @host = "api-#{cluster}.pusher.com"
     end
 
     # Convenience method to set all timeouts to the same value (in seconds).
