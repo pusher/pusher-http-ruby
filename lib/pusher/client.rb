@@ -144,7 +144,7 @@ module Pusher
     # @raise [Pusher::HTTPError] Error raised inside http client. The original error is wrapped in error.original_error
     #
     def get(path, params = {})
-      Resource.new(self, path).get(params)
+      resource(path).get(params)
     end
 
     # GET arbitrary REST API resource using an asynchronous http client.
@@ -160,20 +160,20 @@ module Pusher
     # @return Either an EM::DefaultDeferrable or a HTTPClient::Connection
     #
     def get_async(path, params = {})
-      Resource.new(self, path).get_async(params)
+      resource(path).get_async(params)
     end
 
     # POST arbitrary REST API resource using a synchronous http client.
     # Works identially to get method, but posts params as JSON in post body.
     def post(path, params = {})
-      Resource.new(self, path).post(params)
+      resource(path).post(params)
     end
 
     # POST arbitrary REST API resource using an asynchronous http client.
     # Works identially to get_async method, but posts params as JSON in post
     # body.
     def post_async(path, params = {})
-      Resource.new(self, path).post_async(params)
+      resource(path).post_async(params)
     end
 
     ## HELPER METHODS ##
