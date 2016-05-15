@@ -1,3 +1,10 @@
+
+0.18.0 / 2016-05-15
+==================
+
+  * Introduce `Pusher::Client.from_env`
+  * Improve error handling on missing config
+
 0.17.0 / 2016-02-22
 ==================
 
