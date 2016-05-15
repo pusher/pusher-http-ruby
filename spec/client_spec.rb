@@ -58,6 +58,13 @@ describe Pusher do
       it "should fail on bad urls" do
         expect { @client.url = "gopher/somekey:somesecret@://api.staging.pusherapp.co://m:8080\apps\87" }.to raise_error(URI::InvalidURIError)
       end
+
+      it "should raise exception if app_id is not configured" do
+        @client.app_id = nil
+        expect {
+          @client.url
+        }.to raise_error(Pusher::ConfigurationError)
+      end
     end
 
     describe 'configuring the cluster' do
@@ -116,13 +123,11 @@ describe Pusher do
           expect(@channel).to be_kind_of(Pusher::Channel)
         end
 
-        %w{app_id key secret}.each do |config|
-          it "should raise exception if #{config} not configured" do
-            @client.send("#{config}=", nil)
-            expect {
-              @client['test_channel']
-            }.to raise_error(Pusher::ConfigurationError)
-          end
+        it "should raise exception if app_id is not configured" do
+          @client.app_id = nil
+          expect {
+            @client['test_channel']
+          }.to raise_error(Pusher::ConfigurationError)
         end
       end
 

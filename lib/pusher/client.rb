@@ -40,11 +40,14 @@ module Pusher
 
     # @private Returns the authentication token for the client
     def authentication_token
+      raise ConfigurationError, :key unless @key
+      raise ConfigurationError, :secret unless @secret
       Pusher::Signature::Token.new(@key, @secret)
     end
 
     # @private Builds a url for this app, optionally appending a path
     def url(path = nil)
+      raise ConfigurationError, :app_id unless @app_id
       URI::Generic.build({
         :scheme => @scheme,
         :host => @host,
@@ -186,7 +189,6 @@ module Pusher
     #   should not contain anything other than letters, numbers, or the
     #   characters "_\-=@,.;"
     def channel(channel_name)
-      raise ConfigurationError, 'Missing client configuration: please check that key, secret and app_id are configured.' unless configured?
       Channel.new(url, channel_name, self)
     end
 

@@ -17,7 +17,11 @@ module Pusher
   #   end
   class Error < RuntimeError; end
   class AuthenticationError < Error; end
-  class ConfigurationError < Error; end
+  class ConfigurationError < Error
+    def initialize(key)
+      super "missing key `#{key}' in the client configuration"
+    end
+  end
   class HTTPError < Error; attr_accessor :original_error; end
 
   class << self
