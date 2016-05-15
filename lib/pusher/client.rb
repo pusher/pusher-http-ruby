@@ -136,7 +136,9 @@ module Pusher
     # @raise [Pusher::HTTPError] Error raised inside http client. The original error is wrapped in error.original_error
     #
     def get(path, params = {})
-      Resource.new(self, path).get(params)
+      with_ensured_configuration do
+        resource(path).get(params)
+      end
     end
 
     # GET arbitrary REST API resource using an asynchronous http client.
@@ -152,20 +154,26 @@ module Pusher
     # @return Either an EM::DefaultDeferrable or a HTTPClient::Connection
     #
     def get_async(path, params = {})
-      Resource.new(self, path).get_async(params)
+      with_ensured_configuration do
+        resource(path).get_async(params)
+      end
     end
 
     # POST arbitrary REST API resource using a synchronous http client.
     # Works identially to get method, but posts params as JSON in post body.
     def post(path, params = {})
-      Resource.new(self, path).post(params)
+      with_ensured_configuration do
+        resource(path).post(params)
+      end
     end
 
     # POST arbitrary REST API resource using an asynchronous http client.
     # Works identially to get_async method, but posts params as JSON in post
     # body.
     def post_async(path, params = {})
-      Resource.new(self, path).post_async(params)
+      with_ensured_configuration do
+        resource(path).post_async(params)
+      end
     end
 
     ## HELPER METHODS ##
@@ -189,8 +197,9 @@ module Pusher
     #   should not contain anything other than letters, numbers, or the
     #   characters "_\-=@,.;"
     def channel(channel_name)
-      raise ConfigurationError, 'Missing client configuration: please check that key, secret and app_id are configured.' unless configured?
-      Channel.new(url, channel_name, self)
+      with_ensured_configuration do
+        Channel.new(url, channel_name, self)
+      end
     end
 
     alias :[] :channel
@@ -364,6 +373,14 @@ module Pusher
 
     def configured?
       host && scheme && key && secret && app_id
+    end
+
+    def with_ensured_configuration
+      unless configured?
+        raise ConfigurationError, "Missing client configuration: please check that key, secret and app_id are configured."
+      end
+
+      yield
     end
   end
 end
