@@ -55,10 +55,9 @@ pusher_client = Pusher::Client.new(
 
 This will set the `host` to `api-<cluster>.pusher.com`. If you pass both `host` and `cluster` options, the `host` will take precendence and `cluster` will be ignored.
 
-### Global (Deprecated)
+### Global
 
 Configuring Pusher can also be done globally on the Pusher class.
-*NOTE! This is a deprecated feature and will be removed in future versions of this library!*
 
 ``` ruby
 Pusher.app_id = 'your-pusher-app-id'
