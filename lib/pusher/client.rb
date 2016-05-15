@@ -40,11 +40,14 @@ module Pusher
 
     # @private Returns the authentication token for the client
     def authentication_token
+      raise ConfigurationError, "`key' is missing" unless @key
+      raise ConfigurationError, "`secret' is missing" unless @secret
       Pusher::Signature::Token.new(@key, @secret)
     end
 
     # @private Builds a url for this app, optionally appending a path
     def url(path = nil)
+      raise ConfigurationError, "`app_id' is missing" unless @app_id
       URI::Generic.build({
         :scheme => @scheme,
         :host => @host,
