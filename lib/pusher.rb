@@ -49,12 +49,11 @@ module Pusher
     end
 
     def default_client
-      @default_client ||= Pusher::Client.new
+      @default_client ||= begin
+        cli = Pusher::Client
+        ENV['PUSHER_URL'] ? cli.from_env : cli.new
+      end
     end
-  end
-
-  if ENV['PUSHER_URL']
-    self.url = ENV['PUSHER_URL']
   end
 end
 
