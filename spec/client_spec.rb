@@ -65,6 +65,7 @@ describe Pusher do
           @client.url
         }.to raise_error(Pusher::ConfigurationError)
       end
+
     end
 
     describe 'configuring the cluster' do
@@ -104,6 +105,20 @@ describe Pusher do
         @client.http_proxy = 'http://someuser:somepassword@proxy.host.com:8080'
 
         expect(@client.proxy).to eq({:scheme => 'http', :host => 'proxy.host.com', :port => 8080, :user => 'someuser', :password => 'somepassword'})
+      end
+    end
+
+    describe 'configuring from env' do
+      it "works" do
+        url = "http://somekey:somesecret@api.staging.pusherapp.com:8080/apps/87"
+        ENV['PUSHER_URL'] = url
+
+        client = Pusher::Client.from_env
+        expect(client.key).to eq("somekey")
+        expect(client.secret).to eq("somesecret")
+        expect(client.app_id).to eq("87")
+        expect(client.url.to_s).to eq("http://api.staging.pusherapp.com:8080/apps/87")
+        ENV['PUSHER_URL'] = nil
       end
     end
 
