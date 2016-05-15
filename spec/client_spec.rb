@@ -141,7 +141,7 @@ describe Pusher do
         it "should raise exception if app_id is not configured" do
           @client.app_id = nil
           expect {
-            @client['test_channel']
+            @channel.trigger!('foo', 'bar')
           }.to raise_error(Pusher::ConfigurationError)
         end
       end
@@ -259,6 +259,18 @@ describe Pusher do
           expect(WebMock).to have_requested(:post, @api_path).with { |req|
             expect(MultiJson.decode(req.body)["channels"]).to eq(['mychannel'])
           }
+        end
+
+        %w[app_id key secret].each do |key|
+          it "should fail in missing #{key}" do
+            @client.public_send("#{key}=", nil)
+            expect {
+              @client.trigger('mychannel', 'event', {'some' => 'data'})
+            }.to raise_error(Pusher::ConfigurationError)
+            expect(WebMock).not_to have_requested(:post, @api_path).with { |req|
+              expect(MultiJson.decode(req.body)["channels"]).to eq(['mychannel'])
+            }
+          end
         end
       end
 

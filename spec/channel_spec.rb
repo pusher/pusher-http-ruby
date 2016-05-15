@@ -87,7 +87,7 @@ describe Pusher::Channel do
 
   describe '#users' do
     it "should call the Client#channel_users" do
-      expect(@client).to receive(:get).with("/channels/presence-mychannel/users").and_return({:users => {'id' => '4'}})
+      expect(@client).to receive(:get).with("/channels/presence-mychannel/users", {}).and_return({:users => {'id' => '4'}})
       @channel = @client['presence-mychannel']
       @channel.users
     end

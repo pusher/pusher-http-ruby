@@ -187,17 +187,18 @@ module Pusher
       WebHook.new(request, self)
     end
 
-    # Return a convenience channel object by name. No API request is made.
+    # Return a convenience channel object by name that delegates operations
+    # on a channel. No API request is made.
     #
     # @example
     #   Pusher['my-channel']
     # @return [Channel]
-    # @raise [ConfigurationError] unless key, secret and app_id have been
-    #   configured. Channel names should be less than 200 characters, and
+    # @raise [Pusher::Error] if the channel name is invalid.
+    #   Channel names should be less than 200 characters, and
     #   should not contain anything other than letters, numbers, or the
     #   characters "_\-=@,.;"
     def channel(channel_name)
-      Channel.new(url, channel_name, self)
+      Channel.new(nil, channel_name, self)
     end
 
     alias :[] :channel
@@ -233,7 +234,7 @@ module Pusher
       get("/channels/#{channel_name}", params)
     end
 
-    # Request info for users of a channel
+    # Request info for users of a presence channel
     #
     # GET /apps/[id]/channels/[channel_name]/users
     #

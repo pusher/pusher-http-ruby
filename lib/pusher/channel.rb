@@ -2,18 +2,17 @@ require 'openssl'
 require 'multi_json'
 
 module Pusher
-  # Trigger events on Channels
+  # Delegates operations for a specific channel from a client
   class Channel
     attr_reader :name
     INVALID_CHANNEL_REGEX = /[^A-Za-z0-9_\-=@,.;]/
-    def initialize(base_url, name, client = Pusher)
-      @uri = base_url.dup
+
+    def initialize(_, name, client = Pusher)
       if Pusher::Channel::INVALID_CHANNEL_REGEX.match(name)
         raise Pusher::Error, "Illegal channel name '#{name}'"
-      elsif name.length > 164
+      elsif name.length > 200
         raise Pusher::Error, "Channel name too long (limit 164 characters) '#{name}'"
       end
-      @uri.path = @uri.path + "/channels/#{name}/"
       @name = name
       @client = client
     end
@@ -93,7 +92,7 @@ module Pusher
     # @raise [Pusher::HTTPError] on any error raised inside http client - the original error is available in the original_error attribute
     #
     def info(attributes = [])
-      @client.get("/channels/#{name}", :info => attributes.join(','))
+      @client.channel_info(name, :info => attributes.join(','))
     end
 
     # Request users for a presence channel
@@ -102,12 +101,13 @@ module Pusher
     # @example Response
     #   [{"id"=>"4"}]
     #
+    # @param params [Hash] Hash of parameters for the API - see REST API docs
     # @return [Hash] Array of user hashes for this channel
     # @raise [Pusher::Error] on invalid Pusher response - see the error message for more details
     # @raise [Pusher::HTTPError] on any error raised inside Net::HTTP - the original error is available in the original_error attribute
     #
-    def users
-      @client.get("/channels/#{name}/users")[:users]
+    def users(params = {})
+      @client.channel_users(name, params)[:users]
     end
 
     # Compute authentication string required as part of the authentication
