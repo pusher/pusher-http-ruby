@@ -131,6 +131,18 @@ An optional fourth argument may be used to send additional parameters to the API
 Pusher.trigger('channel', 'event', {foo: 'bar'}, {socket_id: '123.456'})
 ```
 
+#### Batches
+
+It's also possible to send multiple events with a single API call (max 10
+events per call on multi-tenant clusters):
+
+``` ruby
+Pusher.trigger_batch([
+  {channel: 'channel_1', name: 'event_name', data: { foo: 'bar' }}
+  {channel: 'channel_1', name: 'event_name', data: { hello: 'world' }}
+])
+```
+
 #### Deprecated publisher API
 
 Most examples and documentation will refer to the following syntax for triggering an event:
