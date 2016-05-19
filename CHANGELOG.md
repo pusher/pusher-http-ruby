@@ -1,4 +1,10 @@
 
+1.0.0 / 2016-05-19
+==================
+
+No breaking changes, this release is just to follow semver and show that we
+are stable.
+
 0.18.0 / 2016-05-15
 ==================
 
