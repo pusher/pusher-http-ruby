@@ -269,11 +269,33 @@ module Pusher
       post('/events', trigger_params(channels, event_name, data, params))
     end
 
+    # Trigger multiple events at the same time
+    #
+    # POST /apps/[app_id]/batch_events
+    #
+    # @param events [Array] List of events to publish
+    #
+    # @return [Hash] See Pusher API docs
+    #
+    # @raise [Pusher::Error] Unsuccessful response - see the error message
+    # @raise [Pusher::HTTPError] Error raised inside http client. The original error is wrapped in error.original_error
+    #
+    def trigger_batch(*events)
+      post('/batch_events', trigger_batch_params(events.flatten))
+    end
+
     # Trigger an event on one or more channels asynchronously.
     # For parameters see #trigger
     #
     def trigger_async(channels, event_name, data, params = {})
       post_async('/events', trigger_params(channels, event_name, data, params))
+    end
+
+    # Trigger multiple events asynchronously.
+    # For parameters see #trigger_batch
+    #
+    def trigger_batch_async(*events)
+      post_async('/batch_events', trigger_batch_params(events.flatten))
     end
 
     # Generate the expected response for an authentication endpoint.
@@ -351,23 +373,27 @@ module Pusher
       channels = Array(channels).map(&:to_s)
       raise Pusher::Error, "Too many channels (#{channels.length}), max 10" if channels.length > 10
 
-      encoded_data = case data
-      when String
-        data
-      else
-        begin
-          MultiJson.encode(data)
-        rescue MultiJson::DecodeError => e
-          Pusher.logger.error("Could not convert #{data.inspect} into JSON")
-          raise e
-        end
-      end
-
-      return params.merge({
-        :name => event_name,
-        :channels => channels,
-        :data => encoded_data,
+      params.merge({
+        name: event_name,
+        channels: channels,
+        data: encode_data(data),
       })
+    end
+
+    def trigger_batch_params(events)
+      {
+        batch: events.map do |event|
+          event.dup.tap do |e|
+            e[:data] = encode_data(e[:data])
+          end
+        end
+      }
+    end
+
+    # JSON-encode the data if it's not a string
+    def encode_data(data)
+      return data if data.is_a? String
+      MultiJson.encode(data)
     end
 
     def configured?

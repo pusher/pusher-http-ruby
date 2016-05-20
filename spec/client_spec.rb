@@ -274,6 +274,37 @@ describe Pusher do
         end
       end
 
+      describe '#trigger_batch' do
+        before :each do
+          @api_path = %r{/apps/20/batch_events}
+          stub_request(:post, @api_path).to_return({
+            :status => 200,
+            :body => MultiJson.encode({})
+          })
+        end
+
+        it "should call correct URL" do
+          expect(@client.trigger_batch(channel: 'mychannel', name: 'event', data: {'some' => 'data'})).
+            to eq({})
+        end
+
+        it "should convert non string data to JSON before posting" do
+          @client.trigger_batch(
+            {channel: 'mychannel', name: 'event', data: {'some' => 'data'}},
+            {channel: 'mychannel', name: 'event', data: 'already encoded'},
+          )
+          expect(WebMock).to have_requested(:post, @api_path).with { |req|
+            parsed = MultiJson.decode(req.body)
+            expect(parsed).to eq(
+              "batch" => [
+                { "channel" => "mychannel", "name" => "event", "data" => "{\"some\":\"data\"}"},
+                { "channel" => "mychannel", "name" => "event", "data" => "already encoded"}
+              ]
+            )
+          }
+        end
+      end
+
       describe '#trigger_async' do
         before :each do
           @api_path = %r{/apps/20/events}
