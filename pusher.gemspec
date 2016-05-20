@@ -1,9 +1,7 @@
 # -*- encoding: utf-8 -*-
-$:.push File.expand_path("../lib", __FILE__)
-
 Gem::Specification.new do |s|
   s.name        = "pusher"
-  s.version     = "1.0.0"
+  s.version     = "1.1.0"
   s.platform    = Gem::Platform::RUBY
   s.authors     = ["Pusher"]
   s.email       = ["support@pusher.com"]
