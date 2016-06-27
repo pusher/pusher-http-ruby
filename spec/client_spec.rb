@@ -525,6 +525,48 @@ describe Pusher do
         end
       end
     end
+
+    describe "native notifications" do
+      before :each do
+        @client.app_id = "20"
+        @client.key = "testytest"
+        @client.secret = "mysupersecretkey"
+      end
+
+      it "should configure a native notification client using the pusher client object" do
+        expect(@client.notification_client).to_not be(nil)
+      end
+
+      it "should use the default host if not provided" do
+        expect(@client.notification_host).to eq("hedwig-staging.herokuapp.com")
+      end
+
+      it "should use a newly provided host" do
+        @client.notification_host = "test.com"
+        expect(@client.notification_host).to eq("test.com")
+      end
+
+      it "should set the native notification client host to the same one" do
+        expect(@client.notification_host).to eq(@client.notification_client.host)
+      end
+
+      it "should raise an error if the gcm or apns key isn't provided in the payload" do
+        expect { @client.notify(["test"], { foo: 'bar' }) }.to raise_error(Pusher::Error)
+      end
+
+      it "should send a request to the notifications endpoint" do
+        notification_host_regexp = %r{hedwig-staging.herokuapp.com}
+        stub_request(
+          :post,
+          notification_host_regexp,
+        ).to_return({
+          :status => 200,
+          :body => MultiJson.encode({ :foo => 'bar' })
+        })
+
+        @client.notify(["test"], { gcm: { foo: 'bar' } })
+      end
+    end
   end
 
   describe 'configuring cluster' do
