@@ -247,3 +247,74 @@ else
   render text: 'invalid', status: 401
 end
 ```
+
+## Push Notifications (BETA)
+
+Pusher now allows sending native notifications to iOS and Android devices. Check out the [documentation](https://pusher.com/docs/push_notifications) for information on how to set up push notifications on Android and iOS. There is no additional setup required to use it with this library. It works out of the box wit the same Pusher instance. All you need are the same pusher credentials.
+
+You can set the `notification_host` globally like so
+
+```ruby
+Pusher.notification_host = "<host>.com"
+```
+The default host is set to `<insert endpoint here>` and is currently the only supported host.
+
+Alternatively, you may set it on an instance of Pusher
+
+```ruby
+pusher.notification_host = "<host>.com"
+```
+
+You can also set a scheme for the notification host like above by specifying the `notification_scheme` key in the options hash or by setting it globally.
+
+### Sending native pushes
+
+You can send pushes by using the `notify` method, either globally or on the instance. The method takes two parameters:
+
+- `interests`: An Array of strings which represents the interests your devices are subscribed to. These are akin to channels in the DDN with less of an epehemeral nature. Note that currently, you can only send to _one_ interest.
+- `data`: The content of the notification represented by a Hash. You must supply either the `gcm` or `apns` key. For a detailed list of the acceptable keys, take a look at the [docs](https://pusher.com/docs/push_notifications#payload).
+
+Example:
+
+```ruby
+data = {
+  apns: {
+    alert: {
+      body: 'tada'
+    }
+  }
+}
+
+pusher.notify(["my-favourite-interest"], data)
+```
+
+You may similarly use this method globally too.
+
+### Errors
+
+Push notification requests, once submitted to the service are executed asynchronously. To make reporting errors easier, you can supply a `webhook_url` field in the body of the request. This will be used by the service to send a webhook to the supplied URL if there are errors.
+
+You may also supply a `webhook_level` field in the body, which can either be INFO or DEBUG. It defaults to INFO - where INFO only reports customer facing errors, while DEBUG reports all errors.
+
+For example:
+
+```ruby
+data = {
+  apns: {
+    alert: {
+      body: "hello"
+    }
+  },
+  gcm: {
+    notification: {
+      title: "hello",
+      icon: "icon"
+    }
+  },
+  webhook_url: "http://yolo.com",
+  webhook_level: "INFO"
+}
+```
+
+**NOTE:** This is currently a BETA feature and there might be minor bugs and issues. Changes to the API will be kept to a minimum, but changes are expected. If you come across any bugs or issues, please do get in touch via [support](support@pusher.com) or create an issue here.
+
