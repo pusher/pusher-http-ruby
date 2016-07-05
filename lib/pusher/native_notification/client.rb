@@ -47,15 +47,12 @@ module Pusher
 
         raise Pusher::Error, "Too many interests provided" if interests.length > 1
 
-        payload = { interests: interests }
-
         data = deep_symbolize_keys!(data)
         validate_payload(data)
 
-        payload.merge!({ gcm: data[:gcm] }) if data.has_key?(:gcm)
-        payload.merge!({ apns: data[:apns] }) if data.has_key?(:apns)
+        data.merge!(interests: interests)
 
-        MultiJson.encode(payload)
+        MultiJson.encode(data)
       end
 
       def url(path = nil)
