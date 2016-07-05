@@ -551,20 +551,134 @@ describe Pusher do
       end
 
       it "should raise an error if the gcm or apns key isn't provided in the payload" do
-        expect { @client.notify(["test"], { foo: 'bar' }) }.to raise_error(Pusher::Error)
+        expect { @client.notify(["test"], { foo: "bar" }) }.to raise_error(Pusher::Error)
+      end
+
+      it "should raise an error if more than one interest is provided" do
+        payload = {
+          gcm: {
+            notification: {
+              title: "Hello",
+              icon: "icon",
+            }
+          }
+        }
+
+        expect { @client.notify(["test1", "test2"], payload) }.to raise_error(Pusher::Error)
+      end
+
+      it "should raise an error if the notification hash is missing the title field" do
+        payload = {
+          gcm: {
+            notification: {
+              icon: "someicon"
+            }
+          }
+        }
+
+        expect{ @client.notify(["test"], payload) }.to raise_error(Pusher::Error)
+      end
+
+      it "should raise an error if the notification title is empty" do
+        payload = {
+          gcm: {
+            notification: {
+              title: "",
+              icon: "myicon"
+            }
+          }
+        }
+
+        expect { @client.notify(["test"], payload) }.to raise_error(Pusher::Error)
+      end
+
+      it "should raise an error if the notification hash is missing the icon field" do
+        payload = {
+          gcm: {
+            notification: {
+              title: "sometitle"
+            }
+          }
+        }
+
+        expect{ @client.notify(["test"], payload) }.to raise_error(Pusher::Error)
+      end
+
+      it "should raise an error if the notification icon is empty" do
+        payload = {
+          gcm: {
+            notification: {
+              title: "title",
+              icon: ""
+            }
+          }
+        }
+
+        expect { @client.notify(["test"], payload) }.to raise_error(Pusher::Error)
+      end
+
+      it "should raise an error if the ttl field is provided and has an illegal value" do
+        payload = {
+          gcm: {
+            time_to_live: 98091283,
+            notification: {
+              title: "title",
+              icon: "icon",
+            }
+          }
+        }
+
+        expect{ @client.notify(["test"], payload) }.to raise_error(Pusher::Error)
       end
 
       it "should send a request to the notifications endpoint" do
         notification_host_regexp = %r{hedwig-staging.herokuapp.com}
+        payload = {
+          interests: ["test"],
+          gcm: {
+            notification: {
+              title: "Hello",
+              icon: "icon",
+            }
+          }
+        }
+
         stub_request(
           :post,
           notification_host_regexp,
+        ).with(
+          body: MultiJson.encode(payload)
         ).to_return({
           :status => 200,
-          :body => MultiJson.encode({ :foo => 'bar' })
+          :body => MultiJson.encode({ :foo => "bar" })
         })
 
-        @client.notify(["test"], { gcm: { foo: 'bar' } })
+        @client.notify(["test"], payload)
+      end
+
+      it "should delete restricted keys before sending a notification" do
+        notification_host_regexp = %r{hedwig-staging.herokuapp.com}
+        payload = {
+          interests: ["test"],
+          gcm: {
+            notification: {
+              title: "Hello",
+              icon: "icon",
+            }
+          }
+        }
+
+        stub_request(
+          :post,
+          notification_host_regexp,
+        ).with(
+          body: MultiJson.encode(payload)
+        ).to_return({
+          :status => 200,
+          :body => MultiJson.encode({ :foo => "bar" })
+        })
+
+        @client.notify(["test"], payload.merge!(to: "blah", registration_ids: ["reg1", "reg2"]))
       end
     end
   end
