@@ -680,6 +680,49 @@ describe Pusher do
 
         @client.notify(["test"], payload.merge!(to: "blah", registration_ids: ["reg1", "reg2"]))
       end
+
+      it "should raise an error for an invalid webhook url field" do
+        payload = {
+          gcm: {
+            notification: {
+              title: "Hello",
+              icon: "icon"
+            }
+          },
+          webhook_url: "totallyinvalid"
+        }
+
+        expect { @client.notify(["test"], payload) }.to raise_error(Pusher::Error)
+      end
+
+      it "should raise an error if the webhook level is not supported" do
+        payload = {
+          gcm: {
+            notification: {
+              title: "Hello",
+              icon: "icon"
+            }
+          },
+          webhook_url: "totallyinvalid",
+          webhook_level: "meh"
+        }
+
+        expect { @client.notify(["test"], payload) }.to raise_error(Pusher::Error)
+      end
+
+      it "should raise an error if the webhook level is used without the webhook url" do
+        payload = {
+          gcm: {
+            notification: {
+              title: "Hello",
+              icon: "icon"
+            }
+          },
+          webhook_level: "meh"
+        }
+
+        expect { @client.notify(["test"], payload) }.to raise_error(Pusher::Error)
+      end
     end
   end
 
