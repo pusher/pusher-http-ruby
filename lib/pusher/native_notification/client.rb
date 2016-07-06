@@ -66,14 +66,13 @@ module Pusher
       # that there is an accompanying `title` and `icon`
       # field
       def validate_payload(payload)
-        # Restricted keys
-        RESTRICTED_GCM_PAYLOAD_KEYS.each { |k| payload.delete(k) }
-
         unless (payload.has_key?(:apns) || payload.has_key?(:gcm))
           raise Pusher::Error, "GCM or APNS data must be provided"
         end
 
         if (gcm_payload = payload[:gcm])
+          # Restricted keys
+          RESTRICTED_GCM_PAYLOAD_KEYS.each { |k| gcm_payload.delete(k) }
           if (ttl = gcm_payload[:time_to_live])
 
             if ttl.to_i < 0 || ttl.to_i > GCM_TTL

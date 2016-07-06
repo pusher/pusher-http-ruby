@@ -656,7 +656,7 @@ describe Pusher do
         @client.notify(["test"], payload)
       end
 
-      it "should delete restricted keys before sending a notification" do
+      it "should delete restricted gcm keys before sending a notification" do
         notification_host_regexp = %r{hedwig-staging.herokuapp.com}
         payload = {
           interests: ["test"],
@@ -678,7 +678,8 @@ describe Pusher do
           :body => MultiJson.encode({ :foo => "bar" })
         })
 
-        @client.notify(["test"], payload.merge!(to: "blah", registration_ids: ["reg1", "reg2"]))
+        payload[:gcm].merge!(to: "blah", registration_ids: ["reg1", "reg2"])
+        @client.notify(["test"], payload)
       end
 
       it "should raise an error for an invalid webhook url field" do
