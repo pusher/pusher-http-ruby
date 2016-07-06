@@ -9,9 +9,10 @@ module Pusher
       RESTRICTED_GCM_PAYLOAD_KEYS = [:to, :registration_ids]
       WEBHOOK_LEVELS = ["DEBUG", "INFO"]
 
-      def initialize(app_id, host, pusher_client)
+      def initialize(app_id, host, scheme, pusher_client)
         @app_id = app_id
         @host = host
+        @scheme = scheme
         @pusher_client = pusher_client
       end
 
@@ -56,7 +57,7 @@ module Pusher
       end
 
       def url(path = nil)
-        URI.parse("https://#{@host}/#{API_PREFIX}/#{API_VERSION}/apps/#{@app_id}#{path}")
+        URI.parse("#{@scheme}://#{@host}/#{API_PREFIX}/#{API_VERSION}/apps/#{@app_id}#{path}")
       end
 
       # Validate payload

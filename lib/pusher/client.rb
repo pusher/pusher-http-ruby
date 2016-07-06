@@ -2,7 +2,7 @@ require 'pusher-signature'
 
 module Pusher
   class Client
-    attr_accessor :scheme, :host, :port, :app_id, :key, :secret, :notification_host
+    attr_accessor :scheme, :host, :port, :app_id, :key, :secret, :notification_host, :notification_scheme
     attr_reader :http_proxy, :proxy
     attr_writer :connect_timeout, :send_timeout, :receive_timeout,
                 :keep_alive_timeout
@@ -36,9 +36,12 @@ module Pusher
       merged_options[:notification_host] =
         options.fetch(:notification_host, "hedwig-staging.herokuapp.com")
 
-      @scheme, @host, @port, @app_id, @key, @secret, @notification_host =
+      merged_options[:notification_scheme] =
+        options.fetch(:notification_scheme, "https")
+
+      @scheme, @host, @port, @app_id, @key, @secret, @notification_host, @notification_scheme =
         merged_options.values_at(
-          :scheme, :host, :port, :app_id, :key, :secret, :notification_host
+          :scheme, :host, :port, :app_id, :key, :secret, :notification_host, :notification_scheme
         )
 
       @http_proxy = nil
@@ -304,7 +307,8 @@ module Pusher
     end
 
     def notification_client
-      @notification_client ||= NativeNotification::Client.new(@app_id, @notification_host, self)
+      @notification_client ||=
+        NativeNotification::Client.new(@app_id, @notification_host, @notification_scheme, self)
     end
 
 

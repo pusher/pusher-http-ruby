@@ -27,8 +27,10 @@ module Pusher
   class << self
     extend Forwardable
 
-    def_delegators :default_client, :scheme, :host, :port, :app_id, :key, :secret, :http_proxy, :notification_host
-    def_delegators :default_client, :scheme=, :host=, :port=, :app_id=, :key=, :secret=, :http_proxy=, :notification_host=
+    def_delegators :default_client, :scheme, :host, :port, :app_id, :key, :secret, :http_proxy
+    def_delegators :default_client, :notification_host, :notification_scheme
+    def_delegators :default_client, :scheme=, :host=, :port=, :app_id=, :key=, :secret=, :http_proxy=
+    def_delegators :default_client, :notification_host=, :notification_scheme=
 
     def_delegators :default_client, :authentication_token, :url
     def_delegators :default_client, :encrypted=, :url=, :cluster=
