@@ -252,22 +252,9 @@ end
 
 Pusher now allows sending native notifications to iOS and Android devices. Check out the [documentation](https://pusher.com/docs/push_notifications) for information on how to set up push notifications on Android and iOS. There is no additional setup required to use it with this library. It works out of the box wit the same Pusher instance. All you need are the same pusher credentials.
 
-You can set the `notification_host` globally like so
-
-```ruby
-Pusher.notification_host = "<host>.com"
-```
-The default host is set to `<insert endpoint here>` and is currently the only supported host.
-
-Alternatively, you may set it on an instance of Pusher
-
-```ruby
-pusher.notification_host = "<host>.com"
-```
-
-You can also set a scheme for the notification host like above by specifying the `notification_scheme` key in the options hash or by setting it globally.
-
 ### Sending native pushes
+
+The native notifications API is hosted at `nativepush-cluster1.pusher.com` and only accepts https requests.
 
 You can send pushes by using the `notify` method, either globally or on the instance. The method takes two parameters:
 
@@ -279,16 +266,16 @@ Example:
 ```ruby
 data = {
   apns: {
-    alert: {
-      body: 'tada'
+    aps: {
+      alert: {
+        body: 'tada'
+      }
     }
   }
 }
 
 pusher.notify(["my-favourite-interest"], data)
 ```
-
-You may similarly use this method globally too.
 
 ### Errors
 
@@ -301,8 +288,10 @@ For example:
 ```ruby
 data = {
   apns: {
-    alert: {
-      body: "hello"
+    aps: {
+      alert: {
+        body: "hello"
+      }
     }
   },
   gcm: {

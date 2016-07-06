@@ -34,7 +34,7 @@ module Pusher
 
       # TODO: Change host name when finalized
       merged_options[:notification_host] =
-        options.fetch(:notification_host, "hedwig-staging.herokuapp.com")
+        options.fetch(:notification_host, "nativepush-cluster1.pusher.com")
 
       merged_options[:notification_scheme] =
         options.fetch(:notification_scheme, "https")

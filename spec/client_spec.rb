@@ -538,7 +538,7 @@ describe Pusher do
       end
 
       it "should use the default host if not provided" do
-        expect(@client.notification_host).to eq("hedwig-staging.herokuapp.com")
+        expect(@client.notification_host).to eq("nativepush-cluster1.pusher.com")
       end
 
       it "should use a newly provided host" do
@@ -632,7 +632,7 @@ describe Pusher do
       end
 
       it "should send a request to the notifications endpoint" do
-        notification_host_regexp = %r{hedwig-staging.herokuapp.com}
+        notification_host_regexp = %r{nativepush-cluster1.pusher.com}
         payload = {
           interests: ["test"],
           gcm: {
@@ -657,7 +657,7 @@ describe Pusher do
       end
 
       it "should delete restricted gcm keys before sending a notification" do
-        notification_host_regexp = %r{hedwig-staging.herokuapp.com}
+        notification_host_regexp = %r{nativepush-cluster1.pusher.com}
         payload = {
           interests: ["test"],
           gcm: {
