@@ -102,7 +102,7 @@ module Pusher
         if (webhook_level = payload[:webhook_level])
           raise Pusher::Error, "Webhook level cannot be used without a webhook url" if !payload.has_key?(:webhook_url)
 
-          unless WEBHOOK_LEVELS.includes?(webhook_level.upcase)
+          unless WEBHOOK_LEVELS.include?(webhook_level.upcase)
             raise Pusher::Error, "Webhook level must either be INFO or DEBUG"
           end
         end
