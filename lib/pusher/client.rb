@@ -2,7 +2,7 @@ require 'pusher-signature'
 
 module Pusher
   class Client
-    attr_accessor :scheme, :host, :port, :app_id, :key, :secret
+    attr_accessor :scheme, :host, :port, :app_id, :key, :secret, :notification_host, :notification_scheme
     attr_reader :http_proxy, :proxy
     attr_writer :connect_timeout, :send_timeout, :receive_timeout,
                 :keep_alive_timeout
@@ -32,9 +32,17 @@ module Pusher
         merged_options[:host] = "api.pusherapp.com"
       end
 
-      @scheme, @host, @port, @app_id, @key, @secret = merged_options.values_at(
-        :scheme, :host, :port, :app_id, :key, :secret
-      )
+      # TODO: Change host name when finalized
+      merged_options[:notification_host] =
+        options.fetch(:notification_host, "nativepush-cluster1.pusher.com")
+
+      merged_options[:notification_scheme] =
+        options.fetch(:notification_scheme, "https")
+
+      @scheme, @host, @port, @app_id, @key, @secret, @notification_host, @notification_scheme =
+        merged_options.values_at(
+          :scheme, :host, :port, :app_id, :key, :secret, :notification_host, :notification_scheme
+        )
 
       @http_proxy = nil
       self.http_proxy = options[:http_proxy] if options[:http_proxy]
@@ -296,6 +304,25 @@ module Pusher
     #
     def trigger_batch_async(*events)
       post_async('/batch_events', trigger_batch_params(events.flatten))
+    end
+
+    def notification_client
+      @notification_client ||=
+        NativeNotification::Client.new(@app_id, @notification_host, @notification_scheme, self)
+    end
+
+
+    # Send a push notification
+    #
+    # POST /apps/[app_id]/notifications
+    #
+    # @param interests [Array] An array of interests
+    # @param message [String] Message to send
+    # @param options [Hash] Additional platform specific options
+    #
+    # @return [Hash]
+    def notify(interests, data = {})
+      notification_client.notify(interests, data)
     end
 
     # Generate the expected response for an authentication endpoint.

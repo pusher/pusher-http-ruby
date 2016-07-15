@@ -525,6 +525,206 @@ describe Pusher do
         end
       end
     end
+
+    describe "native notifications" do
+      before :each do
+        @client.app_id = "20"
+        @client.key = "testytest"
+        @client.secret = "mysupersecretkey"
+      end
+
+      it "should configure a native notification client using the pusher client object" do
+        expect(@client.notification_client).to_not be(nil)
+      end
+
+      it "should use the default host if not provided" do
+        expect(@client.notification_host).to eq("nativepush-cluster1.pusher.com")
+      end
+
+      it "should use a newly provided host" do
+        @client.notification_host = "test.com"
+        expect(@client.notification_host).to eq("test.com")
+      end
+
+      it "should set the native notification client host to the same one" do
+        expect(@client.notification_host).to eq(@client.notification_client.host)
+      end
+
+      it "should raise an error if the gcm or apns key isn't provided in the payload" do
+        expect { @client.notify(["test"], { foo: "bar" }) }.to raise_error(Pusher::Error)
+      end
+
+      it "should raise an error if more than one interest is provided" do
+        payload = {
+          gcm: {
+            notification: {
+              title: "Hello",
+              icon: "icon",
+            }
+          }
+        }
+
+        expect { @client.notify(["test1", "test2"], payload) }.to raise_error(Pusher::Error)
+      end
+
+      it "should raise an error if the notification hash is missing the title field" do
+        payload = {
+          gcm: {
+            notification: {
+              icon: "someicon"
+            }
+          }
+        }
+
+        expect{ @client.notify(["test"], payload) }.to raise_error(Pusher::Error)
+      end
+
+      it "should raise an error if the notification title is empty" do
+        payload = {
+          gcm: {
+            notification: {
+              title: "",
+              icon: "myicon"
+            }
+          }
+        }
+
+        expect { @client.notify(["test"], payload) }.to raise_error(Pusher::Error)
+      end
+
+      it "should raise an error if the notification hash is missing the icon field" do
+        payload = {
+          gcm: {
+            notification: {
+              title: "sometitle"
+            }
+          }
+        }
+
+        expect{ @client.notify(["test"], payload) }.to raise_error(Pusher::Error)
+      end
+
+      it "should raise an error if the notification icon is empty" do
+        payload = {
+          gcm: {
+            notification: {
+              title: "title",
+              icon: ""
+            }
+          }
+        }
+
+        expect { @client.notify(["test"], payload) }.to raise_error(Pusher::Error)
+      end
+
+      it "should raise an error if the ttl field is provided and has an illegal value" do
+        payload = {
+          gcm: {
+            time_to_live: 98091283,
+            notification: {
+              title: "title",
+              icon: "icon",
+            }
+          }
+        }
+
+        expect{ @client.notify(["test"], payload) }.to raise_error(Pusher::Error)
+      end
+
+      it "should send a request to the notifications endpoint" do
+        notification_host_regexp = %r{nativepush-cluster1.pusher.com}
+        payload = {
+          interests: ["test"],
+          gcm: {
+            notification: {
+              title: "Hello",
+              icon: "icon",
+            }
+          }
+        }
+
+        stub_request(
+          :post,
+          notification_host_regexp,
+        ).with(
+          body: MultiJson.encode(payload)
+        ).to_return({
+          :status => 200,
+          :body => MultiJson.encode({ :foo => "bar" })
+        })
+
+        @client.notify(["test"], payload)
+      end
+
+      it "should delete restricted gcm keys before sending a notification" do
+        notification_host_regexp = %r{nativepush-cluster1.pusher.com}
+        payload = {
+          interests: ["test"],
+          gcm: {
+            notification: {
+              title: "Hello",
+              icon: "icon",
+            }
+          }
+        }
+
+        stub_request(
+          :post,
+          notification_host_regexp,
+        ).with(
+          body: MultiJson.encode(payload)
+        ).to_return({
+          :status => 200,
+          :body => MultiJson.encode({ :foo => "bar" })
+        })
+
+        payload[:gcm].merge!(to: "blah", registration_ids: ["reg1", "reg2"])
+        @client.notify(["test"], payload)
+      end
+
+      it "should raise an error for an invalid webhook url field" do
+        payload = {
+          gcm: {
+            notification: {
+              title: "Hello",
+              icon: "icon"
+            }
+          },
+          webhook_url: "totallyinvalid"
+        }
+
+        expect { @client.notify(["test"], payload) }.to raise_error(Pusher::Error)
+      end
+
+      it "should raise an error if the webhook level is not supported" do
+        payload = {
+          gcm: {
+            notification: {
+              title: "Hello",
+              icon: "icon"
+            }
+          },
+          webhook_url: "http://test.com/wh",
+          webhook_level: "meh"
+        }
+
+        expect { @client.notify(["test"], payload) }.to raise_error(Pusher::Error)
+      end
+
+      it "should raise an error if the webhook level is used without the webhook url" do
+        payload = {
+          gcm: {
+            notification: {
+              title: "Hello",
+              icon: "icon"
+            }
+          },
+          webhook_level: "meh"
+        }
+
+        expect { @client.notify(["test"], payload) }.to raise_error(Pusher::Error)
+      end
+    end
   end
 
   describe 'configuring cluster' do

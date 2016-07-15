@@ -18,9 +18,9 @@ Gem::Specification.new do |s|
   s.add_development_dependency "rspec", "~> 3.0"
   s.add_development_dependency "webmock"
   s.add_development_dependency "em-http-request", "~> 1.1.0"
-  s.add_development_dependency "rake"
-  s.add_development_dependency "rack"
-  s.add_development_dependency "json"
+  s.add_development_dependency "rake", "~> 10.4.2"
+  s.add_development_dependency "rack", "~> 1.6.4"
+  s.add_development_dependency "json", "~> 1.8.3"
 
   s.files         = `git ls-files`.split("\n")
   s.test_files    = `git ls-files -- {test,spec,features}/*`.split("\n")

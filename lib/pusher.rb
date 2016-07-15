@@ -28,7 +28,9 @@ module Pusher
     extend Forwardable
 
     def_delegators :default_client, :scheme, :host, :port, :app_id, :key, :secret, :http_proxy
+    def_delegators :default_client, :notification_host, :notification_scheme
     def_delegators :default_client, :scheme=, :host=, :port=, :app_id=, :key=, :secret=, :http_proxy=
+    def_delegators :default_client, :notification_host=, :notification_scheme=
 
     def_delegators :default_client, :authentication_token, :url
     def_delegators :default_client, :encrypted=, :url=, :cluster=
@@ -37,6 +39,7 @@ module Pusher
     def_delegators :default_client, :get, :get_async, :post, :post_async
     def_delegators :default_client, :channels, :channel_info, :channel_users, :trigger, :trigger_async
     def_delegators :default_client, :authenticate, :webhook, :channel, :[]
+    def_delegators :default_client, :notify
 
     attr_writer :logger
 
@@ -61,3 +64,4 @@ require 'pusher/channel'
 require 'pusher/request'
 require 'pusher/resource'
 require 'pusher/webhook'
+require 'pusher/native_notification/client'
