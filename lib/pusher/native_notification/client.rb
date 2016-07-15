@@ -34,10 +34,10 @@ module Pusher
       # {
       #   interests: [Array of interests],
       #   apns: {
-      #     See https://pusher.com/docs/native_notifications/payloads#apns
+      #     See https://pusher.com/docs/push_notifications/ios/server
       #   },
       #   gcm: {
-      #     See https://pusher.com/docs/native_notifications/payloads#gcm
+      #     See https://pusher.com/docs/push_notifications/android/server
       #   }
       # }
       #

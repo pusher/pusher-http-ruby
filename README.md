@@ -259,7 +259,7 @@ The native notifications API is hosted at `nativepush-cluster1.pusher.com` and o
 You can send pushes by using the `notify` method, either globally or on the instance. The method takes two parameters:
 
 - `interests`: An Array of strings which represents the interests your devices are subscribed to. These are akin to channels in the DDN with less of an epehemeral nature. Note that currently, you can only send to _one_ interest.
-- `data`: The content of the notification represented by a Hash. You must supply either the `gcm` or `apns` key. For a detailed list of the acceptable keys, take a look at the [docs](https://pusher.com/docs/push_notifications#payload).
+- `data`: The content of the notification represented by a Hash. You must supply either the `gcm` or `apns` key. For a detailed list of the acceptable keys, take a look at the [iOS](https://pusher.com/docs/push_notifications/ios/server) and [Android](https://pusher.com/docs/push_notifications/android/server) docs.
 
 Example:
 
