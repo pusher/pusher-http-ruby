@@ -704,7 +704,7 @@ describe Pusher do
               icon: "icon"
             }
           },
-          webhook_url: "totallyinvalid",
+          webhook_url: "http://test.com/wh",
           webhook_level: "meh"
         }
 
