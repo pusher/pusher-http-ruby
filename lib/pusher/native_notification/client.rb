@@ -3,7 +3,7 @@ module Pusher
     class Client
       attr_reader :app_id, :host
 
-      API_PREFIX = "customer_api"
+      API_PREFIX = "server_api"
       API_VERSION = "v1"
       GCM_TTL = 241920
       RESTRICTED_GCM_PAYLOAD_KEYS = [:to, :registration_ids]
