@@ -1,7 +1,7 @@
 # -*- encoding: utf-8 -*-
 Gem::Specification.new do |s|
   s.name        = "pusher"
-  s.version     = "1.2.0.rc1"
+  s.version     = "1.2.0.rc2"
   s.platform    = Gem::Platform::RUBY
   s.authors     = ["Pusher"]
   s.email       = ["support@pusher.com"]
