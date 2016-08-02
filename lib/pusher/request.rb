@@ -8,7 +8,9 @@ module Pusher
 
     def initialize(client, verb, uri, params, body = nil)
       @client, @verb, @uri = client, verb, uri
-      @head = {}
+      @head = {
+        'X-Pusher-Library' => 'pusher-http-ruby ' + "1.2.0.rc2" # TODO deduplicate
+      }
 
       @body = body
       if body
