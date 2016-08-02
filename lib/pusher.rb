@@ -60,6 +60,7 @@ module Pusher
   end
 end
 
+require 'pusher/version'
 require 'pusher/channel'
 require 'pusher/request'
 require 'pusher/resource'
