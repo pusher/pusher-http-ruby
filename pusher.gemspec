@@ -1,6 +1,9 @@
 # -*- encoding: utf-8 -*-
 
-require_relative 'lib/pusher/version'
+# Copied from https://github.com/bundler/bundler/blob/524add155d6b90c679db21b03f0bd9f877f21ab0/bundler.gemspec#L3-L5
+# but made less cryptic
+$LOAD_PATH.unshift(File.expand_path('../lib/', __FILE__))
+require "pusher/version"
 
 Gem::Specification.new do |s|
   s.name        = "pusher"
