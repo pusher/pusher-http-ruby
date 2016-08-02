@@ -1,7 +1,10 @@
 # -*- encoding: utf-8 -*-
+
+require_relative 'lib/pusher/version'
+
 Gem::Specification.new do |s|
   s.name        = "pusher"
-  s.version     = "1.2.0.rc2"
+  s.version     = Pusher::VERSION
   s.platform    = Gem::Platform::RUBY
   s.authors     = ["Pusher"]
   s.email       = ["support@pusher.com"]
