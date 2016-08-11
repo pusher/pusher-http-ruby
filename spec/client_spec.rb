@@ -653,7 +653,8 @@ describe Pusher do
           :body => MultiJson.encode({ :foo => "bar" })
         })
 
-        @client.notify(["test"], payload)
+        res = @client.notify(["test"], payload)
+        expect(res).to eq({foo: "bar"})
       end
 
       it "should delete restricted gcm keys before sending a notification" do

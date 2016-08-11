@@ -85,7 +85,7 @@ module Pusher
       when 200
         return symbolize_first_level(MultiJson.decode(body))
       when 202
-        return true
+        return body.empty? ? true : symbolize_first_level(MultiJson.decode(body))
       when 400
         raise Error, "Bad request: #{body}"
       when 401
