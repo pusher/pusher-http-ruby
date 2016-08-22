@@ -1,3 +1,9 @@
+
+1.2.1 / 2016-08-22
+==================
+
+  * Fixes Rails 5 compatibility. Use duck-typing to detect request object
+
 1.2.0 / 2016-08-15
 ==================
 
