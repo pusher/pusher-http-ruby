@@ -42,8 +42,13 @@ module Pusher
       # @return [String]
       def payload(interests, data)
         interests = Array(interests).map(&:to_s)
-        raise Pusher::Error, "Too many interests provided" if interests.length > 1
-        data = deep_symbolize_keys!(data).merge(interests: interests)
+
+        raise Pusher::Error, "Interests array must not be empty" if interests.length == 0
+
+        data = deep_symbolize_keys!(data)
+
+        data.merge!(interests: interests)
+
         MultiJson.encode(data)
       end
 
