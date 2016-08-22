@@ -30,8 +30,8 @@ module Pusher
     #
     def initialize(request, client = Pusher)
       @client = client
-      # Should work without Rack
-      if defined?(Rack::Request) && request.kind_of?(Rack::Request)
+      # For Rack::Request and ActionDispatch::Request
+      if request.respond_to?(:env) && request.respond_to?(:content_type)
         @key = request.env['HTTP_X_PUSHER_KEY']
         @signature = request.env["HTTP_X_PUSHER_SIGNATURE"]
         @content_type = request.content_type
