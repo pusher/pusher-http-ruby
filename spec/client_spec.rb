@@ -550,7 +550,7 @@ describe Pusher do
         expect(@client.notification_host).to eq(@client.notification_client.host)
       end
 
-      it "should raise an error if more than one interest is provided" do
+      it "should raise an error if no interest is provided" do
         payload = {
           gcm: {
             notification: {
@@ -560,7 +560,7 @@ describe Pusher do
           }
         }
 
-        expect { @client.notify(["test1", "test2"], payload) }.to raise_error(Pusher::Error)
+        expect { @client.notify([], payload) }.to raise_error(Pusher::Error)
       end
 
       it "should send a request to the notifications endpoint" do
