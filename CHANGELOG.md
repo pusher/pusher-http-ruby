@@ -1,4 +1,9 @@
 
+1.3.0 / 2016-08-23
+==================
+
+  * Add support for sending push notifications on up to 10 interests.
+
 1.2.1 / 2016-08-22
 ==================
 
