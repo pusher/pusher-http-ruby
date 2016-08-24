@@ -26,8 +26,6 @@ module Pusher
 
       private
 
-      # TODO: Actual links
-      #
       # {
       #   interests: [Array of interests],
       #   apns: {
@@ -38,7 +36,7 @@ module Pusher
       #   }
       # }
       #
-      # @raise [Pusher::Error] if the `apns` or `gcm` key does not exist
+      # @raise [Pusher::Error] if the interests array is empty
       # @return [String]
       def payload(interests, data)
         interests = Array(interests).map(&:to_s)
