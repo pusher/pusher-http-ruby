@@ -72,6 +72,12 @@ Pusher.key = 'your-pusher-key'
 Pusher.secret = 'your-pusher-secret'
 ```
 
+If you created your app in a different cluster to the default cluster, you must set it as follows:
+
+``` ruby
+Pusher.cluster = 'your-app-cluster'
+```
+
 Global configuration will automatically be set from the `PUSHER_URL` environment variable if it exists. This should be in the form  `http://KEY:SECRET@api.pusherapp.com/apps/APP_ID`. On Heroku this environment variable will already be set.
 
 If you need to make requests via a HTTP proxy then it can be configured
