@@ -120,6 +120,8 @@ module Pusher
     # @param custom_string [String] Allows signing additional data
     # @return [String]
     #
+    # @raise [Pusher::Error] if socket_id or custom_string invalid
+    #
     def authentication_string(socket_id, custom_string = nil)
       validate_socket_id(socket_id)
 
@@ -156,6 +158,8 @@ module Pusher
     # @param custom_data [Hash] used for example by private channels
     #
     # @return [Hash]
+    #
+    # @raise [Pusher::Error] if socket_id or custom_data is invalid
     #
     # @private Custom data is sent to server as JSON-encoded string
     #
