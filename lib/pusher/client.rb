@@ -345,6 +345,8 @@ module Pusher
     #
     # @return [Hash]
     #
+    # @raise [Pusher::Error] if channel_name or socket_id are invalid
+    #
     # @private Custom data is sent to server as JSON-encoded string
     #
     def authenticate(channel_name, socket_id, custom_data = nil)
