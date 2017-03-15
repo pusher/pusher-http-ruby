@@ -1,3 +1,9 @@
+1.3.1 / 2017-03-15
+==================
+
+  * Added missing client batch methods to default client delegations
+  * Document raised exception in the `authenticate` method
+  * Fixes em-http-request from using v2.5.0 of `addressable` breaking builds.
 
 1.3.0 / 2016-08-23
 ==================
