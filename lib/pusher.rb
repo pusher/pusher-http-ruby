@@ -24,6 +24,8 @@ module Pusher
   end
   class HTTPError < Error; attr_accessor :original_error; end
 
+  Engine = Class.new(Rails::Engine) if defined?(Rails)
+
   class << self
     extend Forwardable
 
