@@ -122,6 +122,18 @@ describe Pusher do
       end
     end
 
+    describe 'configuring from url' do
+      it "works" do
+        url = "http://somekey:somesecret@api.staging.pusherapp.com:8080/apps/87"
+
+        client = Pusher::Client.from_url(url)
+        expect(client.key).to eq("somekey")
+        expect(client.secret).to eq("somesecret")
+        expect(client.app_id).to eq("87")
+        expect(client.url.to_s).to eq("http://api.staging.pusherapp.com:8080/apps/87")
+      end
+    end
+
     describe 'when configured' do
       before :each do
         @client.app_id = '20'
