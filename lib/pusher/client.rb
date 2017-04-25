@@ -15,6 +15,7 @@ module Pusher
       from_url(url)
     end
 
+    # Loads the configuration from a url
     def self.from_url(url)
       client = new
       client.url = url
