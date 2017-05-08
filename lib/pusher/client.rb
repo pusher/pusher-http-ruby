@@ -127,7 +127,7 @@ module Pusher
       @connect_timeout, @send_timeout, @receive_timeout = value, value, value
     end
 
-    ## INTERACE WITH THE API ##
+    ## INTERACT WITH THE API ##
 
     def resource(path)
       Resource.new(self, path)
