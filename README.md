@@ -197,7 +197,7 @@ The `_async` methods return an `EM::Deferrable` which you can bind callbacks to:
 
 ``` ruby
 Pusher.get_async("/channels").callback { |response|
-  # use reponse[:channels]
+  # use response[:channels]
 }.errback { |error|
   # error is an instance of Pusher::Error
 }
