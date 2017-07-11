@@ -274,8 +274,6 @@ pusher.notify(["my-favourite-interest"], data)
 
 Push notification requests, once submitted to the service are executed asynchronously. To make reporting errors easier, you can supply a `webhook_url` field in the body of the request. This will be used by the service to send a webhook to the supplied URL if there are errors.
 
-You may also supply a `webhook_level` field in the body, which can either be INFO or DEBUG. It defaults to INFO - where INFO only reports customer facing errors, while DEBUG reports all errors.
-
 For example:
 
 ```ruby
@@ -293,8 +291,7 @@ data = {
       icon: "icon"
     }
   },
-  webhook_url: "http://yolo.com",
-  webhook_level: "INFO"
+  webhook_url: "http://yolo.com"
 }
 ```
 
