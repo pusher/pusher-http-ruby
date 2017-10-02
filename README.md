@@ -131,7 +131,7 @@ events per call on multi-tenant clusters):
 
 ``` ruby
 Pusher.trigger_batch([
-  {channel: 'channel_1', name: 'event_name', data: { foo: 'bar' }}
+  {channel: 'channel_1', name: 'event_name', data: { foo: 'bar' }},
   {channel: 'channel_1', name: 'event_name', data: { hello: 'world' }}
 ])
 ```
@@ -146,9 +146,9 @@ Pusher['a_channel'].trigger('an_event', :some => 'data')
 
 This will continue to work, but has been replaced by `Pusher.trigger` which supports one or multiple channels.
 
-### Using the Pusher REST API
+### Using the Pusher REST API
 
-This gem provides methods for accessing information from the [Pusher REST API](https://pusher.com/docs/rest_api). The documentation also shows an example of the responses from each of the API endpionts.
+This gem provides methods for accessing information from the [Pusher REST API](https://pusher.com/docs/rest_api). The documentation also shows an example of the responses from each of the API endpoints.
 
 The following methods are provided by the gem.
 
@@ -296,4 +296,3 @@ data = {
 ```
 
 **NOTE:** This is currently a BETA feature and there might be minor bugs and issues. Changes to the API will be kept to a minimum, but changes are expected. If you come across any bugs or issues, please do get in touch via [support](support@pusher.com) or create an issue here.
-

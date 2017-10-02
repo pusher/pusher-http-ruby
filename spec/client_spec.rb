@@ -87,13 +87,13 @@ describe Pusher do
         expect(@client.host).to eq('api.staging.pusherapp.com')
       end
 
-      it 'should get override the url configuration if it comes after' do
+      it 'should override the url configuration if it comes after' do
         @client.url = "http://somekey:somesecret@api.staging.pusherapp.com:8080/apps/87"
         @client.cluster = 'eu'
         expect(@client.host).to eq('api-eu.pusher.com')
       end
 
-      it 'should overrie by the host configuration if it comes after' do
+      it 'should override the host configuration if it comes after' do
         @client.host = 'api.staging.pusher.com'
         @client.cluster = 'eu'
         expect(@client.host).to eq('api-eu.pusher.com')
@@ -612,4 +612,3 @@ describe Pusher do
     end
   end
 end
-

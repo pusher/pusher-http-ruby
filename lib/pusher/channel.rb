@@ -146,7 +146,7 @@ module Pusher
     #   render :json => Pusher['private-my_channel'].authenticate(params[:socket_id])
     #
     # @example Presence channels
-    #   render :json => Pusher['private-my_channel'].authenticate(params[:socket_id], {
+    #   render :json => Pusher['presence-my_channel'].authenticate(params[:socket_id], {
     #     :user_id => current_user.id, # => required
     #     :user_info => { # => optional - for example
     #       :name => current_user.name,
