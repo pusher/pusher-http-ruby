@@ -25,35 +25,27 @@ Creating a new Pusher `client` can be done as follows.
 
 ``` ruby
 pusher_client = Pusher::Client.new(
-  app_id: 'your-pusher-app-id',
-  key: 'your-pusher-key',
-  secret: 'your-pusher-secret'
+  app_id: 'your-app-id',
+  key: 'your-app-key',
+  secret: 'your-app-secret',
+  cluster: 'your-app-cluster',
 )
 ```
+The cluster value will set the `host` to `api-<cluster>.pusher.com`.
 
 If you want to set a custom `host` value for your client then you can do so when instantiating a Pusher client like so:
 
 ``` ruby
 pusher_client = Pusher::Client.new(
-  app_id: 'your-pusher-app-id',
-  key: 'your-pusher-key',
-  secret: 'your-pusher-secret',
-  host: 'your-pusher-host'
+  app_id: 'your-app-id',
+  key: 'your-app-key',
+  secret: 'your-app-secret',
+  host: 'your-app-host'
 )
 ```
 
-If you created your app in a different cluster to the default cluster, you must pass the `cluster` option as follows:
+If you pass both `host` and `cluster` options, the `host` will take precendence and `cluster` will be ignored.
 
-``` ruby
-pusher_client = Pusher::Client.new(
-  app_id: 'your-pusher-app-id',
-  key: 'your-pusher-key',
-  secret: 'your-pusher-secret',
-  cluster: 'your-app-cluster'
-)
-```
-
-This will set the `host` to `api-<cluster>.pusher.com`. If you pass both `host` and `cluster` options, the `host` will take precendence and `cluster` will be ignored.
 
 Finally, if you have the configuration set in an `PUSHER_URL` environment
 variable, you can use:
@@ -67,18 +59,13 @@ pusher_client = Pusher::Client.from_env
 Configuring Pusher can also be done globally on the Pusher class.
 
 ``` ruby
-Pusher.app_id = 'your-pusher-app-id'
-Pusher.key = 'your-pusher-key'
-Pusher.secret = 'your-pusher-secret'
-```
-
-If you created your app in a different cluster to the default cluster, you must set it as follows:
-
-``` ruby
+Pusher.app_id = 'your-app-id'
+Pusher.key = 'your-app-key'
+Pusher.secret = 'your-app-secret'
 Pusher.cluster = 'your-app-cluster'
 ```
 
-Global configuration will automatically be set from the `PUSHER_URL` environment variable if it exists. This should be in the form  `http://KEY:SECRET@api.pusherapp.com/apps/APP_ID`. On Heroku this environment variable will already be set.
+Global configuration will automatically be set from the `PUSHER_URL` environment variable if it exists. This should be in the form  `http://KEY:SECRET@HOST/apps/APP_ID`. On Heroku this environment variable will already be set.
 
 If you need to make requests via a HTTP proxy then it can be configured
 
@@ -287,8 +274,6 @@ pusher.notify(["my-favourite-interest"], data)
 
 Push notification requests, once submitted to the service are executed asynchronously. To make reporting errors easier, you can supply a `webhook_url` field in the body of the request. This will be used by the service to send a webhook to the supplied URL if there are errors.
 
-You may also supply a `webhook_level` field in the body, which can either be INFO or DEBUG. It defaults to INFO - where INFO only reports customer facing errors, while DEBUG reports all errors.
-
 For example:
 
 ```ruby
@@ -306,8 +291,7 @@ data = {
       icon: "icon"
     }
   },
-  webhook_url: "http://yolo.com",
-  webhook_level: "INFO"
+  webhook_url: "http://yolo.com"
 }
 ```
 
