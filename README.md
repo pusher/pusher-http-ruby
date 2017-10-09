@@ -73,7 +73,8 @@ If you need to make requests via a HTTP proxy then it can be configured
 Pusher.http_proxy = 'http://(user):(password)@(host):(port)'
 ```
 
-By default API requests are made over HTTP. HTTPS can be used by setting
+By default API requests are made over HTTP. HTTPS can be used by setting `encrypted` to `true`.
+Issuing this command is going to reset `port` value if it was previously specified.
 
 ``` ruby
 Pusher.encrypted = true
