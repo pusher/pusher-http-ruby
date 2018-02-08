@@ -71,15 +71,17 @@ describe Pusher::Channel do
 
   describe '#info' do
     it "should call the Client#channel_info" do
-      expect(@client).to receive(:get).with("/channels/mychannel", anything)
+      expect(@client).to receive(:get)
+                           .with("/channels/mychannel", anything)
+                           .and_return({:occupied => true, :subscription_count => 12})
       @channel = @client['mychannel']
       @channel.info
     end
 
     it "should assemble the requested attributes into the info option" do
-      expect(@client).to receive(:get).with(anything, {
-        :info => "user_count,connection_count"
-      })
+      expect(@client).to receive(:get)
+                           .with(anything, {:info => "user_count,connection_count"})
+                           .and_return({:occupied => true, :subscription_count => 12, :user_count => 12})
       @channel = @client['presence-foo']
       @channel.info(%w{user_count connection_count})
     end
