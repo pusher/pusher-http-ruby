@@ -109,6 +109,10 @@ describe Pusher do
     end
 
     describe 'configuring from env' do
+      after do
+        ENV['PUSHER_URL'] = nil
+      end
+
       it "works" do
         url = "http://somekey:somesecret@api.staging.pusherapp.com:8080/apps/87"
         ENV['PUSHER_URL'] = url
@@ -118,7 +122,6 @@ describe Pusher do
         expect(client.secret).to eq("somesecret")
         expect(client.app_id).to eq("87")
         expect(client.url.to_s).to eq("http://api.staging.pusherapp.com:8080/apps/87")
-        ENV['PUSHER_URL'] = nil
       end
     end
 
