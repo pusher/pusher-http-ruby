@@ -24,6 +24,8 @@ After registering at <http://pusher.com> configure your app with the security cr
 Creating a new Pusher `client` can be done as follows.
 
 ``` ruby
+require 'pusher'
+
 pusher_client = Pusher::Client.new(
   app_id: 'your-app-id',
   key: 'your-app-key',
@@ -36,6 +38,8 @@ The cluster value will set the `host` to `api-<cluster>.pusher.com`.
 If you want to set a custom `host` value for your client then you can do so when instantiating a Pusher client like so:
 
 ``` ruby
+require 'pusher'
+
 pusher_client = Pusher::Client.new(
   app_id: 'your-app-id',
   key: 'your-app-key',
