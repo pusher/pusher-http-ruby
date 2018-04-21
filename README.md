@@ -78,7 +78,8 @@ If you need to make requests via a HTTP proxy then it can be configured
 Pusher.http_proxy = 'http://(user):(password)@(host):(port)'
 ```
 
-By default API requests are made over HTTP. HTTPS can be used by setting
+By default API requests are made over HTTP. HTTPS can be used by setting `encrypted` to `true`.
+Issuing this command is going to reset `port` value if it was previously specified.
 
 ``` ruby
 Pusher.encrypted = true
@@ -136,7 +137,7 @@ events per call on multi-tenant clusters):
 
 ``` ruby
 channels_client.trigger_batch([
-  {channel: 'channel_1', name: 'event_name', data: { foo: 'bar' }}
+  {channel: 'channel_1', name: 'event_name', data: { foo: 'bar' }},
   {channel: 'channel_1', name: 'event_name', data: { hello: 'world' }}
 ])
 ```
@@ -153,7 +154,7 @@ This will continue to work, but has been replaced by `channels_client.trigger` w
 
 ### Getting information about the channels in your Pusher Channels app
 
-This gem provides methods for accessing information from the [Pusher HTTP API](https://pusher.com/docs/rest_api). The documentation also shows an example of the responses from each of the API endpionts.
+This gem provides methods for accessing information from the [Pusher HTTP API](https://pusher.com/docs/rest_api). The documentation also shows an example of the responses from each of the API endpoints.
 
 The following methods are provided by the gem.
 
@@ -301,4 +302,3 @@ data = {
 ```
 
 **NOTE:** This is currently a BETA feature and there might be minor bugs and issues. Changes to the API will be kept to a minimum, but changes are expected. If you come across any bugs or issues, please do get in touch via [support](support@pusher.com) or create an issue here.
-

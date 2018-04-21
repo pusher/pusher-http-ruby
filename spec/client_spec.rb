@@ -87,13 +87,13 @@ describe Pusher do
         expect(@client.host).to eq('api.staging.pusherapp.com')
       end
 
-      it 'should get override the url configuration if it comes after' do
+      it 'should override the url configuration if it comes after' do
         @client.url = "http://somekey:somesecret@api.staging.pusherapp.com:8080/apps/87"
         @client.cluster = 'eu'
         expect(@client.host).to eq('api-eu.pusher.com')
       end
 
-      it 'should overrie by the host configuration if it comes after' do
+      it 'should override the host configuration if it comes after' do
         @client.host = 'api.staging.pusher.com'
         @client.cluster = 'eu'
         expect(@client.host).to eq('api-eu.pusher.com')
@@ -109,6 +109,10 @@ describe Pusher do
     end
 
     describe 'configuring from env' do
+      after do
+        ENV['PUSHER_URL'] = nil
+      end
+
       it "works" do
         url = "http://somekey:somesecret@api.staging.pusherapp.com:8080/apps/87"
         ENV['PUSHER_URL'] = url
@@ -118,7 +122,18 @@ describe Pusher do
         expect(client.secret).to eq("somesecret")
         expect(client.app_id).to eq("87")
         expect(client.url.to_s).to eq("http://api.staging.pusherapp.com:8080/apps/87")
-        ENV['PUSHER_URL'] = nil
+      end
+    end
+
+    describe 'configuring from url' do
+      it "works" do
+        url = "http://somekey:somesecret@api.staging.pusherapp.com:8080/apps/87"
+
+        client = Pusher::Client.from_url(url)
+        expect(client.key).to eq("somekey")
+        expect(client.secret).to eq("somesecret")
+        expect(client.app_id).to eq("87")
+        expect(client.url.to_s).to eq("http://api.staging.pusherapp.com:8080/apps/87")
       end
     end
 
@@ -612,4 +627,3 @@ describe Pusher do
     end
   end
 end
-

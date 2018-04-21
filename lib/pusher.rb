@@ -32,7 +32,7 @@ module Pusher
     def_delegators :default_client, :scheme=, :host=, :port=, :app_id=, :key=, :secret=, :http_proxy=
     def_delegators :default_client, :notification_host=, :notification_scheme=
 
-    def_delegators :default_client, :authentication_token, :url
+    def_delegators :default_client, :authentication_token, :url, :cluster
     def_delegators :default_client, :encrypted=, :url=, :cluster=
     def_delegators :default_client, :timeout=, :connect_timeout=, :send_timeout=, :receive_timeout=, :keep_alive_timeout=
 
