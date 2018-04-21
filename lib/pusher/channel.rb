@@ -86,6 +86,9 @@ module Pusher
 
     # Request info for a channel
     #
+    # @example Response
+    #   [{:occupied=>true, :subscription_count => 12}]
+    #
     # @param info [Array] Array of attributes required (as lowercase strings)
     # @return [Hash] Hash of requested attributes for this channel
     # @raise [Pusher::Error] on invalid Pusher response - see the error message for more details
@@ -99,7 +102,7 @@ module Pusher
     # Only works on presence channels (see: http://pusher.com/docs/client_api_guide/client_presence_channels and https://pusher.com/docs/rest_api)
     #
     # @example Response
-    #   [{"id"=>"4"}]
+    #   [{:id=>"4"}]
     #
     # @param params [Hash] Hash of parameters for the API - see REST API docs
     # @return [Hash] Array of user hashes for this channel
