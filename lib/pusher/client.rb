@@ -12,6 +12,11 @@ module Pusher
     # Loads the configuration from an url in the environment
     def self.from_env(key = 'PUSHER_URL')
       url = ENV[key] || raise(ConfigurationError, key)
+      from_url(url)
+    end
+
+    # Loads the configuration from a url
+    def self.from_url(url)
       client = new
       client.url = url
       client
