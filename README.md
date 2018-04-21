@@ -150,7 +150,7 @@ Pusher['a_channel'].trigger('an_event', :some => 'data')
 
 This will continue to work, but has been replaced by `Pusher.trigger` which supports one or multiple channels.
 
-### Using the Pusher REST API
+### Using the Pusher REST API
 
 This gem provides methods for accessing information from the [Pusher REST API](https://pusher.com/docs/rest_api). The documentation also shows an example of the responses from each of the API endpionts.
 
