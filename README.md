@@ -1,11 +1,12 @@
-Pusher gem
-==========
+# Gem for Pusher Channels
+
+This Gem provides a Ruby interface to [the Pusher HTTP API for Pusher Channels](https://pusher.com/docs/rest_api).
 
 [![Build Status](https://secure.travis-ci.org/pusher/pusher-http-ruby.svg?branch=master)](http://travis-ci.org/pusher/pusher-http-ruby)
 
-## Installation & Configuration
+## Installation and Configuration
 
-Add pusher to your Gemfile, and then run `bundle install`
+Add `pusher` to your Gemfile, and then run `bundle install`
 
 ``` ruby
 gem 'pusher'
@@ -17,30 +18,31 @@ or install via gem
 gem install pusher
 ```
 
-After registering at <http://pusher.com> configure your app with the security credentials.
+After registering at <https://dashboard.pusher.com/>, configure your Pusher Channels app with the security credentials.
 
-### Instantiating a Pusher client
+### Instantiating a Pusher Channels client
 
-Creating a new Pusher `client` can be done as follows.
+Creating a new Pusher Channels `client` can be done as follows.
 
 ``` ruby
 require 'pusher'
 
-pusher_client = Pusher::Client.new(
+channels_client = Pusher::Client.new(
   app_id: 'your-app-id',
   key: 'your-app-key',
   secret: 'your-app-secret',
   cluster: 'your-app-cluster',
 )
 ```
+
 The cluster value will set the `host` to `api-<cluster>.pusher.com`.
 
-If you want to set a custom `host` value for your client then you can do so when instantiating a Pusher client like so:
+If you want to set a custom `host` value for your client then you can do so when instantiating a Pusher Channels client like so:
 
 ``` ruby
 require 'pusher'
 
-pusher_client = Pusher::Client.new(
+channels_client = Pusher::Client.new(
   app_id: 'your-app-id',
   key: 'your-app-key',
   secret: 'your-app-secret',
@@ -50,15 +52,14 @@ pusher_client = Pusher::Client.new(
 
 If you pass both `host` and `cluster` options, the `host` will take precendence and `cluster` will be ignored.
 
-
 Finally, if you have the configuration set in an `PUSHER_URL` environment
 variable, you can use:
 
 ``` ruby
-pusher_client = Pusher::Client.from_env
+channels_client = Pusher::Client.from_env
 ```
 
-### Global
+### Global configuration
 
 Configuring Pusher can also be done globally on the Pusher class.
 
@@ -100,7 +101,7 @@ Handle errors by rescuing `Pusher::Error` (all errors are descendants of this er
 
 ``` ruby
 begin
-  Pusher.trigger('a_channel', 'an_event', :some => 'data')
+  channels_client.trigger('a_channel', 'an_event', :some => 'data')
 rescue Pusher::Error => e
   # (Pusher::AuthenticationError, Pusher::HTTPError, or Pusher::Error)
 end
@@ -119,14 +120,14 @@ Pusher.logger = Rails.logger
 An event can be published to one or more channels (limited to 10) in one API call:
 
 ``` ruby
-Pusher.trigger('channel', 'event', foo: 'bar')
-Pusher.trigger(['channel_1', 'channel_2'], 'event_name', foo: 'bar')
+channels_client.trigger('channel', 'event', foo: 'bar')
+channels_client.trigger(['channel_1', 'channel_2'], 'event_name', foo: 'bar')
 ```
 
 An optional fourth argument may be used to send additional parameters to the API, for example to [exclude a single connection from receiving the event](http://pusher.com/docs/publisher_api_guide/publisher_excluding_recipients).
 
 ``` ruby
-Pusher.trigger('channel', 'event', {foo: 'bar'}, {socket_id: '123.456'})
+channels_client.trigger('channel', 'event', {foo: 'bar'}, {socket_id: '123.456'})
 ```
 
 #### Batches
@@ -135,7 +136,7 @@ It's also possible to send multiple events with a single API call (max 10
 events per call on multi-tenant clusters):
 
 ``` ruby
-Pusher.trigger_batch([
+channels_client.trigger_batch([
   {channel: 'channel_1', name: 'event_name', data: { foo: 'bar' }},
   {channel: 'channel_1', name: 'event_name', data: { hello: 'world' }}
 ])
@@ -149,47 +150,47 @@ Most examples and documentation will refer to the following syntax for triggerin
 Pusher['a_channel'].trigger('an_event', :some => 'data')
 ```
 
-This will continue to work, but has been replaced by `Pusher.trigger` which supports one or multiple channels.
+This will continue to work, but has been replaced by `channels_client.trigger` which supports one or multiple channels.
 
-### Using the Pusher REST API
+### Getting information about the channels in your Pusher Channels app
 
-This gem provides methods for accessing information from the [Pusher REST API](https://pusher.com/docs/rest_api). The documentation also shows an example of the responses from each of the API endpoints.
+This gem provides methods for accessing information from the [Pusher HTTP API](https://pusher.com/docs/rest_api). The documentation also shows an example of the responses from each of the API endpoints.
 
 The following methods are provided by the gem.
 
-- `Pusher.channel_info('channel_name')` returns information about that channel.
+- `channels_client.channel_info('channel_name')` returns information about that channel.
 
-- `Pusher.channel_users('channel_name')` returns a list of all the users subscribed to the channel.
+- `channels_client.channel_users('channel_name')` returns a list of all the users subscribed to the channel.
 
-- `Pusher.channels` returns information about all the channels in your Pusher application.
+- `channels_client.channels` returns information about all the channels in your Pusher application.
 
 ### Asynchronous requests
 
 There are two main reasons for using the `_async` methods:
 
-* In a web application where the response from Pusher is not used, but you'd like to avoid a blocking call in the request-response cycle
+* In a web application where the response from the Pusher Channels HTTP API is not used, but you'd like to avoid a blocking call in the request-response cycle
 * Your application is running in an event loop and you need to avoid blocking the reactor
 
 Asynchronous calls are supported either by using an event loop (eventmachine, preferred), or via a thread.
 
 The following methods are available (in each case the calling interface matches the non-async version):
 
-* `Pusher.get_async`
-* `Pusher.post_async`
-* `Pusher.trigger_async`
+* `channels_client.get_async`
+* `channels_client.post_async`
+* `channels_client.trigger_async`
 
-It is of course also possible to make calls to pusher via a job queue. This approach is recommended if you're sending a large number of events to pusher.
+It is of course also possible to make calls to the Pusher Channels HTTP API via a job queue. This approach is recommended if you're sending a large number of events.
 
-#### With eventmachine
+#### With EventMachine
 
 * Add the `em-http-request` gem to your Gemfile (it's not a gem dependency).
-* Run the eventmachine reactor (either using `EM.run` or by running inside an evented server such as Thin).
+* Run the EventMachine reactor (either using `EM.run` or by running inside an evented server such as Thin).
 
 The `_async` methods return an `EM::Deferrable` which you can bind callbacks to:
 
 ``` ruby
-Pusher.get_async("/channels").callback { |response|
-  # use response[:channels]
+channels_client.get_async("/channels").callback { |response|
+  # use reponse[:channels]
 }.errback { |error|
   # error is an instance of Pusher::Error
 }
@@ -197,9 +198,9 @@ Pusher.get_async("/channels").callback { |response|
 
 A HTTP error or an error response from pusher will cause the errback to be called with an appropriate error object.
 
-#### Without eventmachine
+#### Without EventMachine
 
-If the eventmachine reactor is not running, async requests will be made using threads (managed by the httpclient gem).
+If the EventMachine reactor is not running, async requests will be made using threads (managed by the httpclient gem).
 
 An `HTTPClient::Connection` object is returned immediately which can be [interrogated](http://rubydoc.info/gems/httpclient/HTTPClient/Connection) to discover the status of the request. The usual response checking and processing is not done when the request completes, and frankly this method is most useful when you're not interested in waiting for the response.
 
@@ -211,7 +212,7 @@ It's possible to use the gem to authenticate subscription requests to private or
 ### Private channels
 
 ``` ruby
-Pusher.authenticate('private-my_channel', params[:socket_id])
+channels_client.authenticate('private-my_channel', params[:socket_id])
 ```
 
 ### Presence channels
@@ -219,7 +220,7 @@ Pusher.authenticate('private-my_channel', params[:socket_id])
 These work in a very similar way, but require a unique identifier for the user being authenticated, and optionally some attributes that are provided to clients via presence events:
 
 ``` ruby
-Pusher.authenticate('presence-my_channel', params[:socket_id],
+channels_client.authenticate('presence-my_channel', params[:socket_id],
   user_id: 'user_id',
   user_info: {} # optional
 )
@@ -230,7 +231,7 @@ Pusher.authenticate('presence-my_channel', params[:socket_id],
 A WebHook object may be created to validate received WebHooks against your app credentials, and to extract events. It should be created with the `Rack::Request` object (available as `request` in Rails controllers or Sinatra handlers for example).
 
 ``` ruby
-webhook = Pusher.webhook(request)
+webhook = channels_client.webhook(request)
 if webhook.valid?
   webhook.events.each do |event|
     case event["name"]
