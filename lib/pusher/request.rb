@@ -94,6 +94,8 @@ module Pusher
         raise Error, "404 Not found (#{@uri.path})"
       when 407
         raise Error, "Proxy Authentication Required"
+      when 413
+        raise Error, "Payload Too Large > 10KB"
       else
         raise Error, "Unknown error (status code #{status_code}): #{body}"
       end

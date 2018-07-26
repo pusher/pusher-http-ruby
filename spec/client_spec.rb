@@ -430,6 +430,11 @@ describe Pusher do
             expect { call_api }.to raise_error(Pusher::Error, 'Proxy Authentication Required')
           end
 
+          it "should raise Pusher::Error if pusher returns 413" do
+            stub_request(verb, @url_regexp).to_return({:status => 413})
+            expect { call_api }.to raise_error(Pusher::Error, 'Payload Too Large > 10KB')
+          end
+
           it "should raise Pusher::Error if pusher returns 500" do
             stub_request(verb, @url_regexp).to_return({:status => 500, :body => "some error"})
             expect { call_api }.to raise_error(Pusher::Error, 'Unknown error (status code 500): some error')
