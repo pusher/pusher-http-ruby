@@ -100,6 +100,40 @@ describe Pusher do
       end
     end
 
+    describe 'configuring TLS' do
+      it 'should set port and scheme if "useTLS" enabled' do
+        client = Pusher::Client.new({
+          :useTLS => true,
+        })
+        expect(client.scheme).to eq('https')
+        expect(client.port).to eq(443)
+      end
+
+      it 'should set port and scheme if "encrypted" enabled' do
+        client = Pusher::Client.new({
+          :encrypted => true,
+        })
+        expect(client.scheme).to eq('https')
+        expect(client.port).to eq(443)
+      end
+
+      it 'should use non-TLS port and scheme if "encrypted" or "useTLS" are not set' do
+        client = Pusher::Client.new
+        expect(client.scheme).to eq('http')
+        expect(client.port).to eq(80)
+      end
+
+      it 'should override port if "useTLS" option set but a different port is specified' do
+        client = Pusher::Client.new({
+          :useTLS => true,
+          :port => 8443
+        })
+        expect(client.scheme).to eq('https')
+        expect(client.port).to eq(8443)
+      end
+
+    end
+
     describe 'configuring a http proxy' do
       it "should be possible to configure everything by setting the http_proxy" do
         @client.http_proxy = 'http://someuser:somepassword@proxy.host.com:8080'
