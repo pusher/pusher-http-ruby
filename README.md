@@ -32,11 +32,11 @@ channels_client = Pusher::Client.new(
   key: 'your-app-key',
   secret: 'your-app-secret',
   cluster: 'your-app-cluster',
-  useTLS: true
+  use_tls: true
 )
 ```
 
-The `cluster` value will set the `host` to `api-<cluster>.pusher.com`. The `useTLS` value is optional and defaults to `false`. It will set the `scheme` and `port`. Custom `scheme` and `port` values take precendence over `useTLS`.
+The `cluster` value will set the `host` to `api-<cluster>.pusher.com`. The `use_tls` value is optional and defaults to `false`. It will set the `scheme` and `port`. Custom `scheme` and `port` values take precendence over `use_tls`.
 
 If you want to set a custom `host` value for your client then you can do so when instantiating a Pusher Channels client like so:
 

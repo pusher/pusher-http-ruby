@@ -28,7 +28,7 @@ module Pusher
         :port => 80,
       }
 
-      if options[:useTLS] || options[:encrypted]
+      if options[:use_tls] || options[:encrypted]
         default_options[:scheme] = "https"
         default_options[:port] = 443
       end

@@ -101,9 +101,9 @@ describe Pusher do
     end
 
     describe 'configuring TLS' do
-      it 'should set port and scheme if "useTLS" enabled' do
+      it 'should set port and scheme if "use_tls" enabled' do
         client = Pusher::Client.new({
-          :useTLS => true,
+          :use_tls => true,
         })
         expect(client.scheme).to eq('https')
         expect(client.port).to eq(443)
@@ -117,15 +117,15 @@ describe Pusher do
         expect(client.port).to eq(443)
       end
 
-      it 'should use non-TLS port and scheme if "encrypted" or "useTLS" are not set' do
+      it 'should use non-TLS port and scheme if "encrypted" or "use_tls" are not set' do
         client = Pusher::Client.new
         expect(client.scheme).to eq('http')
         expect(client.port).to eq(80)
       end
 
-      it 'should override port if "useTLS" option set but a different port is specified' do
+      it 'should override port if "use_tls" option set but a different port is specified' do
         client = Pusher::Client.new({
-          :useTLS => true,
+          :use_tls => true,
           :port => 8443
         })
         expect(client.scheme).to eq('https')
