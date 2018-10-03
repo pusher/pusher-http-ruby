@@ -27,6 +27,12 @@ module Pusher
         :scheme => 'http',
         :port => 80,
       }
+
+      if options[:use_tls] || options[:encrypted]
+        default_options[:scheme] = "https"
+        default_options[:port] = 443
+      end
+
       merged_options = default_options.merge(options)
 
       if options.has_key?(:host)
