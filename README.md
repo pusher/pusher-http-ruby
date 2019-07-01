@@ -92,7 +92,7 @@ As of version 0.12, SSL certificates are verified when using the synchronous htt
 Pusher.default_client.sync_http_client.ssl_config.verify_mode = OpenSSL::SSL::VERIFY_NONE
 ```
 
-## Interacting with the Pusher service
+## Interacting with the Pusher Channels service
 
 The Pusher gem contains a number of helpers for interacting with the service. As a general rule, the library adheres to a set of conventions that we have aimed to make universal.
 
@@ -155,7 +155,7 @@ This will continue to work, but has been replaced by `channels_client.trigger` w
 
 ### Getting information about the channels in your Pusher Channels app
 
-This gem provides methods for accessing information from the [Pusher HTTP API](https://pusher.com/docs/rest_api). The documentation also shows an example of the responses from each of the API endpoints.
+This gem provides methods for accessing information from the [Pusher Channels HTTP API](https://pusher.com/docs/rest_api). The documentation also shows an example of the responses from each of the API endpoints.
 
 The following methods are provided by the gem.
 
@@ -163,7 +163,7 @@ The following methods are provided by the gem.
 
 - `channels_client.channel_users('channel_name')` returns a list of all the users subscribed to the channel.
 
-- `channels_client.channels` returns information about all the channels in your Pusher application.
+- `channels_client.channels` returns information about all the channels in your Pusher Channels application.
 
 ### Asynchronous requests
 
