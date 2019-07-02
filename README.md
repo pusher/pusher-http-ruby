@@ -18,7 +18,7 @@ or install via gem
 gem install pusher
 ```
 
-After registering at <https://dashboard.pusher.com/>, configure your Pusher Channels app with the security credentials.
+After registering at <https://dashboard.pusher.com/>, configure your Channels app with the security credentials.
 
 ### Instantiating a Pusher Channels client
 
@@ -62,7 +62,7 @@ channels_client = Pusher::Client.from_env
 
 ### Global configuration
 
-Configuring Pusher can also be done globally on the Pusher class.
+The library can also be configured globally on the `Pusher` class.
 
 ``` ruby
 Pusher.app_id = 'your-app-id'
@@ -92,9 +92,9 @@ As of version 0.12, SSL certificates are verified when using the synchronous htt
 Pusher.default_client.sync_http_client.ssl_config.verify_mode = OpenSSL::SSL::VERIFY_NONE
 ```
 
-## Interacting with the Pusher service
+## Interacting with the Channels HTTP API
 
-The Pusher gem contains a number of helpers for interacting with the service. As a general rule, the library adheres to a set of conventions that we have aimed to make universal.
+The `pusher` gem contains a number of helpers for interacting with the API. As a general rule, the library adheres to a set of conventions that we have aimed to make universal.
 
 ### Handling errors
 
@@ -155,7 +155,7 @@ This will continue to work, but has been replaced by `channels_client.trigger` w
 
 ### Getting information about the channels in your Pusher Channels app
 
-This gem provides methods for accessing information from the [Pusher HTTP API](https://pusher.com/docs/rest_api). The documentation also shows an example of the responses from each of the API endpoints.
+This gem provides methods for accessing information from the [Channels HTTP API](https://pusher.com/docs/rest_api). The documentation also shows an example of the responses from each of the API endpoints.
 
 The following methods are provided by the gem.
 
@@ -163,13 +163,13 @@ The following methods are provided by the gem.
 
 - `channels_client.channel_users('channel_name')` returns a list of all the users subscribed to the channel.
 
-- `channels_client.channels` returns information about all the channels in your Pusher application.
+- `channels_client.channels` returns information about all the channels in your Channels application.
 
 ### Asynchronous requests
 
 There are two main reasons for using the `_async` methods:
 
-* In a web application where the response from the Pusher Channels HTTP API is not used, but you'd like to avoid a blocking call in the request-response cycle
+* In a web application where the response from the Channels HTTP API is not used, but you'd like to avoid a blocking call in the request-response cycle
 * Your application is running in an event loop and you need to avoid blocking the reactor
 
 Asynchronous calls are supported either by using an event loop (eventmachine, preferred), or via a thread.
@@ -180,7 +180,7 @@ The following methods are available (in each case the calling interface matches 
 * `channels_client.post_async`
 * `channels_client.trigger_async`
 
-It is of course also possible to make calls to the Pusher Channels HTTP API via a job queue. This approach is recommended if you're sending a large number of events.
+It is of course also possible to make calls to the Channels HTTP API via a job queue. This approach is recommended if you're sending a large number of events.
 
 #### With EventMachine
 
@@ -197,7 +197,7 @@ channels_client.get_async("/channels").callback { |response|
 }
 ```
 
-A HTTP error or an error response from pusher will cause the errback to be called with an appropriate error object.
+A HTTP error or an error response from Channels will cause the errback to be called with an appropriate error object.
 
 #### Without EventMachine
 
@@ -208,7 +208,7 @@ An `HTTPClient::Connection` object is returned immediately which can be [interro
 
 ## Authenticating subscription requests
 
-It's possible to use the gem to authenticate subscription requests to private or presence channels. The `authenticate` method is available on a channel object for this purpose and returns a JSON object that can be returned to the client that made the request. More information on this authentication scheme can be found in the docs on <http://pusher.com>
+It's possible to use the gem to authenticate subscription requests to private or presence channels. The `authenticate` method is available on a channel object for this purpose and returns a JSON object that can be returned to the client that made the request. More information on this authentication scheme can be found in the docs on <https://pusher.com/docs/channels/server_api/authenticating-users>
 
 ### Private channels
 

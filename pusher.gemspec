@@ -9,8 +9,8 @@ Gem::Specification.new do |s|
   s.authors     = ["Pusher"]
   s.email       = ["support@pusher.com"]
   s.homepage    = "http://github.com/pusher/pusher-http-ruby"
-  s.summary     = %q{Pusher API client}
-  s.description = %q{Wrapper for pusher.com REST api}
+  s.summary     = %q{Pusher Channels API client}
+  s.description = %q{Wrapper for Pusher Channels REST api: : https://pusher.com/channels}
   s.license     = "MIT"
 
   s.add_dependency "multi_json", "~> 1.0"
