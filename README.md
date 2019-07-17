@@ -247,3 +247,6 @@ else
   render text: 'invalid', status: 401
 end
 ```
+
+## Supported Ruby versions
+2.6.0
