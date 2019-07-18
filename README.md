@@ -249,4 +249,4 @@ end
 ```
 
 ## Supported Ruby versions
-2.6.0
+2.6.2
