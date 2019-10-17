@@ -2,7 +2,7 @@
 
 This Gem provides a Ruby interface to [the Pusher HTTP API for Pusher Channels](https://pusher.com/docs/rest_api).
 
-[![Build Status](https://secure.travis-ci.org/pusher/pusher-http-ruby.svg?branch=master)](http://travis-ci.org/pusher/pusher-http-ruby)
+[![Build Status](https://secure.travis-ci.org/pusher/pusher-http-ruby.svg?branch=master)](http://travis-ci.org/pusher/pusher-http-ruby) [![Gem Version](https://badge.fury.io/rb/pusher.svg)](https://badge.fury.io/rb/pusher)
 
 ## Installation and Configuration
 
