@@ -1,6 +1,6 @@
 # Gem for Pusher Channels
 
-This Gem provides a Ruby interface to [the Pusher HTTP API for Pusher Channels](https://pusher.com/docs/rest_api).
+This Gem provides a Ruby interface to [the Pusher HTTP API for Pusher Channels](https://pusher.com/docs/channels/library_auth_reference/rest-api).
 
 [![Build Status](https://secure.travis-ci.org/pusher/pusher-http-ruby.svg?branch=master)](http://travis-ci.org/pusher/pusher-http-ruby) [![Gem Version](https://badge.fury.io/rb/pusher.svg)](https://badge.fury.io/rb/pusher)
 
@@ -125,7 +125,7 @@ channels_client.trigger('channel', 'event', foo: 'bar')
 channels_client.trigger(['channel_1', 'channel_2'], 'event_name', foo: 'bar')
 ```
 
-An optional fourth argument may be used to send additional parameters to the API, for example to [exclude a single connection from receiving the event](http://pusher.com/docs/publisher_api_guide/publisher_excluding_recipients).
+An optional fourth argument may be used to send additional parameters to the API, for example to [exclude a single connection from receiving the event](https://pusher.com/docs/channels/server_api/excluding-event-recipients).
 
 ``` ruby
 channels_client.trigger('channel', 'event', {foo: 'bar'}, {socket_id: '123.456'})
@@ -155,7 +155,7 @@ This will continue to work, but has been replaced by `channels_client.trigger` w
 
 ### Getting information about the channels in your Pusher Channels app
 
-This gem provides methods for accessing information from the [Channels HTTP API](https://pusher.com/docs/rest_api). The documentation also shows an example of the responses from each of the API endpoints.
+This gem provides methods for accessing information from the [Channels HTTP API](https://pusher.com/docs/channels/library_auth_reference/rest-api). The documentation also shows an example of the responses from each of the API endpoints.
 
 The following methods are provided by the gem.
 
