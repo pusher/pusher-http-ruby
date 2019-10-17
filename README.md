@@ -18,7 +18,7 @@ or install via gem
 gem install pusher
 ```
 
-After registering at <https://dashboard.pusher.com/>, configure your Channels app with the security credentials.
+After registering at [Pusher](https://dashboard.pusher.com/accounts/sign_up), configure your Channels app with the security credentials.
 
 ### Instantiating a Pusher Channels client
 
