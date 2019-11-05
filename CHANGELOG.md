@@ -1,3 +1,17 @@
+1.3.3 / 2019-07-02
+==================
+
+  * Rewording to clarify "Pusher Channels" or simply "Channels" product name.
+
+1.3.2 / 2018-10-17
+==================
+
+  * Return a specific error for "Request Entity Too Large" (body over 10KB).
+  * Add a `use_tls` option for SSL (defaults to false).
+  * Add a `from_url` client method (in addition to existing `from_env` option).
+  * Improved documentation and fixed typos.
+  * Add Ruby 2.4 to test matrix.
+
 1.3.1 / 2017-03-15
 ==================
 
@@ -100,4 +114,3 @@ First release with a changelog !
 
   * Bump httpclient to v2.4. See #62 (POODLE SSL)
   * Fix limited channel count at README.md. Thanks @tricknotes
-
