@@ -317,24 +317,6 @@ module Pusher
       post_async('/batch_events', trigger_batch_params(events.flatten))
     end
 
-    def notification_client
-      @notification_client ||=
-        NativeNotification::Client.new(@app_id, @notification_host, @notification_scheme, self)
-    end
-
-
-    # Send a push notification
-    #
-    # POST /apps/[app_id]/notifications
-    #
-    # @param interests [Array] An array of interests
-    # @param message [String] Message to send
-    # @param options [Hash] Additional platform specific options
-    #
-    # @return [Hash]
-    def notify(interests, data = {})
-      notification_client.notify(interests, data)
-    end
 
     # Generate the expected response for an authentication endpoint.
     # See http://pusher.com/docs/authenticating_users for details.
