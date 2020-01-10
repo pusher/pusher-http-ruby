@@ -3,14 +3,19 @@ require 'sinatra/cookies'
 require 'sinatra/json'
 require 'pusher'
 
-
 # You can get these variables from http://dashboard.pusher.com
 pusher = Pusher::Client.new(
   app_id: 'YOUR-APP-ID',
   key: 'YOUR-APP-KEY',
-  secret: 'YOUR-APP-SECRE`t',
+  secret: 'YOUR-APP-SECRET',
   cluster: 'CLUSTER'
 )
+
+set :public_folder, 'public'
+
+get "/" do
+  redirect '/private_channels.html'
+end
 
 # Emulate rails behaviour where this information would be stored in session
 get '/signin' do
