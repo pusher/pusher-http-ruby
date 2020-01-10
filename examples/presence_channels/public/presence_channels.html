@@ -13,7 +13,7 @@
       authEndpoint: '/pusher/auth'
     });
 
-    var channel = pusher.subscribe('private-channel-test');
+    var channel = pusher.subscribe('presence-channel-test');
     channel.bind('test-event', function(data) {
       alert(JSON.stringify(data));
     });
@@ -22,7 +22,7 @@
 <body>
   <h1>Pusher Test</h1>
   <p>
-    Try publishing an event to channel <code>private-channel-test</code>
+    Try publishing an event to channel <code>presence-channel-test</code>
     with event name <code>test-event</code>.
   </p>
 </body>

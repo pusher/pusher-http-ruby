@@ -5,16 +5,16 @@ require 'pusher'
 
 # You can get these variables from http://dashboard.pusher.com
 pusher = Pusher::Client.new(
-  app_id: 'YOUR-APP-ID',
-  key: 'YOUR-APP-KEY',
-  secret: 'YOUR-APP-SECRET',
-  cluster: 'CLUSTER'
+  app_id: 'your-app-id',
+  key: 'your-app-key',
+  secret: 'your-app-secret',
+  cluster: 'your-app-cluster'
 )
 
 set :public_folder, 'public'
 
 get "/" do
-  redirect '/private_channels.html'
+  redirect '/presence_channels.html'
 end
 
 # Emulate rails behaviour where this information would be stored in session
@@ -42,7 +42,7 @@ post '/pusher/auth' do
 end
 
 get '/pusher_trigger' do
-  channels = ['private-channel-test'];
+  channels = ['presence-channel-test'];
 
   begin
     pusher.trigger(channels, 'test-event', {
