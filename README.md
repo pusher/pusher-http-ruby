@@ -159,11 +159,11 @@ This gem provides methods for accessing information from the [Channels HTTP API]
 
 The following methods are provided by the gem.
 
-- `pusher.channel_info('channel_name')` returns information about that channel.
+- `pusher.channel_info('channel_name', {info:"user_count,subscription_count"})` returns a hash describing the state of the channel([docs](https://pusher.com/docs/channels/library_auth_reference/rest-api#get-channels-fetch-info-for-multiple-channels-)).
 
-- `pusher.channel_users('channel_name')` returns a list of all the users subscribed to the channel.
+- `pusher.channel_users('presence-channel_name')` returns a list of all the users subscribed to the channel (only for Presence Channels) ([docs](https://pusher.com/docs/channels/library_auth_reference/rest-api#get-channels-fetch-info-for-multiple-channels-)).
 
-- `pusher.channels` returns information about all the channels in your Channels application.
+- `pusher.channels({filter_by_prefix: 'presence-', info: 'user_count'})` returns a hash of occupied channels (optionally filtered by prefix, f.i. `presence-`), and optionally attributes for these channels ([docs](https://pusher.com/docs/channels/library_auth_reference/rest-api#get-channels-fetch-info-for-multiple-channels-)).
 
 ### Asynchronous requests
 
