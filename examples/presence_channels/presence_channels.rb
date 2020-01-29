@@ -6,14 +6,14 @@ require 'pusher'
 # You can get these variables from http://dashboard.pusher.com
 pusher = Pusher::Client.new(
   app_id: 'your-app-id',
-  key: 'your-app-key',
+     key: 'your-app-key',
   secret: 'your-app-secret',
-  cluster: 'your-app-cluster'
+ cluster: 'your-app-cluster'
 )
 
 set :public_folder, 'public'
 
-get "/" do
+get '/' do
   redirect '/presence_channels.html'
 end
 
@@ -29,9 +29,9 @@ post '/pusher/auth' do
       user_id: 'example_user',
       user_info: {
         name: 'example_name',
-        email: 'example_email'
+       email: 'example_email'
       }
-    }
+  }
 
   if cookies[:user_id] == 'example_cookie'
     response = pusher.authenticate(params[:channel_name], params[:socket_id], channel_data)
@@ -49,7 +49,7 @@ get '/pusher_trigger' do
       message: 'hello world'
     })
   rescue Pusher::Error => e
-  # (Pusher::AuthenticationError, Pusher::HTTPError, or Pusher::Error)
+  # For example, Pusher::AuthenticationError, Pusher::HTTPError, or Pusher::Error
   end
 
   'Triggered!'
