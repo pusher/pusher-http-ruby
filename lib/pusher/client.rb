@@ -426,7 +426,7 @@ module Pusher
       channels = Array(channels).map(&:to_s)
       raise Pusher::Error, "Too many channels (#{channels.length}), max 10" if channels.length > 10
 
-      encoded_data = if channels.any?(/^private-encrypted-/) then
+      encoded_data = if channels.any?{ |c| c.match(/^private-encrypted-/) } then
         raise Pusher::Error, "Cannot trigger to multiple channels if any are encrypted" if channels.length > 1
         encrypt(channels[0], encode_data(data))
       else
