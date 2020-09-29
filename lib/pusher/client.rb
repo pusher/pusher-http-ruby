@@ -444,7 +444,11 @@ module Pusher
       {
         batch: events.map do |event|
           event.dup.tap do |e|
-            e[:data] = encode_data(e[:data])
+            e[:data] = if e[:channel].match(/^private-encrypted-/) then
+              encrypt(e[:channel], encode_data(e[:data]))
+            else
+              encode_data(e[:data])
+            end
           end
         end
       }
