@@ -250,11 +250,11 @@ end
 
 ### End-to-end encryption
 
-This library supports end-to-end encryption of your private channels. This means that only you and your connected clients will be able to read your messages. Pusher cannot decrypt them. You can enable this feature by following these steps:
+This library supports [end-to-end encrypted channels](https://pusher.com/docs/channels/using_channels/encrypted-channels). This means that only you and your connected clients will be able to read your messages. Pusher cannot decrypt them. You can enable this feature by following these steps:
 
 1. Install [Libsodium](https://github.com/jedisct1/libsodium), which we rely on to do the heavy lifting. [Follow the installation instructions for your platform.](https://github.com/RubyCrypto/rbnacl/wiki/Installing-libsodium)
 
-2. You should first set up Private channels. This involves [creating an authentication endpoint on your server](https://pusher.com/docs/authenticating_users).
+2. Encrypted channel subscriptions must be authenticated in the exact same way as private channels. You should therefore [create an authentication endpoint on your server](https://pusher.com/docs/authenticating_users).
 
 3. Next, generate your 32 byte master encryption key, encode it as base64 and pass it to the Pusher constructor.
 
