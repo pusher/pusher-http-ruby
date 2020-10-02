@@ -1,8 +1,10 @@
+require 'base64'
+
 require 'pusher-signature'
 
 module Pusher
   class Client
-    attr_accessor :scheme, :host, :port, :app_id, :key, :secret, :notification_host, :notification_scheme
+    attr_accessor :scheme, :host, :port, :app_id, :key, :secret, :notification_host, :notification_scheme, :encryption_master_key
     attr_reader :http_proxy, :proxy
     attr_writer :connect_timeout, :send_timeout, :receive_timeout,
                 :keep_alive_timeout
@@ -54,6 +56,11 @@ module Pusher
         merged_options.values_at(
           :scheme, :host, :port, :app_id, :key, :secret, :notification_host, :notification_scheme
         )
+
+      if options.has_key?(:encryption_master_key_base64)
+        @encryption_master_key =
+          Base64.decode64(options[:encryption_master_key_base64])
+      end
 
       @http_proxy = nil
       self.http_proxy = options[:http_proxy] if options[:http_proxy]
@@ -136,6 +143,12 @@ module Pusher
     # For more control, use the individual writers.
     def timeout=(value)
       @connect_timeout, @send_timeout, @receive_timeout = value, value, value
+    end
+
+    # Set an encryption_master_key to use with private-encrypted channels from
+    # a base64 encoded string.
+    def encryption_master_key_base64=(s)
+      @encryption_master_key = s ? Base64.decode64(s) : nil
     end
 
     ## INTERACT WITH THE API ##
@@ -413,10 +426,17 @@ module Pusher
       channels = Array(channels).map(&:to_s)
       raise Pusher::Error, "Too many channels (#{channels.length}), max 10" if channels.length > 10
 
+      encoded_data = if channels.any?{ |c| c.match(/^private-encrypted-/) } then
+        raise Pusher::Error, "Cannot trigger to multiple channels if any are encrypted" if channels.length > 1
+        encrypt(channels[0], encode_data(data))
+      else
+        encode_data(data)
+      end
+
       params.merge({
         name: event_name,
         channels: channels,
-        data: encode_data(data),
+        data: encoded_data,
       })
     end
 
@@ -424,7 +444,11 @@ module Pusher
       {
         batch: events.map do |event|
           event.dup.tap do |e|
-            e[:data] = encode_data(e[:data])
+            e[:data] = if e[:channel].match(/^private-encrypted-/) then
+              encrypt(e[:channel], encode_data(e[:data]))
+            else
+              encode_data(e[:data])
+            end
           end
         end
       }
@@ -434,6 +458,28 @@ module Pusher
     def encode_data(data)
       return data if data.is_a? String
       MultiJson.encode(data)
+    end
+
+    # Encrypts a message with a key derived from the master key and channel
+    # name
+    def encrypt(channel, encoded_data)
+      raise ConfigurationError, :encryption_master_key unless @encryption_master_key
+
+      # Only now load rbnacl, so that people that aren't using it don't need to
+      # install libsodium
+      require 'rbnacl'
+
+      secret_box = RbNaCl::SecretBox.new(
+        RbNaCl::Hash.sha256(channel + @encryption_master_key)
+      )
+
+      nonce = RbNaCl::Random.random_bytes(secret_box.nonce_bytes)
+      ciphertext = secret_box.encrypt(nonce, encoded_data)
+
+      MultiJson.encode({
+        "nonce" => Base64::encode64(nonce),
+        "ciphertext" => Base64::encode64(ciphertext),
+      })
     end
 
     def configured?

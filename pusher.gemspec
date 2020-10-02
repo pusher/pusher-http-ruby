@@ -17,6 +17,7 @@ Gem::Specification.new do |s|
   s.add_dependency 'pusher-signature', "~> 0.1.8"
   s.add_dependency "httpclient", "~> 2.8"
   s.add_dependency "jruby-openssl" if defined?(JRUBY_VERSION)
+  s.add_dependency "rbnacl", "~> 7.1"
 
   s.add_development_dependency "rspec", "~> 3.9"
   s.add_development_dependency "webmock", "~> 3.9"

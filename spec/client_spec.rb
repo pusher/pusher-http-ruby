@@ -1,6 +1,11 @@
+require 'base64'
+
+require 'rbnacl'
+require 'em-http'
+
 require 'spec_helper'
 
-require 'em-http'
+encryption_master_key = RbNaCl::Random.random_bytes(32)
 
 describe Pusher do
   # The behaviour should be the same when using the Client object, or the
@@ -171,11 +176,22 @@ describe Pusher do
       end
     end
 
+    describe 'can set encryption_master_key_base64' do
+      it "sets encryption_master_key" do
+        @client.encryption_master_key_base64 =
+          Base64.encode64(encryption_master_key)
+
+        expect(@client.encryption_master_key).to eq(encryption_master_key)
+      end
+    end
+
     describe 'when configured' do
       before :each do
         @client.app_id = '20'
         @client.key    = '12345678900000001'
         @client.secret = '12345678900000001'
+        @client.encryption_master_key_base64 =
+          Base64.encode64(encryption_master_key)
       end
 
       describe '#[]' do
@@ -321,6 +337,46 @@ describe Pusher do
             }
           end
         end
+
+        it "should fail to publish to encrypted channels when missing key" do
+          @client.encryption_master_key_base64 = nil
+          expect {
+            @client.trigger('private-encrypted-channel', 'event', {'some' => 'data'})
+          }.to raise_error(Pusher::ConfigurationError)
+          expect(WebMock).not_to have_requested(:post, @api_path)
+        end
+
+        it "should fail to publish to multiple channels if one is encrypted" do
+          expect {
+            @client.trigger(
+              ['private-encrypted-channel', 'some-other-channel'],
+              'event',
+              {'some' => 'data'},
+            )
+          }.to raise_error(Pusher::Error)
+          expect(WebMock).not_to have_requested(:post, @api_path)
+        end
+
+        it "should encrypt publishes to encrypted channels" do
+          @client.trigger(
+            'private-encrypted-channel',
+            'event',
+            {'some' => 'data'},
+          )
+
+          expect(WebMock).to have_requested(:post, @api_path).with { |req|
+            data = MultiJson.decode(MultiJson.decode(req.body)["data"])
+
+            key = RbNaCl::Hash.sha256(
+              'private-encrypted-channel' + encryption_master_key
+            )
+
+            expect(MultiJson.decode(RbNaCl::SecretBox.new(key).decrypt(
+              Base64.decode64(data["nonce"]),
+              Base64.decode64(data["ciphertext"]),
+            ))).to eq({ 'some' => 'data' })
+          }
+        end
       end
 
       describe '#trigger_batch' do
@@ -350,6 +406,55 @@ describe Pusher do
                 { "channel" => "mychannel", "name" => "event", "data" => "already encoded"}
               ]
             )
+          }
+        end
+
+        it "should fail to publish to encrypted channels when missing key" do
+          @client.encryption_master_key_base64 = nil
+          expect {
+            @client.trigger_batch(
+              {
+                channel: 'private-encrypted-channel',
+                name: 'event',
+                data: {'some' => 'data'},
+              },
+              {channel: 'mychannel', name: 'event', data: 'already encoded'},
+            )
+          }.to raise_error(Pusher::ConfigurationError)
+          expect(WebMock).not_to have_requested(:post, @api_path)
+        end
+
+        it "should encrypt publishes to encrypted channels" do
+          @client.trigger_batch(
+            {
+              channel: 'private-encrypted-channel',
+              name: 'event',
+              data: {'some' => 'data'},
+            },
+            {channel: 'mychannel', name: 'event', data: 'already encoded'},
+          )
+
+          expect(WebMock).to have_requested(:post, @api_path).with { |req|
+            batch = MultiJson.decode(req.body)["batch"]
+            expect(batch.length).to eq(2)
+
+            expect(batch[0]["channel"]).to eq("private-encrypted-channel")
+            expect(batch[0]["name"]).to eq("event")
+
+            data = MultiJson.decode(batch[0]["data"])
+
+            key = RbNaCl::Hash.sha256(
+              'private-encrypted-channel' + encryption_master_key
+            )
+
+            expect(MultiJson.decode(RbNaCl::SecretBox.new(key).decrypt(
+              Base64.decode64(data["nonce"]),
+              Base64.decode64(data["ciphertext"]),
+            ))).to eq({ 'some' => 'data' })
+
+            expect(batch[1]["channel"]).to eq("mychannel")
+            expect(batch[1]["name"]).to eq("event")
+            expect(batch[1]["data"]).to eq("already encoded")
           }
         end
       end
