@@ -1,4 +1,4 @@
-HEAD  / 2020-09-29
+1.4.0  / 2020-09-29
 ==================
 
   * Support for end-to-end encryption.
