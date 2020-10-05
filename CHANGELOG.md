@@ -1,4 +1,10 @@
-1.4.0  / 2020-09-29
+1.4.1 / 2020-10-05
+==================
+
+  * Remove rbnacl from dependencies so we don't get errors when it isn't
+    required. Thanks @y-yagi!
+
+1.4.0 / 2020-09-29
 ==================
 
   * Support for end-to-end encryption.
