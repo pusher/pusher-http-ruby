@@ -467,7 +467,7 @@ module Pusher
 
       # Only now load rbnacl, so that people that aren't using it don't need to
       # install libsodium
-      require 'rbnacl'
+      require_rbnacl
 
       secret_box = RbNaCl::SecretBox.new(
         RbNaCl::Hash.sha256(channel + @encryption_master_key)
@@ -484,6 +484,13 @@ module Pusher
 
     def configured?
       host && scheme && key && secret && app_id
+    end
+
+    def require_rbnacl
+      require 'rbnacl'
+    rescue LoadError => e
+      $stderr.puts "You don't have rbnacl installed in your application. Please add it to your Gemfile and run bundle install"
+      raise e
     end
   end
 end
