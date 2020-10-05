@@ -17,7 +17,6 @@ Gem::Specification.new do |s|
   s.add_dependency 'pusher-signature', "~> 0.1.8"
   s.add_dependency "httpclient", "~> 2.8"
   s.add_dependency "jruby-openssl" if defined?(JRUBY_VERSION)
-  s.add_dependency "rbnacl", "~> 7.1"
 
   s.add_development_dependency "rspec", "~> 3.9"
   s.add_development_dependency "webmock", "~> 3.9"
@@ -26,6 +25,7 @@ Gem::Specification.new do |s|
   s.add_development_dependency "rake", "~> 13.0"
   s.add_development_dependency "rack", "~> 2.2"
   s.add_development_dependency "json", "~> 2.3"
+  s.add_development_dependency "rbnacl", "~> 7.1"
 
   s.files         = `git ls-files`.split("\n")
   s.test_files    = `git ls-files -- {test,spec,features}/*`.split("\n")

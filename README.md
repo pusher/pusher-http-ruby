@@ -252,11 +252,13 @@ end
 
 This library supports [end-to-end encrypted channels](https://pusher.com/docs/channels/using_channels/encrypted-channels). This means that only you and your connected clients will be able to read your messages. Pusher cannot decrypt them. You can enable this feature by following these steps:
 
-1. Install [Libsodium](https://github.com/jedisct1/libsodium), which we rely on to do the heavy lifting. [Follow the installation instructions for your platform.](https://github.com/RubyCrypto/rbnacl/wiki/Installing-libsodium)
+1. Add the `rbnacl` gem to your Gemfile (it's not a gem dependency).
 
-2. Encrypted channel subscriptions must be authenticated in the exact same way as private channels. You should therefore [create an authentication endpoint on your server](https://pusher.com/docs/authenticating_users).
+2. Install [Libsodium](https://github.com/jedisct1/libsodium), which we rely on to do the heavy lifting. [Follow the installation instructions for your platform.](https://github.com/RubyCrypto/rbnacl/wiki/Installing-libsodium)
 
-3. Next, generate your 32 byte master encryption key, encode it as base64 and pass it to the Pusher constructor.
+3. Encrypted channel subscriptions must be authenticated in the exact same way as private channels. You should therefore [create an authentication endpoint on your server](https://pusher.com/docs/authenticating_users).
+
+4. Next, generate your 32 byte master encryption key, encode it as base64 and pass it to the Pusher constructor.
 
    This is secret and you should never share this with anyone.
    Not even Pusher.
@@ -276,9 +278,9 @@ This library supports [end-to-end encrypted channels](https://pusher.com/docs/ch
    });
    ```
 
-4. Channels where you wish to use end-to-end encryption should be prefixed with `private-encrypted-`.
+5. Channels where you wish to use end-to-end encryption should be prefixed with `private-encrypted-`.
 
-5. Subscribe to these channels in your client, and you're done! You can verify it is working by checking out the debug console on the [https://dashboard.pusher.com/](dashboard) and seeing the scrambled ciphertext.
+6. Subscribe to these channels in your client, and you're done! You can verify it is working by checking out the debug console on the [https://dashboard.pusher.com/](dashboard) and seeing the scrambled ciphertext.
 
 **Important note: This will __not__ encrypt messages on channels that are not prefixed by `private-encrypted-`.**
 
