@@ -375,7 +375,11 @@ module Pusher
     #
     def authenticate(channel_name, socket_id, custom_data = nil)
       channel_instance = channel(channel_name)
-      channel_instance.authenticate(socket_id, custom_data)
+      r = channel_instance.authenticate(socket_id, custom_data)
+      if channel_name.match(/^private-encrypted-/)
+        r[:shared_secret] = channel_instance.shared_secret(encryption_master_key)
+      end
+      r
     end
 
     # @private Construct a net/http http client
