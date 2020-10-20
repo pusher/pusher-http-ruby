@@ -174,6 +174,15 @@ module Pusher
       r
     end
 
+    def shared_secret(encryption_master_key)
+      return unless encryption_master_key
+
+      secret_string = @name + encryption_master_key
+      digest = OpenSSL::Digest::SHA256.new
+      digest << secret_string
+      Base64.strict_encode64(digest.digest)
+    end
+
     private
 
     def validate_socket_id(socket_id)

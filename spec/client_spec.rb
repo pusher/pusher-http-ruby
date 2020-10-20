@@ -276,6 +276,19 @@ describe Pusher do
           })
         end
 
+        it 'should include a shared_secret if the private-encrypted channel' do
+          allow(MultiJson).to receive(:encode).with(@custom_data).and_return 'a json string'
+          @client.instance_variable_set(:@encryption_master_key, '3W1pfB/Etr+ZIlfMWwZP3gz8jEeCt4s2pe6Vpr+2c3M=')
+
+          response = @client.authenticate('private-encrypted-test_channel', '1.1', @custom_data)
+
+          expect(response).to eq({
+            :auth => "12345678900000001:#{hmac(@client.secret, "1.1:private-encrypted-test_channel:a json string")}",
+            :shared_secret => "o0L3QnIovCeRC8KTD8KBRlmi31dGzHVS2M93uryqDdw=",
+            :channel_data => 'a json string'
+          })
+        end
+
       end
 
       describe '#trigger' do
