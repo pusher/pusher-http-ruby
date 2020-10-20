@@ -1,3 +1,9 @@
+1.4.2 / 2020-10-20
+==================
+
+  * Return `shared_secret` to support authenticating encrypted channels. Thanks
+    @Benjaminpjacobs
+
 1.4.1 / 2020-10-05
 ==================
 
