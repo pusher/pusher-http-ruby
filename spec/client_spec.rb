@@ -179,7 +179,7 @@ describe Pusher do
     describe 'can set encryption_master_key_base64' do
       it "sets encryption_master_key" do
         @client.encryption_master_key_base64 =
-          Base64.encode64(encryption_master_key)
+          Base64.strict_encode64(encryption_master_key)
 
         expect(@client.encryption_master_key).to eq(encryption_master_key)
       end
@@ -191,7 +191,7 @@ describe Pusher do
         @client.key    = '12345678900000001'
         @client.secret = '12345678900000001'
         @client.encryption_master_key_base64 =
-          Base64.encode64(encryption_master_key)
+          Base64.strict_encode64(encryption_master_key)
       end
 
       describe '#[]' do

@@ -176,7 +176,9 @@ describe Pusher::Channel do
     it 'should return a shared_secret based on the channel name and encryption master key' do
       key = '3W1pfB/Etr+ZIlfMWwZP3gz8jEeCt4s2pe6Vpr+2c3M='
       shared_secret = @channel.shared_secret(key)
-      expect(shared_secret).to eq("6zeEp/chneRPS1cbK/hGeG860UhHomxSN6hTgzwT20I=")
+      expect(Base64.strict_encode64(shared_secret)).to eq(
+        "6zeEp/chneRPS1cbK/hGeG860UhHomxSN6hTgzwT20I="
+      )
     end
 
     it 'should return nil if missing encryption master key' do

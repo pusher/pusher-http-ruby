@@ -377,7 +377,9 @@ module Pusher
       channel_instance = channel(channel_name)
       r = channel_instance.authenticate(socket_id, custom_data)
       if channel_name.match(/^private-encrypted-/)
-        r[:shared_secret] = channel_instance.shared_secret(encryption_master_key)
+        r[:shared_secret] = Base64.strict_encode64(
+          channel_instance.shared_secret(encryption_master_key)
+        )
       end
       r
     end
@@ -466,7 +468,7 @@ module Pusher
 
     # Encrypts a message with a key derived from the master key and channel
     # name
-    def encrypt(channel, encoded_data)
+    def encrypt(channel_name, encoded_data)
       raise ConfigurationError, :encryption_master_key unless @encryption_master_key
 
       # Only now load rbnacl, so that people that aren't using it don't need to
@@ -474,7 +476,7 @@ module Pusher
       require_rbnacl
 
       secret_box = RbNaCl::SecretBox.new(
-        RbNaCl::Hash.sha256(channel + @encryption_master_key)
+        channel(channel_name).shared_secret(@encryption_master_key)
       )
 
       nonce = RbNaCl::Random.random_bytes(secret_box.nonce_bytes)

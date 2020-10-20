@@ -180,7 +180,7 @@ module Pusher
       secret_string = @name + encryption_master_key
       digest = OpenSSL::Digest::SHA256.new
       digest << secret_string
-      Base64.strict_encode64(digest.digest)
+      digest.digest
     end
 
     private
