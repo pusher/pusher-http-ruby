@@ -59,7 +59,7 @@ module Pusher
 
       if options.has_key?(:encryption_master_key_base64)
         @encryption_master_key =
-          Base64.decode64(options[:encryption_master_key_base64])
+          Base64.strict_decode64(options[:encryption_master_key_base64])
       end
 
       @http_proxy = nil
@@ -148,7 +148,7 @@ module Pusher
     # Set an encryption_master_key to use with private-encrypted channels from
     # a base64 encoded string.
     def encryption_master_key_base64=(s)
-      @encryption_master_key = s ? Base64.decode64(s) : nil
+      @encryption_master_key = s ? Base64.strict_decode64(s) : nil
     end
 
     ## INTERACT WITH THE API ##
@@ -483,8 +483,8 @@ module Pusher
       ciphertext = secret_box.encrypt(nonce, encoded_data)
 
       MultiJson.encode({
-        "nonce" => Base64::encode64(nonce),
-        "ciphertext" => Base64::encode64(ciphertext),
+        "nonce" => Base64::strict_encode64(nonce),
+        "ciphertext" => Base64::strict_encode64(ciphertext),
       })
     end
 

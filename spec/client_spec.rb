@@ -385,8 +385,8 @@ describe Pusher do
             )
 
             expect(MultiJson.decode(RbNaCl::SecretBox.new(key).decrypt(
-              Base64.decode64(data["nonce"]),
-              Base64.decode64(data["ciphertext"]),
+              Base64.strict_decode64(data["nonce"]),
+              Base64.strict_decode64(data["ciphertext"]),
             ))).to eq({ 'some' => 'data' })
           }
         end
@@ -461,8 +461,8 @@ describe Pusher do
             )
 
             expect(MultiJson.decode(RbNaCl::SecretBox.new(key).decrypt(
-              Base64.decode64(data["nonce"]),
-              Base64.decode64(data["ciphertext"]),
+              Base64.strict_decode64(data["nonce"]),
+              Base64.strict_decode64(data["ciphertext"]),
             ))).to eq({ 'some' => 'data' })
 
             expect(batch[1]["channel"]).to eq("mychannel")
