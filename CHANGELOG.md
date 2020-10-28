@@ -1,3 +1,9 @@
+Unreleased
+==========
+
+  * Remove newline from end of base64 encoded strings, some decoders don't like
+    them.
+
 1.4.2 / 2020-10-20
 ==================
 
