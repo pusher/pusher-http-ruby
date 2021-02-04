@@ -1,0 +1,31 @@
+name: Tests
+
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-20.04
+    strategy:
+      fail-fast: false
+      matrix:
+        ruby: [ '2.4', '2.5', '2.6' ]
+
+    name: Ruby ${{ matrix.ruby }} Test
+
+    env:
+      DAY_OF_WEEK: Mon
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ${{ matrix.ruby }}
+
+      - name: Install dependencies
+        run: bundle install
+
+      - name: Run test suite
+        run: bundle exec rake

@@ -2,7 +2,11 @@
 
 This Gem provides a Ruby interface to [the Pusher HTTP API for Pusher Channels](https://pusher.com/docs/channels/library_auth_reference/rest-api).
 
-[![Build Status](https://secure.travis-ci.org/pusher/pusher-http-ruby.svg?branch=master)](http://travis-ci.org/pusher/pusher-http-ruby) [![Gem Version](https://badge.fury.io/rb/pusher.svg)](https://badge.fury.io/rb/pusher)
+[![Build Status](https://github.com/pusher/pusher-http-ruby/workflows/Tests/badge.svg)](https://github.com/pusher/pusher-http-ruby/actions?query=workflow%3ATests+branch%3Amaster) [![Gem Version](https://badge.fury.io/rb/pusher.svg)](https://badge.fury.io/rb/pusher)
+
+## Supported Platforms
+
+* Ruby - supports **Ruby 2.4 or greater**.
 
 ## Installation and Configuration
 
@@ -295,6 +299,3 @@ pusher.trigger(
 ```
 
 Rationale: the methods in this library map directly to individual Channels HTTP API requests. If we allowed triggering a single event on multiple channels (some encrypted, some unencrypted), then it would require two API requests: one where the event is encrypted to the encrypted channels, and one where the event is unencrypted for unencrypted channels.
-
-## Supported Ruby versions
-2.4+
