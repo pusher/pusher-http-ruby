@@ -15,9 +15,6 @@ jobs:
 
     name: Ruby ${{ matrix.ruby }} Test
 
-    env:
-      DAY_OF_WEEK: Mon
-
     steps:
       - name: Checkout
         uses: actions/checkout@v2
