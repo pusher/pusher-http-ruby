@@ -6,7 +6,7 @@ This Gem provides a Ruby interface to [the Pusher HTTP API for Pusher Channels](
 
 ## Supported Platforms
 
-* Ruby - supports **Ruby 2.4 or greater**.
+* Ruby - supports **Ruby 2.6 or greater**.
 
 ## Installation and Configuration
 

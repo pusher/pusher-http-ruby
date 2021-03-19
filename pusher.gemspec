@@ -13,6 +13,8 @@ Gem::Specification.new do |s|
   s.description = %q{Wrapper for Pusher Channels REST api: : https://pusher.com/channels}
   s.license     = "MIT"
 
+  s.required_ruby_version = ">= 2.6"
+
   s.add_dependency "multi_json", "~> 1.15"
   s.add_dependency 'pusher-signature', "~> 0.1.8"
   s.add_dependency "httpclient", "~> 2.8"
