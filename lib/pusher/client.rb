@@ -4,7 +4,7 @@ require 'pusher-signature'
 
 module Pusher
   class Client
-    attr_accessor :scheme, :host, :port, :app_id, :key, :secret, :notification_host, :notification_scheme, :encryption_master_key
+    attr_accessor :scheme, :host, :port, :app_id, :key, :secret, :encryption_master_key
     attr_reader :http_proxy, :proxy
     attr_writer :connect_timeout, :send_timeout, :receive_timeout,
                 :keep_alive_timeout
@@ -45,16 +45,9 @@ module Pusher
         merged_options[:host] = "api.pusherapp.com"
       end
 
-      # TODO: Change host name when finalized
-      merged_options[:notification_host] =
-        options.fetch(:notification_host, "nativepush-cluster1.pusher.com")
-
-      merged_options[:notification_scheme] =
-        options.fetch(:notification_scheme, "https")
-
-      @scheme, @host, @port, @app_id, @key, @secret, @notification_host, @notification_scheme =
+      @scheme, @host, @port, @app_id, @key, @secret =
         merged_options.values_at(
-          :scheme, :host, :port, :app_id, :key, :secret, :notification_host, :notification_scheme
+          :scheme, :host, :port, :app_id, :key, :secret
         )
 
       if options.has_key?(:encryption_master_key_base64)
@@ -62,8 +55,7 @@ module Pusher
           Base64.strict_decode64(options[:encryption_master_key_base64])
       end
 
-      @http_proxy = nil
-      self.http_proxy = options[:http_proxy] if options[:http_proxy]
+      @http_proxy = options[:http_proxy]
 
       # Default timeouts
       @connect_timeout = 5
