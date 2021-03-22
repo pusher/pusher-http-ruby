@@ -17,7 +17,7 @@ describe Pusher do
 
     describe 'default configuration' do
       it 'should be preconfigured for api host' do
-        expect(@client.host).to eq('api.pusherapp.com')
+        expect(@client.host).to eq('api-mt1.pusher.com')
       end
 
       it 'should be preconfigured for port 80' do
@@ -77,6 +77,16 @@ describe Pusher do
       it 'should set a new default host' do
         @client.cluster = 'eu'
         expect(@client.host).to eq('api-eu.pusher.com')
+      end
+
+      it 'should handle nil gracefully' do
+        @client.cluster = nil
+        expect(@client.host).to eq('api-mt1.pusher.com')
+      end
+
+      it 'should handle empty string' do
+        @client.cluster = ""
+        expect(@client.host).to eq('api-mt1.pusher.com')
       end
 
       it 'should be overridden by host if it comes after' do
@@ -518,7 +528,7 @@ describe Pusher do
       [:get, :post].each do |verb|
         describe "##{verb}" do
           before :each do
-            @url_regexp = %r{api.pusherapp.com}
+            @url_regexp = %r{api-mt1.pusher.com}
             stub_request(verb, @url_regexp).
               to_return(:status => 200, :body => "{}")
           end
@@ -527,13 +537,13 @@ describe Pusher do
 
           it "should use http by default" do
             call_api
-            expect(WebMock).to have_requested(verb, %r{http://api.pusherapp.com/apps/20/path})
+            expect(WebMock).to have_requested(verb, %r{http://api-mt1.pusher.com/apps/20/path})
           end
 
           it "should use https if configured" do
             @client.encrypted = true
             call_api
-            expect(WebMock).to have_requested(verb, %r{https://api.pusherapp.com})
+            expect(WebMock).to have_requested(verb, %r{https://api-mt1.pusher.com})
           end
 
           it "should format the respose hash with symbols at first level" do
@@ -598,7 +608,7 @@ describe Pusher do
         [[:get, :get_async], [:post, :post_async]].each do |verb, method|
           describe "##{method}" do
             before :each do
-              @url_regexp = %r{api.pusherapp.com}
+              @url_regexp = %r{api-mt1.pusher.com}
               stub_request(verb, @url_regexp).
                 to_return(:status => 200, :body => "{}")
             end
@@ -614,13 +624,13 @@ describe Pusher do
 
             it "should use http by default" do
               call_api
-              expect(WebMock).to have_requested(verb, %r{http://api.pusherapp.com/apps/20/path})
+              expect(WebMock).to have_requested(verb, %r{http://api-mt1.pusher.com/apps/20/path})
             end
 
             it "should use https if configured" do
               @client.encrypted = true
               call_api
-              expect(WebMock).to have_requested(verb, %r{https://api.pusherapp.com})
+              expect(WebMock).to have_requested(verb, %r{https://api-mt1.pusher.com})
             end
 
             # Note that the raw httpclient connection object is returned and
@@ -640,7 +650,7 @@ describe Pusher do
         [[:get, :get_async], [:post, :post_async]].each do |verb, method|
           describe "##{method}" do
             before :each do
-              @url_regexp = %r{api.pusherapp.com}
+              @url_regexp = %r{api-mt1.pusher.com}
               stub_request(verb, @url_regexp).
                 to_return(:status => 200, :body => "{}")
             end
@@ -650,7 +660,7 @@ describe Pusher do
             it "should use http by default" do
               EM.run {
                 call_api.callback {
-                  expect(WebMock).to have_requested(verb, %r{http://api.pusherapp.com/apps/20/path})
+                  expect(WebMock).to have_requested(verb, %r{http://api-mt1.pusher.com/apps/20/path})
                   EM.stop
                 }
               }
@@ -660,7 +670,7 @@ describe Pusher do
               EM.run {
                 @client.encrypted = true
                 call_api.callback {
-                  expect(WebMock).to have_requested(verb, %r{https://api.pusherapp.com})
+                  expect(WebMock).to have_requested(verb, %r{https://api-mt1.pusher.com})
                   EM.stop
                 }
               }

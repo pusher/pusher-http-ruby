@@ -1,5 +1,4 @@
 require 'base64'
-
 require 'pusher-signature'
 
 module Pusher
@@ -10,6 +9,11 @@ module Pusher
                 :keep_alive_timeout
 
     ## CONFIGURATION ##
+    DEFAULT_CONNECT_TIMEOUT = 5
+    DEFAULT_SEND_TIMEOUT = 5
+    DEFAULT_RECEIVE_TIMEOUT = 5
+    DEFAULT_KEEP_ALIVE_TIMEOUT = 30
+    DEFAULT_CLUSTER = "mt1"
 
     # Loads the configuration from an url in the environment
     def self.from_env(key = 'PUSHER_URL')
@@ -25,43 +29,31 @@ module Pusher
     end
 
     def initialize(options = {})
-      default_options = {
-        :scheme => 'http',
-        :port => 80,
-      }
+      @scheme = "http"
+      @port = options[:port] || 80
 
       if options[:use_tls] || options[:encrypted]
-        default_options[:scheme] = "https"
-        default_options[:port] = 443
+        @scheme = "https"
+        @port = options[:port] || 443
       end
 
-      merged_options = default_options.merge(options)
+      @app_id = options[:app_id]
+      @key = options[:key]
+      @secret = options[:secret]
 
-      if options.has_key?(:host)
-        merged_options[:host] = options[:host]
-      elsif options.has_key?(:cluster)
-        merged_options[:host] = "api-#{options[:cluster]}.pusher.com"
-      else
-        merged_options[:host] = "api.pusherapp.com"
-      end
+      @host = options[:host]
+      @host ||= "api-#{options[:cluster]}.pusher.com" unless options[:cluster].nil? || options[:cluster].empty?
+      @host ||= "api-#{DEFAULT_CLUSTER}.pusher.com"
 
-      @scheme, @host, @port, @app_id, @key, @secret =
-        merged_options.values_at(
-          :scheme, :host, :port, :app_id, :key, :secret
-        )
-
-      if options.has_key?(:encryption_master_key_base64)
-        @encryption_master_key =
-          Base64.strict_decode64(options[:encryption_master_key_base64])
-      end
+      @encryption_master_key = Base64.strict_decode64(options[:encryption_master_key_base64]) if options[:encryption_master_key_base64]
 
       @http_proxy = options[:http_proxy]
 
       # Default timeouts
-      @connect_timeout = 5
-      @send_timeout = 5
-      @receive_timeout = 5
-      @keep_alive_timeout = 30
+      @connect_timeout = DEFAULT_CONNECT_TIMEOUT
+      @send_timeout = DEFAULT_SEND_TIMEOUT
+      @receive_timeout = DEFAULT_RECEIVE_TIMEOUT
+      @keep_alive_timeout = DEFAULT_KEEP_ALIVE_TIMEOUT
     end
 
     # @private Returns the authentication token for the client
@@ -75,10 +67,10 @@ module Pusher
     def url(path = nil)
       raise ConfigurationError, :app_id unless @app_id
       URI::Generic.build({
-        :scheme => @scheme,
-        :host => @host,
-        :port => @port,
-        :path => "/apps/#{@app_id}#{path}"
+        scheme: @scheme,
+        host: @host,
+        port: @port,
+        path: "/apps/#{@app_id}#{path}"
       })
     end
 
@@ -102,13 +94,12 @@ module Pusher
       @http_proxy = http_proxy
       uri = URI.parse(http_proxy)
       @proxy = {
-        :scheme => uri.scheme,
-        :host => uri.host,
-        :port => uri.port,
-        :user => uri.user,
-        :password => uri.password
+        scheme: uri.scheme,
+        host: uri.host,
+        port: uri.port,
+        user: uri.user,
+        password: uri.password
       }
-      @http_proxy
     end
 
     # Configure whether Pusher API calls should be made over SSL
@@ -128,6 +119,8 @@ module Pusher
     end
 
     def cluster=(cluster)
+      cluster = DEFAULT_CLUSTER if cluster.nil? || cluster.empty?
+
       @host = "api-#{cluster}.pusher.com"
     end
 
@@ -360,9 +353,9 @@ module Pusher
 
     # @private Construct a net/http http client
     def sync_http_client
-      @client ||= begin
-        require 'httpclient'
+      require 'httpclient'
 
+      @client ||= begin
         HTTPClient.new(@http_proxy).tap do |c|
           c.connect_timeout = @connect_timeout
           c.send_timeout = @send_timeout
@@ -381,14 +374,14 @@ module Pusher
         require 'em-http' unless defined?(EventMachine::HttpRequest)
 
         connection_opts = {
-          :connect_timeout => @connect_timeout,
-          :inactivity_timeout => @receive_timeout,
+          connect_timeout: @connect_timeout,
+          inactivity_timeout: @receive_timeout,
         }
 
         if defined?(@proxy)
           proxy_opts = {
-            :host => @proxy[:host],
-            :port => @proxy[:port]
+            host: @proxy[:host],
+            port: @proxy[:port]
           }
           if @proxy[:user]
             proxy_opts[:authorization] = [@proxy[:user], @proxy[:password]]

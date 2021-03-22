@@ -29,7 +29,7 @@ describe Pusher::Channel do
   describe '#trigger!' do
     it "should use @client.trigger internally" do
       expect(@client).to receive(:trigger)
-      @channel.trigger('new_event', 'Some data')
+      @channel.trigger!('new_event', 'Some data')
     end
   end
 
@@ -39,16 +39,14 @@ describe Pusher::Channel do
 
       expect(Pusher.logger).to receive(:error).with("Exception from WebMock (HTTPClient::BadResponseError) (Pusher::HTTPError)")
       expect(Pusher.logger).to receive(:debug) #backtrace
-      channel = Pusher::Channel.new(@client.url, 'test_channel', @client)
-      channel.trigger('new_event', 'Some data')
+      @channel.trigger('new_event', 'Some data')
     end
 
     it "should log failure if Pusher returns an error response" do
       stub_post 401, "some signature info"
       expect(Pusher.logger).to receive(:error).with("some signature info (Pusher::AuthenticationError)")
       expect(Pusher.logger).to receive(:debug) #backtrace
-      channel = Pusher::Channel.new(@client.url, 'test_channel', @client)
-      channel.trigger('new_event', 'Some data')
+      @channel.trigger('new_event', 'Some data')
     end
   end
 
