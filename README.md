@@ -2,7 +2,7 @@
 
 This Gem provides a Ruby interface to [the Pusher HTTP API for Pusher Channels](https://pusher.com/docs/channels/library_auth_reference/rest-api).
 
-[![Build Status](https://github.com/pusher/pusher-http-ruby/workflows/Tests/badge.svg)](https://github.com/pusher/pusher-http-ruby/actions?query=workflow%3ATests+branch%3Amaster) [![Gem Version](https://badge.fury.io/rb/pusher.svg)](https://badge.fury.io/rb/pusher)
+[![Build Status](https://github.com/pusher/pusher-http-ruby/workflows/Tests/badge.svg)](https://github.com/pusher/pusher-http-ruby/actions?query=workflow%3ATests+branch%3Amaster) [![Gem](https://img.shields.io/gem/v/pusher)](https://rubygems.org/gems/pusher) [![Gem](https://img.shields.io/gem/dt/pusher)](https://rubygems.org/gems/pusher)
 
 ## Supported Platforms
 
@@ -40,7 +40,7 @@ pusher = Pusher::Client.new(
 )
 ```
 
-The `cluster` value will set the `host` to `api-<cluster>.pusher.com`. The `use_tls` value is optional and defaults to `false`. It will set the `scheme` and `port`. Custom `scheme` and `port` values take precendence over `use_tls`.
+The `cluster` value will set the `host` to `api-<cluster>.pusher.com`. The `use_tls` value is optional and defaults to `true`. It will set the `scheme` and `port`. A custom `port` value takes precendence over `use_tls`.
 
 If you want to set a custom `host` value for your client then you can do so when instantiating a Pusher Channels client like so:
 
@@ -83,11 +83,11 @@ If you need to make requests via a HTTP proxy then it can be configured
 Pusher.http_proxy = 'http://(user):(password)@(host):(port)'
 ```
 
-By default API requests are made over HTTP. HTTPS can be used by setting `encrypted` to `true`.
+By default API requests are made over HTTPS. HTTP can be used by setting `use_tls` to `false`.
 Issuing this command is going to reset `port` value if it was previously specified.
 
 ``` ruby
-Pusher.encrypted = true
+Pusher.use_tls = false
 ```
 
 As of version 0.12, SSL certificates are verified when using the synchronous http client. If you need to disable this behaviour for any reason use:
