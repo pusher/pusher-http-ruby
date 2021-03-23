@@ -39,7 +39,7 @@ jobs:
           sudo cp semver-tool-3.2.0/src/semver /usr/local/bin
       - name: Bump version
         run: |
-          export CURRENT=$(gem info pusher-push-notifications --remote --exact | grep -o "pusher-push-notifications ([0-9]*\.[0-9]*\.[0-9]*)" | awk -F '[()]' '{print $2}')
+          export CURRENT=$(gem info pusher --remote --exact | grep -o "pusher ([0-9]*\.[0-9]*\.[0-9]*)" | awk -F '[()]' '{print $2}')
           export NEW_VERSION=$(semver bump ${{ env.RELEASE }} $CURRENT)
           echo "VERSION=$NEW_VERSION" >> $GITHUB_ENV
       - name: Checkout code
@@ -63,12 +63,9 @@ jobs:
       - name: Prepare version.rb
         run: |
           sed -i "s|VERSION = '[^']*'|VERSION = '${{ env.VERSION }}'|" lib/pusher/version.rb
-      - name: Prepare Gemfile.lock
-        run: |
-          sed -i "s|pusher-push-notifications ([^)]*)|pusher-push-notifications (${{ env.VERSION }})|" Gemfile.lock
       - name: Commit changes
         run: |
-          git add CHANGELOG.md lib/pusher/push_notifications/version.rb Gemfile.lock
+          git add CHANGELOG.md lib/pusher/version.rb
           git commit -m "Bump to version ${{ env.VERSION }}"
       - name: Push
         run: git push

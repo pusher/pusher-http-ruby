@@ -20,8 +20,8 @@ describe Pusher do
         expect(@client.host).to eq('api-mt1.pusher.com')
       end
 
-      it 'should be preconfigured for port 80' do
-        expect(@client.port).to eq(80)
+      it 'should be preconfigured for port 443' do
+        expect(@client.port).to eq(443)
       end
 
       it 'should use standard logger if no other logger if defined' do
@@ -116,26 +116,26 @@ describe Pusher do
     end
 
     describe 'configuring TLS' do
-      it 'should set port and scheme if "use_tls" enabled' do
+      it 'should set port and scheme if "use_tls" disabled' do
         client = Pusher::Client.new({
-          :use_tls => true,
+          :use_tls => false,
         })
-        expect(client.scheme).to eq('https')
-        expect(client.port).to eq(443)
-      end
-
-      it 'should set port and scheme if "encrypted" enabled' do
-        client = Pusher::Client.new({
-          :encrypted => true,
-        })
-        expect(client.scheme).to eq('https')
-        expect(client.port).to eq(443)
-      end
-
-      it 'should use non-TLS port and scheme if "encrypted" or "use_tls" are not set' do
-        client = Pusher::Client.new
         expect(client.scheme).to eq('http')
         expect(client.port).to eq(80)
+      end
+
+      it 'should set port and scheme if "encrypted" disabled' do
+        client = Pusher::Client.new({
+          :encrypted => false,
+        })
+        expect(client.scheme).to eq('http')
+        expect(client.port).to eq(80)
+      end
+
+      it 'should use TLS port and scheme if "encrypted" or "use_tls" are not set' do
+        client = Pusher::Client.new
+        expect(client.scheme).to eq('https')
+        expect(client.port).to eq(443)
       end
 
       it 'should override port if "use_tls" option set but a different port is specified' do
@@ -145,6 +145,15 @@ describe Pusher do
         })
         expect(client.scheme).to eq('https')
         expect(client.port).to eq(8443)
+      end
+
+      it 'should override port if "use_tls" option set but a different port is specified' do
+        client = Pusher::Client.new({
+          :use_tls => false,
+          :port => 8000
+        })
+        expect(client.scheme).to eq('http')
+        expect(client.port).to eq(8000)
       end
 
     end
@@ -535,15 +544,15 @@ describe Pusher do
 
           let(:call_api) { @client.send(verb, '/path') }
 
-          it "should use http by default" do
+          it "should use https by default" do
             call_api
-            expect(WebMock).to have_requested(verb, %r{http://api-mt1.pusher.com/apps/20/path})
+            expect(WebMock).to have_requested(verb, %r{https://api-mt1.pusher.com/apps/20/path})
           end
 
           it "should use https if configured" do
-            @client.encrypted = true
+            @client.encrypted = false
             call_api
-            expect(WebMock).to have_requested(verb, %r{https://api-mt1.pusher.com})
+            expect(WebMock).to have_requested(verb, %r{http://api-mt1.pusher.com})
           end
 
           it "should format the respose hash with symbols at first level" do
@@ -622,15 +631,15 @@ describe Pusher do
               }
             }
 
-            it "should use http by default" do
+            it "should use https by default" do
               call_api
-              expect(WebMock).to have_requested(verb, %r{http://api-mt1.pusher.com/apps/20/path})
+              expect(WebMock).to have_requested(verb, %r{https://api-mt1.pusher.com/apps/20/path})
             end
 
-            it "should use https if configured" do
-              @client.encrypted = true
+            it "should use http if configured" do
+              @client.encrypted = false
               call_api
-              expect(WebMock).to have_requested(verb, %r{https://api-mt1.pusher.com})
+              expect(WebMock).to have_requested(verb, %r{http://api-mt1.pusher.com})
             end
 
             # Note that the raw httpclient connection object is returned and
@@ -657,20 +666,20 @@ describe Pusher do
 
             let(:call_api) { @client.send(method, '/path') }
 
-            it "should use http by default" do
+            it "should use https by default" do
               EM.run {
                 call_api.callback {
-                  expect(WebMock).to have_requested(verb, %r{http://api-mt1.pusher.com/apps/20/path})
+                  expect(WebMock).to have_requested(verb, %r{https://api-mt1.pusher.com/apps/20/path})
                   EM.stop
                 }
               }
             end
 
-            it "should use https if configured" do
+            it "should use http if configured" do
               EM.run {
-                @client.encrypted = true
+                @client.encrypted = false
                 call_api.callback {
-                  expect(WebMock).to have_requested(verb, %r{https://api-mt1.pusher.com})
+                  expect(WebMock).to have_requested(verb, %r{http://api-mt1.pusher.com})
                   EM.stop
                 }
               }
