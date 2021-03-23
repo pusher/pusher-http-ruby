@@ -1,5 +1,13 @@
 # Changelog
 
+## 2.0.0
+
+* [CHANGED] Use TLS by default.
+* [REMOVED] Support for Ruby 2.4 and 2.5.
+* [FIXED] Handle empty or nil  configuration.
+* [REMOVED] Legacy Push Notification integration.
+* [ADDED] Stalebot and Github actions. 
+
 ## 1.4.3
 
   * [FIXED] Remove newline from end of base64 encoded strings, some decoders don't like
