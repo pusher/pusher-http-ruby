@@ -29,12 +29,16 @@ module Pusher
     end
 
     def initialize(options = {})
-      @scheme = "http"
-      @port = options[:port] || 80
+      @scheme = "https"
+      @port = options[:port] || 443
 
-      if options[:use_tls] || options[:encrypted]
-        @scheme = "https"
-        @port = options[:port] || 443
+      if options.key?(:encrypted)
+        warn "[DEPRECATION] `encrypted` is deprecated and will be removed in the next major version. Use `use_tls` instead."
+      end
+
+      if options[:use_tls] == false || options[:encrypted] == false
+        @scheme = "http"
+        @port = options[:port] || 80
       end
 
       @app_id = options[:app_id]
