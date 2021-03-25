@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.0.1
+
+* [CHANGED] Only include lib and essential docs in gem.
+
 ## 2.0.0
 
 * [CHANGED] Use TLS by default.
