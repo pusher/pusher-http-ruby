@@ -27,8 +27,10 @@ module Pusher
   class << self
     extend Forwardable
 
-    def_delegators :default_client, :scheme, :host, :port, :app_id, :key, :secret, :http_proxy
-    def_delegators :default_client, :scheme=, :host=, :port=, :app_id=, :key=, :secret=, :http_proxy=
+    def_delegators :default_client, :scheme, :host, :port, :app_id, :key,
+                   :secret, :http_proxy, :encryption_master_key_base64
+    def_delegators :default_client, :scheme=, :host=, :port=, :app_id=, :key=,
+                   :secret=, :http_proxy=, :encryption_master_key_base64=
 
     def_delegators :default_client, :authentication_token, :url, :cluster
     def_delegators :default_client, :encrypted=, :url=, :cluster=
