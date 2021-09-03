@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.0.2
+
+* [CHANGED] made encryption_master_key_base64 globally configurable 
+
 ## 2.0.1
 
 * [CHANGED] Only include lib and essential docs in gem.
