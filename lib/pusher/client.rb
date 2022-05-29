@@ -118,6 +118,8 @@ module Pusher
       @port = boolean ? 443 : 80
     end
 
+    alias :use_tls :encrypted=
+
     def encrypted?
       @scheme == 'https'
     end
