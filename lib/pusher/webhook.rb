@@ -31,10 +31,10 @@ module Pusher
     def initialize(request, client = Pusher)
       @client = client
       # For Rack::Request and ActionDispatch::Request
-      if request.respond_to?(:env) && request.respond_to?(:content_type)
+      if request.respond_to?(:env) && (request.methods & [:media_type, :content_type]).any?
         @key = request.env['HTTP_X_PUSHER_KEY']
         @signature = request.env["HTTP_X_PUSHER_SIGNATURE"]
-        @content_type = request.content_type
+        @content_type = request.media_type || request.content_type
 
         request.body.rewind
         @body = request.body.read
