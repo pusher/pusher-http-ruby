@@ -1,5 +1,6 @@
 require 'spec_helper'
 
+require 'delegate'
 require 'rack'
 require 'stringio'
 
@@ -21,6 +22,28 @@ describe Pusher::WebHook do
         'CONTENT_TYPE' => 'application/json',
         'rack.input' => StringIO.new(MultiJson.encode(@hook_data))
       })
+      wh = Pusher::WebHook.new(request)
+      expect(wh.key).to eq('1234')
+      expect(wh.signature).to eq('asdf')
+      expect(wh.data).to eq(@hook_data)
+    end
+
+    it "can be initialized with ActionDispatch::Request" do
+      ActionDispatchRequestMock = Class.new(SimpleDelegator) do
+        def mime_type
+          'application/json'
+        end
+      end
+
+      rack_request =Rack::Request.new({
+        'HTTP_X_PUSHER_KEY' => '1234',
+        'HTTP_X_PUSHER_SIGNATURE' => 'asdf',
+        'CONTENT_TYPE' => 'application/json',
+        'rack.input' => StringIO.new(MultiJson.encode(@hook_data))
+      })
+
+      request = ActionDispatchRequestMock.new(rack_request)
+
       wh = Pusher::WebHook.new(request)
       expect(wh.key).to eq('1234')
       expect(wh.signature).to eq('asdf')
