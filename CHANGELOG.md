@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.0.3
+
+* [FIXED] Corrected the channels limit when publishing events. Upped from 10 to 100. 
+
 ## 2.0.2
 
 * [CHANGED] made encryption_master_key_base64 globally configurable 

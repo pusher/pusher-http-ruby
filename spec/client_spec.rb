@@ -326,7 +326,7 @@ describe Pusher do
 
         it "should not allow too many channels" do
           expect {
-            @client.trigger((0..11).map{|i| 'mychannel#{i}'},
+            @client.trigger((0..101).map{|i| 'mychannel#{i}'},
               'event', {'some' => 'data'}, {
                 :socket_id => "12.34"
               })}.to raise_error(Pusher::Error)
