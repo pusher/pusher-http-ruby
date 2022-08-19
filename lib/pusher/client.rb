@@ -401,7 +401,7 @@ module Pusher
 
     def trigger_params(channels, event_name, data, params)
       channels = Array(channels).map(&:to_s)
-      raise Pusher::Error, "Too many channels (#{channels.length}), max 10" if channels.length > 10
+      raise Pusher::Error, "Too many channels (#{channels.length}), max 100" if channels.length > 100
 
       encoded_data = if channels.any?{ |c| c.match(/^private-encrypted-/) } then
         raise Pusher::Error, "Cannot trigger to multiple channels if any are encrypted" if channels.length > 1
