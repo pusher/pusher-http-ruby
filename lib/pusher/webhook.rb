@@ -92,6 +92,16 @@ module Pusher
       end
     end
 
+    # Time constant string comparison
+    #
+    def secure_compare(a, b)
+      return false unless a.bytesize == b.bytesize
+      l = a.unpack "C#{a.bytesize}"
+      res = 0
+      b.each_byte { |byte| res |= byte ^ l.shift }
+      res == 0
+    end
+
     private
 
     # Checks signature against secret and returns boolean
@@ -99,7 +109,7 @@ module Pusher
     def check_signature(secret)
       digest = OpenSSL::Digest::SHA256.new
       expected = OpenSSL::HMAC.hexdigest(digest, secret, @body)
-      if @signature == expected
+      if secure_compare(@signature, expected)
         return true
       else
         Pusher.logger.warn "Received WebHook with invalid signature: got #{@signature}, expected #{expected}"
