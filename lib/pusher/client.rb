@@ -122,6 +122,14 @@ module Pusher
       @scheme == 'https'
     end
 
+    def use_tls=(boolean)
+      self.encrypted = boolean
+    end
+
+    def use_tls?
+      self.encrypted?
+    end
+
     def cluster=(cluster)
       cluster = DEFAULT_CLUSTER if cluster.nil? || cluster.empty?
 

@@ -34,6 +34,7 @@ module Pusher
 
     def_delegators :default_client, :authentication_token, :url, :cluster
     def_delegators :default_client, :encrypted=, :url=, :cluster=
+    def_delegators :default_client, :use_tls=, :url=, :cluster=
     def_delegators :default_client, :timeout=, :connect_timeout=, :send_timeout=, :receive_timeout=, :keep_alive_timeout=
 
     def_delegators :default_client, :get, :get_async, :post, :post_async
