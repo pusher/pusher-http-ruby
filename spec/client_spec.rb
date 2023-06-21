@@ -70,7 +70,6 @@ describe Pusher do
           @client.url
         }.to raise_error(Pusher::ConfigurationError)
       end
-
     end
 
     describe 'configuring the cluster' do
@@ -156,6 +155,17 @@ describe Pusher do
         expect(client.port).to eq(8000)
       end
 
+      describe '#use_tls=' do
+        it "should set the use_tls configuration option as alias of encrypted" do
+          @client.use_tls = true
+          expect(@client.use_tls?).to eq(true)
+          expect(@client.encrypted?).to eq(true)
+
+          @client.use_tls = false
+          expect(@client.use_tls?).to eq(false)
+          expect(@client.encrypted?).to eq(false)
+        end
+      end
     end
 
     describe 'configuring a http proxy' do
