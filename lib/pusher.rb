@@ -2,6 +2,7 @@ autoload 'Logger', 'logger'
 require 'uri'
 require 'forwardable'
 
+require 'pusher/utils'
 require 'pusher/client'
 
 # Used for configuring API credentials and creating Channel objects

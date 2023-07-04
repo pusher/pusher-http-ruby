@@ -424,6 +424,8 @@ module Pusher
 
     private
 
+    include Pusher::Utils
+
     def trigger_params(channels, event_name, data, params)
       channels = Array(channels).map(&:to_s)
       raise Pusher::Error, "Too many channels (#{channels.length}), max 100" if channels.length > 100
@@ -524,12 +526,6 @@ module Pusher
       signature = OpenSSL::HMAC.hexdigest(digest, authentication_token.secret, string_to_sign)
 
       "#{authentication_token.key}:#{signature}"
-    end
-
-    def validate_socket_id(socket_id)
-      unless socket_id && /\A\d+\.\d+\z/.match(socket_id)
-        raise Pusher::Error, "Invalid socket ID #{socket_id.inspect}"
-      end
     end
 
     def validate_user_data(user_data)
