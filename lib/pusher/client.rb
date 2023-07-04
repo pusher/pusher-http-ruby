@@ -510,22 +510,9 @@ module Pusher
     # @raise [Pusher::Error] if socket_id or custom_string invalid
     #
     def authentication_string(socket_id, custom_string = nil)
-      validate_socket_id(socket_id)
+      string_to_sign = [socket_id, 'user', custom_string].compact.map(&:to_s).join('::')
 
-      raise Pusher::Error, 'Custom argument must be a string' unless custom_string.nil? || custom_string.is_a?(String)
-
-      string_to_sign = [
-        socket_id,
-        'user',
-        custom_string
-      ].compact.map(&:to_s).join('::')
-
-      Pusher.logger.debug "Signing #{string_to_sign}"
-
-      digest = OpenSSL::Digest.new('SHA256')
-      signature = OpenSSL::HMAC.hexdigest(digest, authentication_token.secret, string_to_sign)
-
-      "#{authentication_token.key}:#{signature}"
+      _authentication_string(socket_id, string_to_sign, authentication_token, string_to_sign)
     end
 
     def validate_user_data(user_data)
