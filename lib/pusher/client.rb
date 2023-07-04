@@ -355,6 +355,31 @@ module Pusher
       r
     end
 
+    # Generate the expected response for a user authentication endpoint.
+    # See https://pusher.com/docs/authenticating_users for details.
+    #
+    # @example
+    #   user_data = { id: current_user.id.to_s, company_id: current_user.company_id }
+    #   render :json => Pusher.authenticate_user(params[:socket_id], user_data)
+    #
+    # @param socket_id [String]
+    # @param user_data [Hash] user's properties (id is required and must be a string)
+    #
+    # @return [Hash]
+    #
+    # @raise [Pusher::Error] if socket_id or user_data is invalid
+    #
+    # @private Custom data is sent to server as JSON-encoded string
+    #
+    def authenticate_user(socket_id, user_data)
+      validate_user_data(user_data)
+
+      custom_data = MultiJson.encode(user_data)
+      auth = authentication_string(socket_id, custom_data)
+
+      { auth:, user_data: custom_data }
+    end
+
     # @private Construct a net/http http client
     def sync_http_client
       require 'httpclient'
@@ -468,6 +493,53 @@ module Pusher
     rescue LoadError => e
       $stderr.puts "You don't have rbnacl installed in your application. Please add it to your Gemfile and run bundle install"
       raise e
+    end
+
+    # Compute authentication string required as part of the user authentication
+    # endpoint response. Generally the authenticate method should be used in
+    # preference to this one.
+    #
+    # @param socket_id [String] Each Pusher socket connection receives a
+    #   unique socket_id. This is sent from pusher.js to your server when
+    #   channel authentication is required.
+    # @param custom_string [String] Allows signing additional data
+    # @return [String]
+    #
+    # @raise [Pusher::Error] if socket_id or custom_string invalid
+    #
+    def authentication_string(socket_id, custom_string = nil)
+      validate_socket_id(socket_id)
+
+      raise Pusher::Error, 'Custom argument must be a string' unless custom_string.nil? || custom_string.is_a?(String)
+
+      string_to_sign = [
+        socket_id,
+        'user',
+        custom_string
+      ].compact.map(&:to_s).join('::')
+
+      Pusher.logger.debug "Signing #{string_to_sign}"
+
+      digest = OpenSSL::Digest.new('SHA256')
+      signature = OpenSSL::HMAC.hexdigest(digest, authentication_token.secret, string_to_sign)
+
+      "#{authentication_token.key}:#{signature}"
+    end
+
+    def validate_socket_id(socket_id)
+      unless socket_id && /\A\d+\.\d+\z/.match(socket_id)
+        raise Pusher::Error, "Invalid socket ID #{socket_id.inspect}"
+      end
+    end
+
+    def validate_user_data(user_data)
+      return if user_data_valid?(user_data)
+
+      raise Pusher::Error, "Invalid user data #{user_data.inspect}"
+    end
+
+    def user_data_valid?(data)
+      data.is_a?(Hash) && data.key?(:id) && !data[:id].empty? && data[:id].is_a?(String)
     end
   end
 end
