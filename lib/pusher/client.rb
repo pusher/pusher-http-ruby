@@ -321,7 +321,7 @@ module Pusher
 
 
     # Generate the expected response for an authentication endpoint.
-    # See http://pusher.com/docs/authenticating_users for details.
+    # See https://pusher.com/docs/channels/server_api/authorizing-users for details.
     #
     # @example Private channels
     #   render :json => Pusher.authenticate('private-my_channel', params[:socket_id])
