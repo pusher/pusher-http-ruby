@@ -128,7 +128,7 @@ module Pusher
     def authentication_string(socket_id, custom_string = nil)
       string_to_sign = [socket_id, name, custom_string].compact.map(&:to_s).join(':')
 
-      _authentication_string(socket_id, string_to_sign, @client.authentication_token, string_to_sign)
+      _authentication_string(socket_id, string_to_sign, @client.authentication_token, custom_string)
     end
 
     # Generate the expected response for an authentication endpoint.
