@@ -310,6 +310,24 @@ describe Pusher do
 
       end
 
+      describe '#authenticate_user' do
+        before :each do
+          @user_data = {:id => '123', :foo => { :name => 'Bar' }}
+        end
+
+        it 'should return a hash with signature including custom data and data as json string' do
+          allow(MultiJson).to receive(:encode).with(@user_data).and_return 'a json string'
+
+          response = @client.authenticate_user('1.1', @user_data)
+
+          expect(response).to eq({
+            :auth => "12345678900000001:#{hmac(@client.secret, "1.1::user::a json string")}",
+            :user_data => 'a json string'
+          })
+        end
+
+      end
+
       describe '#trigger' do
         before :each do
           @api_path = %r{/apps/20/events}

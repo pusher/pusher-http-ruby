@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.0.4
+
+* [ADDED] Add `authenticate_user` method for user authentication flow
+
 ## 2.0.3
 
 * [FIXED] Corrected the channels limit when publishing events. Upped from 10 to 100. 
