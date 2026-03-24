@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.0.5
+
+* [FIXED] Fix webhook content_type parsing for Rails 7.1+ using media_type
+
 ## 2.0.4
 
 * [ADDED] Add `authenticate_user` method for user authentication flow
