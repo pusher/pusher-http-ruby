@@ -34,7 +34,10 @@ module Pusher
       if request.respond_to?(:env) && request.respond_to?(:content_type)
         @key = request.env['HTTP_X_PUSHER_KEY']
         @signature = request.env["HTTP_X_PUSHER_SIGNATURE"]
-        @content_type = request.content_type
+        # Rails 7.1+ changed content_type to return the full header value
+        # (e.g. "application/json; charset=utf-8"). Use media_type when
+        # available (ActionDispatch::Request) to get just the MIME type.
+        @content_type = request.respond_to?(:media_type) ? request.media_type : request.content_type
 
         request.body.rewind
         @body = request.body.read
