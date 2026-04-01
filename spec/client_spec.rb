@@ -262,6 +262,50 @@ describe Pusher do
             :occupied => false,
           })
         end
+
+        it "should not reset the http client connection after a 400 error" do
+          api_path = %r{/apps/20/channels/mychannel}
+          stub_request(:get, api_path).to_return({ :status => 400, :body => "Bad request" })
+
+          http_client = @client.sync_http_client
+          expect(http_client).not_to receive(:reset_all)
+
+          expect { @client.channel_info('mychannel') }.to raise_error(Pusher::Error)
+        end
+
+        it "should reset the http client connection after an unknown error status" do
+          api_path = %r{/apps/20/channels/mychannel}
+          stub_request(:get, api_path).to_return({ :status => 500, :body => "Server error" })
+
+          http_client = @client.sync_http_client
+          expect(http_client).to receive(:reset_all).once
+
+          expect { @client.channel_info('mychannel') }.to raise_error(Pusher::Error)
+        end
+
+        it "should succeed on a subsequent request after an unknown error status" do
+          api_path = %r{/apps/20/channels/mychannel}
+          stub_request(:get, api_path)
+            .to_return({ :status => 500, :body => "Server error" })
+            .then
+            .to_return({ :status => 200, :body => MultiJson.encode({ 'occupied' => false }) })
+
+          expect { @client.channel_info('mychannel') }.to raise_error(Pusher::Error)
+          expect(@client.channel_info('mychannel')).to eq({ :occupied => false })
+        end
+
+        it "should not reset the http client connection after a successful request" do
+          api_path = %r{/apps/20/channels/mychannel}
+          stub_request(:get, api_path).to_return({
+            :status => 200,
+            :body => MultiJson.encode({ 'occupied' => false })
+          })
+
+          http_client = @client.sync_http_client
+          expect(http_client).not_to receive(:reset_all)
+
+          @client.channel_info('mychannel')
+        end
       end
 
       describe '#channel_users' do
