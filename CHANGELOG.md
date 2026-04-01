@@ -1,9 +1,5 @@
 # Changelog
 
-## 2.0.6
-
-* [FIXED] Reset HTTP client connection after unknown error responses to prevent subsequent requests from failing.
-
 ## 2.0.5
 
 * [FIXED] Fix webhook content_type parsing for Rails 7.1+ using media_type
