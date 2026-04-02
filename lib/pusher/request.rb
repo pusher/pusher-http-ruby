@@ -36,8 +36,11 @@ module Pusher
       end
 
       body = response.body ? response.body.chomp : nil
+      code = response.code.to_i
 
-      return handle_response(response.code.to_i, body)
+      http.reset_all unless [200, 202, 400, 401, 403, 404, 407, 413].include?(code)
+
+      return handle_response(code, body)
     end
 
     def send_async
