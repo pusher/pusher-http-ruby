@@ -125,11 +125,11 @@ describe Pusher do
       end
 
       it 'should set port and scheme if "encrypted" disabled' do
-        client = Pusher::Client.new({
-          :encrypted => false,
-        })
-        expect(client.scheme).to eq('http')
-        expect(client.port).to eq(80)
+        expect do
+          client = Pusher::Client.new({ :encrypted => false })
+          expect(client.scheme).to eq('http')
+          expect(client.port).to eq(80)
+        end.to output(/\[DEPRECATION\] `encrypted` is deprecated/).to_stderr
       end
 
       it 'should use TLS port and scheme if "encrypted" or "use_tls" are not set' do
