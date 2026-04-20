@@ -133,7 +133,7 @@ describe Pusher::Channel do
     end
 
     it 'should return a hash with signature including custom data and data as json string' do
-      allow(MultiJson).to receive(:encode).with(@custom_data).and_return 'a json string'
+      allow(MultiJson).to receive(:dump).with(@custom_data).and_return 'a json string'
 
       response = @channel.authenticate('1.1', @custom_data)
 
