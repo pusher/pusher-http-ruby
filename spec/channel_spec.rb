@@ -95,7 +95,7 @@ describe Pusher::Channel do
 
   describe "#authentication_string" do
     def authentication_string(*data)
-      lambda { @channel.authentication_string(*data) }
+      @channel.authentication_string(*data)
     end
 
     it "should return an authentication string given a socket id" do
@@ -106,17 +106,17 @@ describe Pusher::Channel do
 
     it "should raise error if authentication is invalid" do
       [nil, ''].each do |invalid|
-        expect(authentication_string(invalid)).to raise_error Pusher::Error
+        expect { authentication_string(invalid) }.to raise_error Pusher::Error
       end
     end
 
     describe 'with extra string argument' do
       it 'should be a string or nil' do
-        expect(authentication_string('1.1', 123)).to raise_error Pusher::Error
-        expect(authentication_string('1.1', {})).to raise_error Pusher::Error
+        expect { authentication_string('1.1', 123) }.to raise_error Pusher::Error
+        expect { authentication_string('1.1', {}) }.to raise_error Pusher::Error
 
-        expect(authentication_string('1.1', 'boom')).not_to raise_error
-        expect(authentication_string('1.1', nil)).not_to raise_error
+        expect { authentication_string('1.1', 'boom') }.not_to raise_error
+        expect { authentication_string('1.1', nil) }.not_to raise_error
       end
 
       it "should return an authentication string given a socket id and custom args" do
