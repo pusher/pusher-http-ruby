@@ -125,11 +125,11 @@ describe Pusher do
       end
 
       it 'should set port and scheme if "encrypted" disabled' do
-        client = Pusher::Client.new({
-          :encrypted => false,
-        })
-        expect(client.scheme).to eq('http')
-        expect(client.port).to eq(80)
+        expect do
+          client = Pusher::Client.new({ :encrypted => false })
+          expect(client.scheme).to eq('http')
+          expect(client.port).to eq(80)
+        end.to output(/\[DEPRECATION\] `encrypted` is deprecated/).to_stderr
       end
 
       it 'should use TLS port and scheme if "encrypted" or "use_tls" are not set' do
@@ -235,7 +235,7 @@ describe Pusher do
           api_path = %r{/apps/20/channels}
           stub_request(:get, api_path).to_return({
             :status => 200,
-            :body => MultiJson.encode('channels' => {
+            :body => MultiJson.dump('channels' => {
               "channel1" => {},
               "channel2" => {}
             })
@@ -254,7 +254,7 @@ describe Pusher do
           api_path = %r{/apps/20/channels/mychannel}
           stub_request(:get, api_path).to_return({
             :status => 200,
-            :body => MultiJson.encode({
+            :body => MultiJson.dump({
               'occupied' => false,
             })
           })
@@ -288,7 +288,7 @@ describe Pusher do
           stub_request(:get, api_path)
             .to_return({ :status => 500, :body => "Server error" })
             .then
-            .to_return({ :status => 200, :body => MultiJson.encode({ 'occupied' => false }) })
+            .to_return({ :status => 200, :body => MultiJson.dump({ 'occupied' => false }) })
 
           expect { @client.channel_info('mychannel') }.to raise_error(Pusher::Error)
           expect(@client.channel_info('mychannel')).to eq({ :occupied => false })
@@ -298,7 +298,7 @@ describe Pusher do
           api_path = %r{/apps/20/channels/mychannel}
           stub_request(:get, api_path).to_return({
             :status => 200,
-            :body => MultiJson.encode({ 'occupied' => false })
+            :body => MultiJson.dump({ 'occupied' => false })
           })
 
           http_client = @client.sync_http_client
@@ -313,7 +313,7 @@ describe Pusher do
           api_path = %r{/apps/20/channels/mychannel/users}
           stub_request(:get, api_path).to_return({
             :status => 200,
-            :body => MultiJson.encode({
+            :body => MultiJson.dump({
               'users' => [{ 'id' => 1 }]
             })
           })
@@ -329,7 +329,7 @@ describe Pusher do
         end
 
         it 'should return a hash with signature including custom data and data as json string' do
-          allow(MultiJson).to receive(:encode).with(@custom_data).and_return 'a json string'
+          allow(MultiJson).to receive(:dump).with(@custom_data).and_return 'a json string'
 
           response = @client.authenticate('test_channel', '1.1', @custom_data)
 
@@ -340,7 +340,7 @@ describe Pusher do
         end
 
         it 'should include a shared_secret if the private-encrypted channel' do
-          allow(MultiJson).to receive(:encode).with(@custom_data).and_return 'a json string'
+          allow(MultiJson).to receive(:dump).with(@custom_data).and_return 'a json string'
           @client.instance_variable_set(:@encryption_master_key, '3W1pfB/Etr+ZIlfMWwZP3gz8jEeCt4s2pe6Vpr+2c3M=')
 
           response = @client.authenticate('private-encrypted-test_channel', '1.1', @custom_data)
@@ -360,7 +360,7 @@ describe Pusher do
         end
 
         it 'should return a hash with signature including custom data and data as json string' do
-          allow(MultiJson).to receive(:encode).with(@user_data).and_return 'a json string'
+          allow(MultiJson).to receive(:dump).with(@user_data).and_return 'a json string'
 
           response = @client.authenticate_user('1.1', @user_data)
 
@@ -377,7 +377,7 @@ describe Pusher do
           @api_path = %r{/apps/20/events}
           stub_request(:post, @api_path).to_return({
             :status => 200,
-            :body => MultiJson.encode({})
+            :body => MultiJson.dump({})
           })
         end
 
@@ -399,7 +399,7 @@ describe Pusher do
             :socket_id => "12.34"
           })
           expect(WebMock).to have_requested(:post, @api_path).with { |req|
-            parsed = MultiJson.decode(req.body)
+            parsed = MultiJson.load(req.body)
             expect(parsed["name"]).to eq('event')
             expect(parsed["channels"]).to eq(["mychannel", "c2"])
             expect(parsed["socket_id"]).to eq('12.34')
@@ -409,14 +409,14 @@ describe Pusher do
         it "should convert non string data to JSON before posting" do
           @client.trigger(['mychannel'], 'event', {'some' => 'data'})
           expect(WebMock).to have_requested(:post, @api_path).with { |req|
-            expect(MultiJson.decode(req.body)["data"]).to eq('{"some":"data"}')
+            expect(MultiJson.load(req.body)["data"]).to eq('{"some":"data"}')
           }
         end
 
         it "should accept a single channel as well as an array" do
           @client.trigger('mychannel', 'event', {'some' => 'data'})
           expect(WebMock).to have_requested(:post, @api_path).with { |req|
-            expect(MultiJson.decode(req.body)["channels"]).to eq(['mychannel'])
+            expect(MultiJson.load(req.body)["channels"]).to eq(['mychannel'])
           }
         end
 
@@ -427,7 +427,7 @@ describe Pusher do
               @client.trigger('mychannel', 'event', {'some' => 'data'})
             }.to raise_error(Pusher::ConfigurationError)
             expect(WebMock).not_to have_requested(:post, @api_path).with { |req|
-              expect(MultiJson.decode(req.body)["channels"]).to eq(['mychannel'])
+              expect(MultiJson.load(req.body)["channels"]).to eq(['mychannel'])
             }
           end
         end
@@ -459,13 +459,13 @@ describe Pusher do
           )
 
           expect(WebMock).to have_requested(:post, @api_path).with { |req|
-            data = MultiJson.decode(MultiJson.decode(req.body)["data"])
+            data = MultiJson.load(MultiJson.load(req.body)["data"])
 
             key = RbNaCl::Hash.sha256(
               'private-encrypted-channel' + encryption_master_key
             )
 
-            expect(MultiJson.decode(RbNaCl::SecretBox.new(key).decrypt(
+            expect(MultiJson.load(RbNaCl::SecretBox.new(key).decrypt(
               Base64.strict_decode64(data["nonce"]),
               Base64.strict_decode64(data["ciphertext"]),
             ))).to eq({ 'some' => 'data' })
@@ -478,7 +478,7 @@ describe Pusher do
           @api_path = %r{/apps/20/batch_events}
           stub_request(:post, @api_path).to_return({
             :status => 200,
-            :body => MultiJson.encode({})
+            :body => MultiJson.dump({})
           })
         end
 
@@ -493,7 +493,7 @@ describe Pusher do
             {channel: 'mychannel', name: 'event', data: 'already encoded'},
           )
           expect(WebMock).to have_requested(:post, @api_path).with { |req|
-            parsed = MultiJson.decode(req.body)
+            parsed = MultiJson.load(req.body)
             expect(parsed).to eq(
               "batch" => [
                 { "channel" => "mychannel", "name" => "event", "data" => "{\"some\":\"data\"}"},
@@ -529,19 +529,19 @@ describe Pusher do
           )
 
           expect(WebMock).to have_requested(:post, @api_path).with { |req|
-            batch = MultiJson.decode(req.body)["batch"]
+            batch = MultiJson.load(req.body)["batch"]
             expect(batch.length).to eq(2)
 
             expect(batch[0]["channel"]).to eq("private-encrypted-channel")
             expect(batch[0]["name"]).to eq("event")
 
-            data = MultiJson.decode(batch[0]["data"])
+            data = MultiJson.load(batch[0]["data"])
 
             key = RbNaCl::Hash.sha256(
               'private-encrypted-channel' + encryption_master_key
             )
 
-            expect(MultiJson.decode(RbNaCl::SecretBox.new(key).decrypt(
+            expect(MultiJson.load(RbNaCl::SecretBox.new(key).decrypt(
               Base64.strict_decode64(data["nonce"]),
               Base64.strict_decode64(data["ciphertext"]),
             ))).to eq({ 'some' => 'data' })
@@ -558,7 +558,7 @@ describe Pusher do
           @api_path = %r{/apps/20/events}
           stub_request(:post, @api_path).to_return({
             :status => 200,
-            :body => MultiJson.encode({})
+            :body => MultiJson.dump({})
           })
         end
 
@@ -577,7 +577,7 @@ describe Pusher do
               :socket_id => "12.34"
             }).callback {
               expect(WebMock).to have_requested(:post, @api_path).with { |req|
-                expect(MultiJson.decode(req.body)["socket_id"]).to eq('12.34')
+                expect(MultiJson.load(req.body)["socket_id"]).to eq('12.34')
               }
               EM.stop
             }
@@ -588,7 +588,7 @@ describe Pusher do
           EM.run {
             @client.trigger_async('mychannel', 'event', {'some' => 'data'}).callback {
               expect(WebMock).to have_requested(:post, @api_path).with { |req|
-                expect(MultiJson.decode(req.body)["data"]).to eq('{"some":"data"}')
+                expect(MultiJson.load(req.body)["data"]).to eq('{"some":"data"}')
               }
               EM.stop
             }
@@ -620,7 +620,7 @@ describe Pusher do
           it "should format the respose hash with symbols at first level" do
             stub_request(verb, @url_regexp).to_return({
               :status => 200,
-              :body => MultiJson.encode({'something' => {'a' => 'hash'}})
+              :body => MultiJson.dump({'something' => {'a' => 'hash'}})
             })
             expect(call_api).to eq({
               :something => {'a' => 'hash'}
@@ -751,7 +751,7 @@ describe Pusher do
               EM.run {
                 stub_request(verb, @url_regexp).to_return({
                   :status => 200,
-                  :body => MultiJson.encode({'something' => {'a' => 'hash'}})
+                  :body => MultiJson.dump({'something' => {'a' => 'hash'}})
                 })
                 call_api.callback { |response|
                   expect(response).to eq({

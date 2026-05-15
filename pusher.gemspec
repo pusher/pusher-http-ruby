@@ -28,6 +28,7 @@ Gem::Specification.new do |s|
   s.add_development_dependency "rack", "~> 2.2"
   s.add_development_dependency "json", "~> 2.3"
   s.add_development_dependency "rbnacl", "~> 7.1"
+  s.add_development_dependency "logger", "~> 1.0"
 
   s.files         = Dir["lib/**/*"] + %w[CHANGELOG.md LICENSE README.md]
   s.require_paths = ["lib"]

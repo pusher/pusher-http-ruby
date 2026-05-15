@@ -374,7 +374,7 @@ module Pusher
     def authenticate_user(socket_id, user_data)
       validate_user_data(user_data)
 
-      custom_data = MultiJson.encode(user_data)
+      custom_data = MultiJson.dump(user_data)
       auth = authentication_string(socket_id, custom_data)
 
       { auth:, user_data: custom_data }
@@ -461,7 +461,7 @@ module Pusher
     # JSON-encode the data if it's not a string
     def encode_data(data)
       return data if data.is_a? String
-      MultiJson.encode(data)
+      MultiJson.dump(data)
     end
 
     # Encrypts a message with a key derived from the master key and channel
@@ -480,7 +480,7 @@ module Pusher
       nonce = RbNaCl::Random.random_bytes(secret_box.nonce_bytes)
       ciphertext = secret_box.encrypt(nonce, encoded_data)
 
-      MultiJson.encode({
+      MultiJson.dump({
         "nonce" => Base64::strict_encode64(nonce),
         "ciphertext" => Base64::strict_encode64(ciphertext),
       })
