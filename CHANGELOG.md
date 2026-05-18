@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.1.1
+
+* [FIXED] Fix MultiJson deprecation warnings (encode/decode → dump/load)
+* [FIXED] Fix RSpec deprecation warnings across spec files
+* [FIXED] Add logger gem to development dependencies for Ruby 4.0 compatibility
+
 ## 2.1.0
 
 * [FIXED] Reset HTTP client connection after unknown error responses to prevent subsequent requests from failing.
