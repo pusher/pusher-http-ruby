@@ -8,7 +8,7 @@ module Pusher
     INVALID_CHANNEL_REGEX = /[^A-Za-z0-9_\-=@,.;]/
 
     def initialize(_, name, client = Pusher)
-      if Pusher::Channel::INVALID_CHANNEL_REGEX.match(name)
+      if Pusher::Channel::INVALID_CHANNEL_REGEX.match?(name)
         raise Pusher::Error, "Illegal channel name '#{name}'"
       elsif name.length > 200
         raise Pusher::Error, "Channel name too long (limit 164 characters) '#{name}'"
