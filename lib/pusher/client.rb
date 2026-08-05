@@ -347,7 +347,7 @@ module Pusher
     def authenticate(channel_name, socket_id, custom_data = nil)
       channel_instance = channel(channel_name)
       r = channel_instance.authenticate(socket_id, custom_data)
-      if channel_name.match(/^private-encrypted-/)
+      if channel_name.match?(/^private-encrypted-/)
         r[:shared_secret] = Base64.strict_encode64(
           channel_instance.shared_secret(encryption_master_key)
         )
@@ -430,7 +430,7 @@ module Pusher
       channels = Array(channels).map(&:to_s)
       raise Pusher::Error, "Too many channels (#{channels.length}), max 100" if channels.length > 100
 
-      encoded_data = if channels.any?{ |c| c.match(/^private-encrypted-/) } then
+      encoded_data = if channels.any?{ |c| c.match?(/^private-encrypted-/) }
         raise Pusher::Error, "Cannot trigger to multiple channels if any are encrypted" if channels.length > 1
         encrypt(channels[0], encode_data(data))
       else
@@ -448,7 +448,7 @@ module Pusher
       {
         batch: events.map do |event|
           event.dup.tap do |e|
-            e[:data] = if e[:channel].match(/^private-encrypted-/) then
+            e[:data] = if e[:channel].match?(/^private-encrypted-/)
               encrypt(e[:channel], encode_data(e[:data]))
             else
               encode_data(e[:data])
