@@ -88,7 +88,7 @@ module Pusher
       @data ||= begin
         case @content_type
         when 'application/json'
-          MultiJson.load(@body)
+          MultiJSON.parse(@body)
         else
           raise "Unknown Content-Type (#{@content_type})"
         end

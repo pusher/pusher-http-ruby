@@ -86,9 +86,9 @@ module Pusher
     def handle_response(status_code, body)
       case status_code
       when 200
-        return symbolize_first_level(MultiJson.load(body))
+        return symbolize_first_level(MultiJSON.parse(body))
       when 202
-        return body.empty? ? true : symbolize_first_level(MultiJson.load(body))
+        return body.empty? ? true : symbolize_first_level(MultiJSON.parse(body))
       when 400
         raise Error, "Bad request: #{body}"
       when 401

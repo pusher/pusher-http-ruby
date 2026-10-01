@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+* [FIXED] Use `MultiJSON.generate` and `MultiJSON.parse` to avoid multi_json 1.21+ deprecation warnings.
+* [CHANGED] Require multi_json 1.21 or later within the 1.x series.
+
 ## 2.1.1
 
 * [FIXED] Fix MultiJson deprecation warnings (encode/decode → dump/load)
